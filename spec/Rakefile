@@ -1,0 +1,130 @@
+#!/usr/bin/env rake
+
+require 'rake'
+require 'uri'
+require 'pathname'
+
+SPECDIR = Pathname.new( __FILE__ ).dirname.relative_path_from( Pathname.getwd )
+BASEDIR = SPECDIR.parent
+
+TESTCASE_URL = URI.parse( 'http://www.w3.org/2000/10/rdf-tests/rdfcore/latest_All.zip' )
+TESTCASE_ARCHIVE = SPECDIR + File.basename( TESTCASE_URL.path )
+
+SPEC_GENERATOR = SPECDIR + 'spec_generator.rb'
+SPEC_DATADIR = SPECDIR + 'data'
+W3C_TEST_MANIFEST = SPEC_DATADIR + 'Manifest.rdf'
+
+PARSER_SPECFILE = SPECDIR + "w3c_parser_spec.rb"
+ENTAILMENT_SPECFILE = SPECDIR + "w3c_entailment_spec.rb"
+MISCELLANEOUS_SPECFILE = SPECDIR + "w3c_miscellaneous_spec.rb"
+
+SPEC_TEMPLATE = SPECDIR + 'spec_template.rb'
+
+
+# Load task plugins
+RAKE_TASKDIR = BASEDIR + 'rake'
+begin
+	require RAKE_TASKDIR + 'helpers.rb'
+rescue => err
+	fail "Tasklib #{tasklib}: #{err.message}"
+end
+
+if Rake.application.options.trace
+	$trace = true
+	log "$trace is enabled"
+else
+	$trace = false
+end
+
+if Rake.application.options.dryrun
+	$dryrun = true
+	log "$dryrun is enabled"
+else
+	$dryrun = false
+end
+
+
+#####################################################################
+###	T A S K S
+#####################################################################
+
+task :default => [ 'w3ctests:run' ]
+
+
+begin
+	namespace :w3ctests do
+		require SPEC_GENERATOR
+		require 'zip/zip'
+	
+		file W3C_TEST_MANIFEST.to_s => SPEC_DATADIR
+
+		# Directory of W3C testcases -- unzip from the downloaded archive
+		directory SPEC_DATADIR.to_s
+		file SPEC_DATADIR.to_s => TESTCASE_ARCHIVE.to_s do
+			log "Extracting #{TESTCASE_ARCHIVE}"
+			Zip::ZipFile.open( TESTCASE_ARCHIVE ) do |zipfile|
+				zipfile.each do |file|
+					target = SPEC_DATADIR + file.to_s
+					trace "  #{file} -> #{target}"
+					target.dirname.mkpath
+					file.extract( target.to_s )
+				end
+			end
+		end
+
+
+		# Download the latest testcase zipfile
+		file TESTCASE_ARCHIVE.to_s do
+			download TESTCASE_URL, TESTCASE_ARCHIVE
+		end
+
+
+		task :generate => [ PARSER_SPECFILE, ENTAILMENT_SPECFILE, MISCELLANEOUS_SPECFILE ]
+
+		
+		task :run => :generate do
+			log "would eventually run the generated tests here"
+		end
+
+
+		file PARSER_SPECFILE => [ SPEC_TEMPLATE, W3C_TEST_MANIFEST ] do
+			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
+
+			gen.write_specfile( SPEC_TEMPLATE, PARSER_SPECFILE ) do |examples|
+				examples << gen.find_positive_parser_tests
+				examples << gen.find_negative_parser_tests
+			end
+		end
+
+		file ENTAILMENT_SPECFILE => [ SPEC_TEMPLATE, W3C_TEST_MANIFEST ] do
+			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
+
+			gen.write_specfile( SPEC_TEMPLATE, ENTAILMENT_SPECFILE ) do |examples|
+				examples << gen.find_positive_entailment_tests
+				examples << gen.find_negative_entailment_tests
+				examples << gen.find_datatypeaware_entailment_tests
+			end
+		end
+
+		file MISCELLANEOUS_SPECFILE => [ SPEC_TEMPLATE, W3C_TEST_MANIFEST ]do
+			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
+
+			gen.write_specfile( SPEC_TEMPLATE, MISCELLANEOUS_SPECFILE ) do |examples|
+				examples << gen.find_miscellaneous_tests
+			end
+		end
+
+
+	end
+	
+rescue LoadError => err
+	namespace :w3ctests do
+		task :no_w3ctests do
+			fail "W3C specs not defined: %s: %s" % [ err.class.name, err.message ]
+		end
+		
+		task :run => :no_w3ctests
+		task :generate => :no_w3ctests
+	end
+end
+
