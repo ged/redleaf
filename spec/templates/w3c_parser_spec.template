@@ -11,7 +11,7 @@ BEGIN {
 
 begin
 	require 'spec/runner'
-	require 'rdf/redland'
+	require 'redleaf/parser'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -25,7 +25,7 @@ end
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-describe Redland::Parser do
+describe Redleaf::Parser do
 
 	BASE_URI = 'http://www.w3.org/2000/10/rdf-tests/rdfcore/testSchema#'
 
@@ -38,9 +38,13 @@ describe Redland::Parser do
 	end
 
 
-	it "correctly parses test001 of the amp-in-url section" do
- 		input = @datadir + 'amp-in-url/test001.rdf'
-		expected = @datadir + 'amp-in-url/test001.nt'
+<% examples.flatten.each do |example| %>
+<% example.description.each_line do |descline| %>
+	# <%= descline.strip.chomp %>
+<% end %>
+	it "passes the W3C test '<%= example.id %>'" do
+ 		input = @datadir + '<%= example.input_doc %>'
+		expected = @datadir + '<%= example.output_doc %>'
 
 		input_stream = @rdfxml_parser.parse_string_as_stream( input.read, BASE_URI )
 		expected_stream = @ntriples_parser.parse_string_as_stream( expected.read, BASE_URI )
@@ -57,7 +61,9 @@ describe Redland::Parser do
 			expected_stream.next
 		end
 	end
-	
+
+<% end %>
+
 end
 
 # vim: set nosta noet ts=4 sw=4:

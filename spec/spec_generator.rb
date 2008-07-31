@@ -2,6 +2,7 @@
 
 require 'xml/libxml'
 require 'logger'
+require 'erb'
 
 
 class SpecGenerator
@@ -20,12 +21,14 @@ class SpecGenerator
 	### Generate an RSpec spec file by combining the specified +template+ with the examples 
 	### added to a yielded array.
 	def write_specfile( template, outfile )
-		template = template.read
+		template = ERB.new( template.read, 0, '<' )
 		examples = yield( [] )
+
+		examples.flatten!.compact!
 		
-		outfile.open( File::CREAT|File::WRONLY ) do |fh|
-			
-			
+		outfile.open( File::CREAT|File::WRONLY|File::TRUNC ) do |fh|
+			# $stderr.puts "Examples are: %p" % [ examples ]
+			fh.print( template.result(binding()) )
 		end
 	end
 	
@@ -40,7 +43,7 @@ class SpecGenerator
 			tests << test unless approved_only && !test.approved?
 		end
 
-		return tests
+		return tests.flatten.compact
 	end
 
 	
@@ -48,6 +51,7 @@ class SpecGenerator
 	### as 'APPROVED' unless +approved_only+ is +false+.
 	def find_negative_parser_tests( approved_only=true )
 	end
+	
 	
 	### Generate specs for the "Positive Entailment Tests", limited to the ones marked
 	### as 'APPROVED' unless +approved_only+ is +false+.
@@ -131,6 +135,8 @@ class SpecGenerator
 			approval    = nil
 			if descnode = node.find_first( 'test:description' )
 				description = descnode.content
+			else
+				description = "(No description: #{id})"
 			end
 			if issuenode = node.find_first( 'test:issue' )
 				issue = issuenode['resource']
@@ -155,21 +161,25 @@ class SpecGenerator
 		end
 
 
+		######
+		public
+		######
+
+		attr_reader :id, :status, :input_doc, :output_doc, :approval, :description, :issue
+
+
 		### Returns +true+ if the test is an approved one.
 		def approved?
-			@status == 'APPROVED' ? true : false
+			self.status == 'APPROVED' ? true : false
 		end
 
 
-		### Return the test id, munged into 
+		### Return the test description munged into a format suitable for use as a spec name.
 		def testname
-			
+			self.description.gsub( /\s+/, ' ' ).strip
 		end
 		
-	end
-	
-	
-	
+	end # class SpecGenerator::PositiveParserTest
 	
 end
 
