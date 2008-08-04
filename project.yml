@@ -1,0 +1,13 @@
+--- 
+project_description: An RDF library for Ruby
+project_synopsis: An RDF library for Ruby
+project_homepage: http://deveiate.org/projects/Redleaf
+project_name: Redleaf
+
+author_name: Michael Granger
+author_email: ged@FaerieMUD.org
+
+project_dependencies: 
+    rubyzip: >= 0.9.1
+project_requirements:
+    Redland: >= 1.0.7
