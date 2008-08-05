@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
  
+require 'redleaf'
+require 'uri'
 
-# An RDF library for Ruby
+# An RDF parser object class
 # 
 # == Subversion Id
 #
@@ -18,7 +20,7 @@
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
-module Redleaf
+class Redleaf::Parser
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -26,11 +28,8 @@ module Redleaf
 	# SVN Id
 	SVNId = %q$Id$
 
-	# Library version
-	VERSION = '0.1.1'
 
-	require 'redleaf_ext'
-	require 'redleaf/parser'
+	
 
 end # module Arrow
 
