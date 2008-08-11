@@ -42,8 +42,12 @@
 
 #include "redleaf.h"
 
+VALUE rleaf_mRedleaf;
+VALUE rleaf_cRedleafParser;
 
-void init_Redleaf( void ) {
+
+
+void Init_redleaf_ext( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 	rleaf_cRedleafParser = rb_define_class_under( rleaf_mRedleaf, "Parser", rb_cObject );
 	

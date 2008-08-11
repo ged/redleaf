@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
- 
+
+require 'logger' 
+
 
 # An RDF library for Ruby
 # 
@@ -29,9 +31,56 @@ module Redleaf
 	# Library version
 	VERSION = '0.1.1'
 
-	# require 'redleaf_ext'
+	require 'redleaf/mixins'
+	require 'redleaf/utils'
+	require 'redleaf_ext'
 	require 'redleaf/parser'
+	require 'redleaf/namespace'
 
-end # module Arrow
+	### Logging 
+	@default_logger = Logger.new( $stderr )
+	@default_logger.level = Logger::WARN
+
+	@default_log_formatter = Redleaf::LogFormatter.new( @default_logger )
+	@default_logger.formatter = @default_log_formatter
+
+	@logger = @default_logger
+
+
+	class << self
+		# The log formatter that will be used when the logging subsystem is reset
+		attr_accessor :default_log_formatter
+		
+		# The logger that will be used when the logging subsystem is reset
+		attr_accessor :default_logger
+		
+		# The logger that's currently in effect
+		attr_accessor :logger
+	end
+
+
+	### Reset the global logger object to the default
+	def self::reset_logger
+		self.logger = self.default_logger
+		self.logger.level = Logger::WARN
+		self.logger.formatter = self.default_log_formatter
+	end
+	
+
+	### Returns +true+ if the global logger has not been set to something other than
+	### the default one.
+	def self::using_default_logger?
+		return self.logger == self.default_logger
+	end
+
+
+	### Return the library's version string
+	def self::version_string( include_buildnum=false )
+		vstring = "%s %s" % [ self.name, VERSION ]
+		vstring << " (build %d)" % [ SVNRev[/\d+/].to_i ] if include_buildnum
+		return vstring
+	end
+
+end # module Redleaf
 
 

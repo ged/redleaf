@@ -36,7 +36,7 @@ describe Redleaf::Parser do
 	
 	before( :each ) do
 		@parser = Redleaf::Parser.new
-		pending "the completion of enough of the class library to test"
+		pending "completion of enough of the class library to test"
 	end
 	
 
@@ -45,23 +45,13 @@ describe Redleaf::Parser do
 	# <%= descline.strip.chomp %>
 <% end %>
 	it "passes the W3C test '<%= example.id %>'" do
- 		input = @datadir + '<%= example.input_doc %>'
-		expected = @datadir + '<%= example.output_doc %>'
-
-		input_stream = @rdfxml_parser.parse_string_as_stream( input.read, BASE_URI )
-		expected_stream = @ntriples_parser.parse_string_as_stream( expected.read, BASE_URI )
+ 		input_model = Redleaf::Model.new
+		expected_model = Redleaf::Model.new
 		
-		until expected_stream.end?
-			input_stmt = input_stream.current
-			expected_stmt = expected_stream.current
+		input_model.parse( @datadir + '<%= example.input_doc %>' )
+		expected_model.parse( @datadir + '<%= example.output_doc %>' )
 
-			input_stmt.subject.should == expected_stmt.subject
-			input_stmt.predicate.should == expected_stmt.predicate
-			input_stmt.object.should == expected_stmt.object
-			
-			input_stream.next
-			expected_stream.next
-		end
+		input_model.should == expected_model
 	end
 
 <% end %>

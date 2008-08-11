@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
  
-require 'redleaf'
 require 'uri'
+
+require 'redleaf'
+
 
 # An RDF parser object class
 # 
@@ -31,6 +33,7 @@ class Redleaf::Parser
 
 	
 
-end # module Arrow
+end # class Redleaf::Parser
 
+# vim: set nosta noet ts=4 sw=4:
 

@@ -13,7 +13,7 @@ end
 
 
 ### RSpec helper functions.
-module SpecHelpers
+module Redleaf::SpecHelpers
 
 	LEVEL = {
 		:debug => Logger::DEBUG,
@@ -29,8 +29,7 @@ module SpecHelpers
 
 	### Reset the logging subsystem to its default state.
 	def reset_logging
-		$logger = Logger.new( $stderr )
-		$logger.level = Logger::FATAL
+		Redleaf.reset_logger
 	end
 	
 	
@@ -39,16 +38,17 @@ module SpecHelpers
 	def setup_logging( level=Logger::FATAL )
 
 		# Turn symbol-style level config into Logger's expected Fixnum level
-		if LEVEL.key?( level )
-			level = LEVEL[ level ]
+		if Redleaf::Loggable::LEVEL.key?( level )
+			level = Redleaf::Loggable::LEVEL[ level ]
 		end
 		
-		$logger = Logger.new( $stderr )
-		$logger.level = level
+		logger = Logger.new( $stderr )
+		Redleaf.logger = logger
+		Redleaf.logger.level = level
 
 		# Only do this when executing from a spec in TextMate
 		if ENV['HTML_LOGGING'] || (ENV['TM_FILENAME'] && ENV['TM_FILENAME'] =~ /_spec\.rb/)
-			$logger.formatter = HtmlLogFormatter.new( $logger )
+			Redleaf.logger.formatter = Redleaf::HtmlLogFormatter.new( logger )
 		end
 	end
 	
@@ -227,6 +227,8 @@ class Spec::Runner::Formatter::HtmlFormatter
 		
 		return css
 	end
-end
+end # module Redleaf::SpecHelpers
 
+
+# vim: set nosta noet ts=4 sw=4:
 

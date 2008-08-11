@@ -56,7 +56,7 @@ extern VALUE rleaf_mRedleaf;
 extern VALUE rleaf_cRedleafParser;
 
 
-void Init_redleaf( void );
+void Init_redleaf_ext( void );
 
 #endif
 
