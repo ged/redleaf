@@ -1,0 +1,15 @@
+Redleaf is an RDF library for Ruby. It's composed of a hand-written C binding to the Redland RDF
+Libraries, and a high-level, more idiomatic layer written in Ruby that wraps the low-level Redland
+API functions.
+
+It's still incomplete, but we'll publish more details when it's ready for people to use.
+
+In the meantime, you can check out the current development source with Subversion from the 
+following URL:
+
+    svn://deveiate.org/Redleaf/trunk
+
+The project page is also likely to have more details:
+
+    http://deveiate.org/projects/Redleaf/
+

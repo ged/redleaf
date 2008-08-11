@@ -21,7 +21,7 @@ class SpecGenerator
 	### Generate an RSpec spec file by combining the specified +template+ with the examples 
 	### added to a yielded array.
 	def write_specfile( template, outfile )
-		template = ERB.new( template.read, 0, '<' )
+		template = ERB.new( template.read, 0, '<>' )
 		examples = yield( [] )
 
 		examples.flatten!.compact!

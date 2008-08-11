@@ -11,15 +11,28 @@ rescue LoadError => err
 	fail "You need to have the mkrf library installed to build this."
 end
 
+
+# C extension constants
 EXT_RAKEFILE  = EXTDIR + 'Rakefile'
 EXT_SO        = EXTDIR + "redleaf_ext.#{CONFIG['DLEXT']}"
+
+# Additional (auto-generated) spec constants
+SPEC_RAKEFILE = SPECDIR + 'Rakefile'
+
+
+#####################################################################
+###	T A S K S
+#####################################################################
+
+# task :local => [ :build, :build_specs ]
+task :local => [ :build ]
 
 
 desc "Make the Rakefile for the C extension"
 file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
 	require 'misc/monkeypatches' # Fix Mkrf's output
 	
-	log "Configuring linkparser C extension"
+	log "Configuring redleaf C extension"
 	Dir.chdir( EXTDIR ) do
 		Mkrf::Generator.new( 'redleaf_ext', FileList['*.c'] ) do |gen|
 			trace "Setting CFLAGS"
@@ -30,11 +43,12 @@ file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
 			gen.include_header( "redland.h" )
 
 			trace "Checking for librdf_new_world()"
-			gen.include_library( "redland", "librdf_new_world" ) or
+			gen.include_library( "rdf", "librdf_new_world" ) or
 				fail( "Could not find Redland RDF library (http://librdf.org/)." )
 		end
 	end
 end
+CLOBBER.include( EXTDIR + 'mkrf.log' )
 
 
 desc "Build the C extension"
@@ -43,4 +57,36 @@ task :build => EXT_RAKEFILE.to_s do
 		sh 'rake'
 	end
 end
+
+
+desc "Build the W3C conformance test suite"
+task :build_specs => SPEC_RAKEFILE.to_s do
+	Dir.chdir( SPECDIR ) do
+		sh 'rake', '-t'
+	end
+end
+
+
+task :clean do
+	if EXT_RAKEFILE.exist?
+		Dir.chdir( EXTDIR ) do
+			sh 'rake', 'clean'
+		end
+	end
+	Dir.chdir( SPECDIR ) do
+		sh 'rake', 'clean'
+	end
+end	
+
+task :clobber do
+	if EXT_RAKEFILE.exist?
+		Dir.chdir( EXTDIR ) do
+			sh 'rake', 'clobber'
+		end
+	end
+	Dir.chdir( SPECDIR ) do
+		sh 'rake', '-t', 'clobber'
+	end
+end	
+CLOBBER.include( EXT_RAKEFILE )
 

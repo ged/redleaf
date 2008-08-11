@@ -1,13 +1,19 @@
 --- 
-project_description: An RDF library for Ruby
-project_synopsis: An RDF library for Ruby
-project_homepage: http://deveiate.org/projects/Redleaf
-project_name: Redleaf
-
+rubyforge_project: redleaf
+project_requirements: 
+  Redland: ">= 1.0.7"
+project_description: "Redleaf is an RDF library for Ruby. It's composed of a hand-written C binding to the Redland \n\
+  RDF Libraries, and a high-level, more idiomatic layer written in Ruby that wraps the low-level\n\
+  Redland API functions. "
+rubyforge_group: deveiate
 author_name: Michael Granger
-author_email: ged@FaerieMUD.org
-
+project_homepage: http://deveiate.org/projects/Redleaf
 project_dependencies: 
-    rubyzip: >= 0.9.1
-project_requirements:
-    Redland: >= 1.0.7
+  rubyzip: ">= 0.9.1"
+project_summary: An RDF library for Ruby
+project_name: Redleaf
+additional_pkgfiles: 
+- misc/monkeypatches.rb
+- spec/templates
+- spec/spec_generator.rb
+author_email: ged@FaerieMUD.org

@@ -41,8 +41,8 @@ RUBYARCHDIR = ENV["RUBYARCHDIR"] || CONFIG['sitearchdir']
 LIBRUBYARG_SHARED = "#{CONFIG['LIBRUBYARG_SHARED']}"
 EXT = '#{@extension_name}'
 
-CLEAN.include('*.#{objext}')
-CLOBBER.include(EXT, 'mkrf.log')
+CLEAN.include( EXT, '*.#{objext}' )
+CLOBBER.include( 'mkrf.log' )
 
 task :default => EXT
 
@@ -54,6 +54,7 @@ desc "Build this extension"
 file EXT => OBJ do
   sh "\#{LDSHARED} \#{LIBPATH} #{@available.ld_outfile(@extension_name)} \#{OBJ} \#{ADDITIONAL_OBJECTS} \#{LIBS} \#{LIBRUBYARG_SHARED}"
 end
+
 
 directory RUBYARCHDIR
 

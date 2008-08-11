@@ -29,14 +29,16 @@ describe Redleaf::Parser do
 
 	BASE_URI = 'http://www.w3.org/2000/10/rdf-tests/rdfcore/testSchema#'
 
-	before( :each ) do
-		@rdfxml_parser = Redland::Parser.new
-		@ntriples_parser = Redland::Parser.new( 'ntriples', '' )
-		
+	before( :all ) do
 		@specdir = Pathname.new( __FILE__ ).expand_path.dirname.relative_path_from( Pathname.getwd )
 		@datadir = @specdir + 'data'
 	end
-
+	
+	before( :each ) do
+		@parser = Redleaf::Parser.new
+		pending "the completion of enough of the class library to test"
+	end
+	
 
 <% examples.flatten.each do |example| %>
 <% example.description.each_line do |descline| %>

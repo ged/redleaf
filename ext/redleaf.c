@@ -45,7 +45,8 @@
 
 void init_Redleaf( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
-	rleaf_cRedleafParser = rb_define_class_undef( rleaf_mRedleaf, "Parser", rb_cObject );
+	rleaf_cRedleafParser = rb_define_class_under( rleaf_mRedleaf, "Parser", rb_cObject );
+	
 	
 }
 

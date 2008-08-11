@@ -84,7 +84,7 @@ begin
 				end
 			end
 		end
-		CLOBBER.include( SPEC_DATADIR )
+		CLOBBER.include( SPEC_DATADIR, TESTCASE_ARCHIVE )
 
 
 		# Download the latest testcase zipfile
