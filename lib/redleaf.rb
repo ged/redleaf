@@ -29,7 +29,7 @@ module Redleaf
 	# Library version
 	VERSION = '0.1.1'
 
-	require 'redleaf_ext'
+	# require 'redleaf_ext'
 	require 'redleaf/parser'
 
 end # module Arrow

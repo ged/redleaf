@@ -2,7 +2,7 @@
 
 BEGIN {
 	require 'pathname'
-	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
+	basedir = Pathname.new( __FILE__ ).dirname.parent
 
 	libdir = basedir + "lib"
 
@@ -36,6 +36,7 @@ describe Redleaf::Parser do
 	
 	before( :each ) do
 		@parser = Redleaf::Parser.new
+		pending "the completion of enough of the class library to test"
 	end
 	
 

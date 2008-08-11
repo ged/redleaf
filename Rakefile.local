@@ -11,3 +11,36 @@ rescue LoadError => err
 	fail "You need to have the mkrf library installed to build this."
 end
 
+EXT_RAKEFILE  = EXTDIR + 'Rakefile'
+EXT_SO        = EXTDIR + "redleaf_ext.#{CONFIG['DLEXT']}"
+
+
+desc "Make the Rakefile for the C extension"
+file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
+	require 'misc/monkeypatches' # Fix Mkrf's output
+	
+	log "Configuring linkparser C extension"
+	Dir.chdir( EXTDIR ) do
+		Mkrf::Generator.new( 'redleaf_ext', FileList['*.c'] ) do |gen|
+			trace "Setting CFLAGS"
+			gen.cflags << ' -Wall'
+			gen.cflags << ' -DDEBUG'
+
+			trace "Checking for redland.h"
+			gen.include_header( "redland.h" )
+
+			trace "Checking for librdf_new_world()"
+			gen.include_library( "redland", "librdf_new_world" ) or
+				fail( "Could not find Redland RDF library (http://librdf.org/)." )
+		end
+	end
+end
+
+
+desc "Build the C extension"
+task :build => EXT_RAKEFILE.to_s do
+	Dir.chdir( EXTDIR ) do
+		sh 'rake'
+	end
+end
+
