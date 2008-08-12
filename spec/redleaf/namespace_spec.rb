@@ -60,6 +60,10 @@ describe Redleaf::Namespace do
 	it "returns terms qualified relative to the namespace" do
 		@namespace[ 'Person' ].to_s.should == @namespace.uri.to_s + 'Person'
 	end
+
+	it "accepts Symbols as terms as well as Strings" do
+		@namespace[ :member_name ].to_s.should == @namespace.uri.to_s + 'member_name'
+	end
 	
 end
 

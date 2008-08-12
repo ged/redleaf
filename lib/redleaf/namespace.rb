@@ -55,7 +55,7 @@ class Redleaf::Namespace
 	### Return a fully-qualified URI for the specified +term+ relative to the namespace.
 	def []( term )
 		term_uri = self.uri.dup
-		term_uri.path += term
+		term_uri.path += term.to_s
 		
 		return term_uri
 	end
