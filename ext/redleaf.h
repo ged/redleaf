@@ -41,15 +41,15 @@
  */
 
 #ifndef __REDLEAF_H__
-#define __REDLEAF_H__ 1
+#define __REDLEAF_H__
 
 #include <stdio.h>
 #include <raptor.h>
 #include <rasqal.h>
 #include <redland.h>
 
-#include "ruby.h"
-#include "rubyio.h"
+#include <ruby.h>
+#include <rubyio.h>
 
 
 extern VALUE rleaf_mRedleaf;
@@ -57,6 +57,8 @@ extern VALUE rleaf_cRedleafParser;
 
 
 void Init_redleaf_ext( void );
+
+
 
 #endif
 

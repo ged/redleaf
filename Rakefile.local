@@ -16,6 +16,12 @@ end
 EXT_RAKEFILE  = EXTDIR + 'Rakefile'
 EXT_SO        = EXTDIR + "redleaf_ext.#{CONFIG['DLEXT']}"
 
+ADDITIONAL_INCLUDE_DIRS = %w[
+	/usr/local/include
+	/opt/include
+	/opt/local/include
+]
+
 # Additional (auto-generated) spec constants
 SPEC_RAKEFILE = SPECDIR + 'Rakefile'
 
@@ -39,12 +45,19 @@ file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
 			gen.cflags << ' -Wall'
 			gen.cflags << ' -DDEBUG'
 
-			trace "Checking for redland.h"
-			gen.include_header( "redland.h" )
+			%w[redland.h raptor.h rasqal.h].each do |header|
+				trace "Checking for #{header}"
+				gen.include_header( header, *ADDITIONAL_INCLUDE_DIRS ) or
+					fail( "Could not find #{header} header file" )
+			end
 
 			trace "Checking for librdf_new_world()"
 			gen.include_library( "rdf", "librdf_new_world" ) or
 				fail( "Could not find Redland RDF library (http://librdf.org/)." )
+
+			gen.has_function?( "librdf_parser_guess_name " ) or
+				fail( "No librdf_parser_guess_name ()" )
+
 		end
 	end
 end
@@ -62,7 +75,7 @@ end
 desc "Build the W3C conformance test suite"
 task :build_specs => SPEC_RAKEFILE.to_s do
 	Dir.chdir( SPECDIR ) do
-		sh 'rake', '-t'
+		sh 'rake'
 	end
 end
 
@@ -85,7 +98,7 @@ task :clobber do
 		end
 	end
 	Dir.chdir( SPECDIR ) do
-		sh 'rake', '-t', 'clobber'
+		sh 'rake', 'clobber'
 	end
 end	
 CLOBBER.include( EXT_RAKEFILE )

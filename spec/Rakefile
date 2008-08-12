@@ -33,7 +33,6 @@ PARSER_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_parser_spec.template'
 ENTAILMENT_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_entailment_spec.template'
 MISCELLANEOUS_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_miscellaneous_spec.template'
 
-$stderr.puts "Parser spec template is: %p" % [ PARSER_SPEC_TEMPLATE ]
 
 # Load task plugins
 RAKE_TASKDIR = BASEDIR + 'rake'

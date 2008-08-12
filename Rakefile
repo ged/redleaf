@@ -64,9 +64,9 @@ RAKE_TASKLIBS = Pathname.glob( RAKE_TASKDIR + '*.rb' )
 LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
 
 EXTRA_PKGFILES = []
-EXTRA_PKGFILES += Pathname.glob( BASEDIR + 'misc/monkeypatches.rb' ).delete_if {|item| item =~ /\.svn/ } 
-EXTRA_PKGFILES += Pathname.glob( BASEDIR + 'spec/templates' ).delete_if {|item| item =~ /\.svn/ } 
-EXTRA_PKGFILES += Pathname.glob( BASEDIR + 'spec/spec_generator.rb' ).delete_if {|item| item =~ /\.svn/ } 
+EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'misc/monkeypatches.rb' ).delete_if {|item| item =~ /\.svn/ } 
+EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/templates' ).delete_if {|item| item =~ /\.svn/ } 
+EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/spec_generator.rb' ).delete_if {|item| item =~ /\.svn/ } 
 
 RELEASE_FILES = TEXT_FILES + 
 	SPEC_FILES + 
