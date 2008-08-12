@@ -1,13 +1,5 @@
 #!/usr/bin/ruby
-
-require 'logger'
-require 'erb'
-
-require 'redleaf'
-require 'redleaf/constants'
-require 'redleaf/mixins'
-
-
+# 
 # A collection of little utility classes used elsewhere throughout the code
 #
 # == Version
@@ -25,6 +17,15 @@ require 'redleaf/mixins'
 #
 # Please see the file LICENSE in the 'docs' directory for licensing details.
 #
+
+require 'logger'
+require 'erb'
+
+require 'redleaf'
+require 'redleaf/constants'
+require 'redleaf/mixins'
+
+
 module Redleaf # :nodoc:
 
 	### A alternate formatter for Logger instances.

@@ -1,7 +1,7 @@
 /* 
- * Redleaf -- an RDF library for Ruby
+ * Redleaf::Parser -- RDF parser class
  * $Id$
- * 
+ * --
  * Authors
  * 
  * - Michael Granger <ged@FaerieMUD.org>
@@ -40,26 +40,17 @@
  * 
  */
 
-#ifndef __REDLEAF_H__
-#define __REDLEAF_H__
+#include "redleaf.h"
 
-#include <stdio.h>
-#include <raptor.h>
-#include <rasqal.h>
-#include <redland.h>
-
-#include <ruby.h>
-#include <intern.h> /* for rb_set_end_proc() and others */
-#include <rubyio.h>
+VALUE rleaf_cRedleafParser;
 
 
-extern VALUE rleaf_mRedleaf;
-extern VALUE rleaf_cRedleafParser;
-
-
-void Init_redleaf_ext( void );
-
-
-
-#endif
+/*
+ * 
+ */
+void Init_Redleaf_Parser( void ) {
+	rleaf_cRedleafParser = rb_define_class_under( rleaf_mRedleaf, "Parser", rb_cObject );
+	
+	
+}
 

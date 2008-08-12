@@ -6,14 +6,12 @@ require 'redleaf'
 
 FOAF = Redleaf::Namespace.new( 'http://xmlns.com/foaf/0.1/' )
 
-model = Redleaf::Model.new
-model.parse( "http://bigasterisk.com/foaf.rdf" )
-model.parse( "http://www.w3.org/People/Berners-Lee/card.rdf" )
+graph = Redleaf::Graph.new
+graph.parse( "http://bigasterisk.com/foaf.rdf" )
+graph.parse( "http://www.w3.org/People/Berners-Lee/card.rdf" )
 
 
 #
 # AND
 #
 
-# Stuff about Tim Berners-Lee
-model[ tbl, nil, nil ]

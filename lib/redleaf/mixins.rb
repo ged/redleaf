@@ -1,13 +1,5 @@
 #!/usr/bin/ruby
-
-require 'rbconfig'
-require 'erb'
-require 'etc'
-require 'logger'
-
-require 'redleaf'
-
-
+# 
 # A collection of mixins shared between Redleaf classes. Stolen mostly from ThingFish.
 #
 # == Version
@@ -25,6 +17,15 @@ require 'redleaf'
 #
 # Please see the file LICENSE in the 'docs' directory for licensing details.
 #
+
+require 'rbconfig'
+require 'erb'
+require 'etc'
+require 'logger'
+
+require 'redleaf'
+
+
 module Redleaf # :nodoc:
 
 	### Add logging to a Redleaf class

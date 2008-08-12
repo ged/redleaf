@@ -43,14 +43,53 @@
 #include "redleaf.h"
 
 VALUE rleaf_mRedleaf;
-VALUE rleaf_cRedleafParser;
+
+librdf_world *rleaf_rdf_world = NULL;
 
 
+/*
+ * Log a message to the given +context+ object's logger.
+ */
+void rleaf_log_with_context( VALUE context, const char *level, const char *msg ) {
+	VALUE logger = Qnil;
+	VALUE message = rb_str_new2( msg );
+	
+	logger = rb_funcall( context, rb_intern("log"), 0, 0 );
+	rb_funcall( logger, crb_intern(level), 1, &message );
+}
 
+
+/* 
+ * Log a message to the global logger.
+ */
+void rleaf_log( const char *level, const char *msg ) {
+	VALUE logger = Qnil;
+	VALUE message = rb_str_new2( msg );
+
+	logger = rb_funcall( rleaf_mRedleaf, rb_intern("logger"), 0, 0 );
+	rb_funcall( logger, rb_intern(level), 1, &message );
+}
+
+
+/* 
+ * Give Redland a chance to clean up all of its stuff.
+ */
+static void rleaf_redleaf_finalizer( VALUE unused ) {
+	if ( rleaf_rdf_world ) {
+		rleaf_log( "debug", "Freeing librdf world." );
+		librdf_free_world( rleaf_rdf_world );
+	} else {
+		rleaf_log( "debug", "librdf world was NULL, so not trying to free it." );
+	}
+}
+
+/*
+ * 
+ */
 void Init_redleaf_ext( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
-	rleaf_cRedleafParser = rb_define_class_under( rleaf_mRedleaf, "Parser", rb_cObject );
-	
-	
+
+	rleaf_rdf_world = librdf_new_world();
+	rb_set_end_proc( rleaf_redleaf_finalizer, 0 );
 }
 
