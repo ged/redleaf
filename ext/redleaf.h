@@ -53,12 +53,25 @@
 #include <rubyio.h>
 
 
+/* --------------------------------------------------------------
+ * Globals
+ * -------------------------------------------------------------- */
+
 extern VALUE rleaf_mRedleaf;
 extern VALUE rleaf_cRedleafParser;
 
+extern librdf_world *rleaf_rdf_world;
+
+
+/* --------------------------------------------------------------
+ * Function declarations
+ * -------------------------------------------------------------- */
+
+void rleaf_log_with_context( VALUE, const char*, const char* );
+void rleaf_log( const char*, const char* );
+
 
 void Init_redleaf_ext( void );
-
 
 
 #endif

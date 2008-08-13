@@ -5,7 +5,9 @@ require 'uri'
 require 'redleaf'
 
 
-# An RDF graph class
+# An RDF statement class. A statement is a node-arc-node triple (subject --predicate--> object). The
+# subject can be either a URI or a blank node, the predicate is always a URI, and the object can
+# be a URI, a blank node, or a literal.
 # 
 # == Subversion Id
 #
@@ -22,7 +24,7 @@ require 'redleaf'
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
-class Redleaf::Graph
+class Redleaf::Statement
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -31,36 +33,22 @@ class Redleaf::Graph
 	SVNId = %q$Id$
 
 
-	### Create a new Redleaf::Graph populated with the given +statements+.
-	def initialize( *statements )
-		@statements = statements
+	### Create a new Redleaf::Statement for the specified +subject+, +predicate+, and +object+.
+	### A +nil+ as either the subject or object will be interpreted as a blank node.
+	def initialize( subject, predicate, object )
+		
 	end
-	
-	
-	######
-	public
-	######
-
-	# The statements which make up the graph
-	attr_accessor :statements
 	
 
 	### Equivalence method -- two Redleaf::Graphs are equivalent if the graphs they represent are 
 	### equivalent according to the Graph Equivalence rules of:
 	###   http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/#section-graph-equality
-	def eql?( other_graph )
-		return false unless other_graph.is_a?( Redleaf::Graph )
-		return ( self ^ other_graph ).empty?
+	def eql?( other_statement )
+		return false unless other_statement.is_a?( Redleaf::Statement )
+
+		return true
 	end
 	alias_method :==, :eql?
-	
-	
-	### Set XOR: Return the set of statements that are exclusive to either the receiver 
-	### or +other_graph+ (the union of their complements).
-	def ^( other_graph )
-		( self.statements & other_graph.statements ) - ( self.statements & other_graph.statements )
-	end
-	
 	
 
 end # class Redleaf::Graph

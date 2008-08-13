@@ -1,3 +1,33 @@
+-- Tue, 12 Aug 2008 17:14:21 -0000 by deveiant (r10) -----
+   Added:   ext/parser.c (new)
+            .irbrc (new)
+   Changed: experiments/setlogic.rb
+            /trunk
+            lib/redleaf/mixins.rb
+            ext/redleaf.c
+            ext/redleaf.h
+            lib/redleaf/utils.rb (and 2 other/s)
+
+   Checkpoint commit of the morning's work.
+
+
+-- Tue, 12 Aug 2008 13:12:18 -0000 by deveiant (r9) -----
+   Added:   ChangeLog (new)
+   Changed: LICENSE
+            Rakefile
+            project.yml
+            ext/redleaf.h
+            Rakefile.local
+            spec/Rakefile (and 1 other/s)
+
+    * Updated build system
+    * Added a ChangeLog
+    * Removed spam from spec/Rakefile
+    * Added an ADDITIONAL_INCLUDE_DIRS constant to the Rakefile.local for adding directories
+    to those searched when checking for headers. 
+    * Removed trace option from subordinate rakefile invocations
+
+
 -- Tue, 12 Aug 2008 00:28:44 -0000 by deveiant (r8) -----
    Added:   experiments/setlogic.rb (new)
             experiments (new)

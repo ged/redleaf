@@ -55,7 +55,7 @@ void rleaf_log_with_context( VALUE context, const char *level, const char *msg )
 	VALUE message = rb_str_new2( msg );
 	
 	logger = rb_funcall( context, rb_intern("log"), 0, 0 );
-	rb_funcall( logger, crb_intern(level), 1, &message );
+	rb_funcall( logger, rb_intern(level), 1, message );
 }
 
 
@@ -67,9 +67,13 @@ void rleaf_log( const char *level, const char *msg ) {
 	VALUE message = rb_str_new2( msg );
 
 	logger = rb_funcall( rleaf_mRedleaf, rb_intern("logger"), 0, 0 );
-	rb_funcall( logger, rb_intern(level), 1, &message );
+	rb_funcall( logger, rb_intern(level), 1, message );
 }
 
+
+/* --------------------------------------------------------------
+ * Utility functions for LibRDF interaction
+ * -------------------------------------------------------------- */
 
 /* 
  * Give Redland a chance to clean up all of its stuff.
@@ -83,13 +87,62 @@ static void rleaf_redleaf_finalizer( VALUE unused ) {
 	}
 }
 
-/*
- * 
+
+/* 
+ * Map a librdf log level enum value onto a level name suitable for passing to the Logger.
  */
+const char *rleaf_message_level_name( librdf_log_level level ) {
+	switch( level ) {
+		case LIBRDF_LOG_NONE:
+		case LIBRDF_LOG_DEBUG:
+		return "debug";
+		
+		case LIBRDF_LOG_INFO:
+		return "info";
+		
+		case LIBRDF_LOG_WARN:
+		return "warn";
+		
+		case LIBRDF_LOG_ERROR:
+		return "error";
+		
+		case LIBRDF_LOG_FATAL:
+		return "fatal";
+		
+		default:
+		return "debug";
+	}
+}
+
+
+
+/* 
+ * Log handler function for transforming rdflib log messages into Redleaf ones.
+ */
+static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *message ) {
+	librdf_log_level level = librdf_log_message_level( message );
+	/* librdf_log_facility facility = librdf_log_message_facility( message ); */
+	const char *msg = librdf_log_message_message( message );
+
+	rleaf_log( rleaf_message_level_name(level), msg );
+
+	return 1;
+}
+
+
+
+
+/* --------------------------------------------------------------
+ * Initializer
+ * -------------------------------------------------------------- */
+
 void Init_redleaf_ext( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 
 	rleaf_rdf_world = librdf_new_world();
+	librdf_world_set_logger( rleaf_rdf_world, NULL, rleaf_rdflib_log_handler );
 	rb_set_end_proc( rleaf_redleaf_finalizer, 0 );
+	
+	
 }
 
