@@ -1,7 +1,7 @@
 /* 
- * Redleaf -- an RDF library for Ruby
+ * Redleaf::Statement -- RDF statement class
  * $Id$
- * 
+ * --
  * Authors
  * 
  * - Michael Granger <ged@FaerieMUD.org>
@@ -40,46 +40,17 @@
  * 
  */
 
-#ifndef __REDLEAF_H__
-#define __REDLEAF_H__
+#include "redleaf.h"
 
-#include <stdio.h>
-#include <raptor.h>
-#include <rasqal.h>
-#include <redland.h>
-
-#include <ruby.h>
-#include <intern.h> /* for rb_set_end_proc() and others */
-#include <rubyio.h>
+VALUE rleaf_cRedleafStatement;
 
 
-/* --------------------------------------------------------------
- * Globals
- * -------------------------------------------------------------- */
-
-extern VALUE rleaf_mRedleaf;
-extern VALUE rleaf_cRedleafGraph;
-extern VALUE rleaf_cRedleafNode;
-extern VALUE rleaf_cRedleafStatement;
-extern VALUE rleaf_cRedleafParser;
-
-extern librdf_world *rleaf_rdf_world;
-
-
-/* --------------------------------------------------------------
- * Function declarations
- * -------------------------------------------------------------- */
-
-void rleaf_log_with_context( VALUE, const char*, const char* );
-void rleaf_log( const char*, const char* );
-
-
-void Init_redleaf_ext( void );
-
-void rleaf_init_redleaf_graph( void );
-void rleaf_init_redleaf_node( void );
-void rleaf_init_redleaf_parser( void );
-void rleaf_init_redleaf_statement( void );
-
-#endif
+/*
+ * Redleaf Statement class
+ */
+void rleaf_init_redleaf_statement( void ) {
+	rleaf_cRedleafStatement = rb_define_class_under( rleaf_mRedleaf, "Statement", rb_cObject );
+	
+	rleaf_log( "debug", "Initializing Redleaf::Statement" );
+}
 

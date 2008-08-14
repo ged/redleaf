@@ -33,25 +33,16 @@ class Redleaf::Statement
 	SVNId = %q$Id$
 
 
-	### Create a new Redleaf::Statement for the specified +subject+, +predicate+, and +object+.
-	### A +nil+ as either the subject or object will be interpreted as a blank node.
-	def initialize( subject, predicate, object )
-		
-	end
-	
 
-	### Equivalence method -- two Redleaf::Graphs are equivalent if the graphs they represent are 
-	### equivalent according to the Graph Equivalence rules of:
+	### Equivalence method -- two Redleaf::Statements are equivalent if their subject and object
+	### nodes are equivalent according to the bijective function described in:
 	###   http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/#section-graph-equality
-	def eql?( other_statement )
-		return false unless other_statement.is_a?( Redleaf::Statement )
-
-		return true
-	end
-	alias_method :==, :eql?
+	### and they have the same predicate.
+	# def eql?( other_statement )
+	# end
 	
 
-end # class Redleaf::Graph
+end # class Redleaf::Statement
 
 # vim: set nosta noet ts=4 sw=4:
 

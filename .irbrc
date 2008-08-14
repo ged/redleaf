@@ -17,10 +17,6 @@ BEGIN {
 # Try to require the 'thingfish' library
 begin
 	require 'redleaf'
-	
-	if $DEBUG
-		Redleaf.logger.level = Logger::DEBUG
-	end	
 rescue => e
 	$stderr.puts "Ack! Redleaf library failed to load: #{e.message}\n\t" +
 		e.backtrace.join( "\n\t" )

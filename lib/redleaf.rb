@@ -31,15 +31,13 @@ module Redleaf
 	# Library version
 	VERSION = '0.1.1'
 
-	require 'redleaf/mixins'
+
+	# Load the logformatters and some other stuff first
 	require 'redleaf/utils'
-	require 'redleaf_ext'
-	require 'redleaf/parser'
-	require 'redleaf/namespace'
 
 	### Logging 
 	@default_logger = Logger.new( $stderr )
-	@default_logger.level = Logger::WARN
+	@default_logger.level = $DEBUG ? Logger::DEBUG : Logger::WARN
 
 	@default_log_formatter = Redleaf::LogFormatter.new( @default_logger )
 	@default_logger.formatter = @default_log_formatter
@@ -80,6 +78,11 @@ module Redleaf
 		vstring << " (build %d)" % [ SVNRev[/\d+/].to_i ] if include_buildnum
 		return vstring
 	end
+
+	require 'redleaf/mixins'
+	require 'redleaf_ext'
+	require 'redleaf/parser'
+	require 'redleaf/namespace'
 
 end # module Redleaf
 

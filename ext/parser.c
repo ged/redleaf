@@ -48,9 +48,9 @@ VALUE rleaf_cRedleafParser;
 /*
  * 
  */
-void Init_Redleaf_Parser( void ) {
+void rleaf_init_redleaf_parser( void ) {
 	rleaf_cRedleafParser = rb_define_class_under( rleaf_mRedleaf, "Parser", rb_cObject );
 	
-	
+	rleaf_log( "debug", "Initializing Redleaf::Parser" );
 }
 

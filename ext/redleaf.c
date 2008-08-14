@@ -91,7 +91,7 @@ static void rleaf_redleaf_finalizer( VALUE unused ) {
 /* 
  * Map a librdf log level enum value onto a level name suitable for passing to the Logger.
  */
-const char *rleaf_message_level_name( librdf_log_level level ) {
+static const char *rleaf_message_level_name( librdf_log_level level ) {
 	switch( level ) {
 		case LIBRDF_LOG_NONE:
 		case LIBRDF_LOG_DEBUG:
@@ -137,12 +137,21 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
  * -------------------------------------------------------------- */
 
 void Init_redleaf_ext( void ) {
+
+	/* Load the Redland module from the Ruby source to get the logger */
+	rb_require( "redland" );
+
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 
+	/* Set up the world and the finalizer for it */
 	rleaf_rdf_world = librdf_new_world();
 	librdf_world_set_logger( rleaf_rdf_world, NULL, rleaf_rdflib_log_handler );
 	rb_set_end_proc( rleaf_redleaf_finalizer, 0 );
-	
-	
+
+	/* Initialize all the other classes */
+	rleaf_init_redleaf_graph();
+	rleaf_init_redleaf_node();
+	rleaf_init_redleaf_parser();
+	rleaf_init_redleaf_statement();
 }
 
