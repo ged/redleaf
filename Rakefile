@@ -7,7 +7,7 @@
 # Copyright (c) 2008 The FaerieMUD Consortium
 #
 # Authors:
-#  * Michael Granger <ged@FaerieMUD.org>
+#  * Michael Granger and Mahlon Smith <ged@FaerieMUD.org>
 #
 
 BEGIN {
@@ -126,7 +126,8 @@ SMTP_PORT = 465 # SMTP + SSL
 PROJECT_HOST = 'deveiate.org'
 PROJECT_PUBDIR = "/usr/local/www/public/code"
 PROJECT_DOCDIR = "#{PROJECT_PUBDIR}/#{PKG_NAME}"
-PROJECT_SCPURL = "#{PROJECT_HOST}:#{PROJECT_DOCDIR}"
+PROJECT_SCPPUBURL = "#{PROJECT_HOST}:#{PROJECT_PUBDIR}"
+PROJECT_SCPDOCURL = "#{PROJECT_HOST}:#{PROJECT_DOCDIR}"
 
 # Rubyforge stuff
 RUBYFORGE_GROUP = 'deveiate'
@@ -150,13 +151,11 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.summary           = PKG_SUMMARY
 	gem.description       = <<-EOD
 	Redleaf is an RDF library for Ruby. It's composed of a hand-written C binding to the Redland 
-
 	RDF Libraries, and a high-level, more idiomatic layer written in Ruby that wraps the low-level
-
 	Redland API functions. 
 	EOD
 
-	gem.authors           = 'Michael Granger'
+	gem.authors           = 'Michael Granger and Mahlon Smith'
 	gem.email             = 'ged@FaerieMUD.org'
 	gem.homepage          = 'http://deveiate.org/projects/Redleaf'
 	gem.rubyforge_project = RUBYFORGE_PROJECT
