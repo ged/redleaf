@@ -1,5 +1,5 @@
 /* 
- * Redleaf::Graph -- RDF statement class
+ * Redleaf::Graph -- RDF Graph (Model) class
  * $Id$
  * --
  * Authors

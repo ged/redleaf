@@ -75,7 +75,7 @@ end
 desc "Build the W3C conformance test suite"
 task :build_specs => SPEC_RAKEFILE.to_s do
 	Dir.chdir( SPECDIR ) do
-		sh 'rake'
+		sh 'rake', '-t'
 	end
 end
 

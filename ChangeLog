@@ -1,3 +1,57 @@
+-- Fri, 15 Aug 2008 00:51:31 -0000 by deveiant (r14) -----
+   Changed: ext/redleaf.c
+            ext/redleaf.h
+   Deleted: lib/redleaf/node.rb
+            ext/node.c
+
+   Removed the Redleaf::Node class after considering what we actually need to implement them.
+
+
+-- Thu, 14 Aug 2008 22:45:07 -0000 by deveiant (r13) -----
+   Changed: README
+            ext/parser.c
+            ext/graph.c
+            LICENSE
+            Rakefile
+            ext/redleaf.c (and 6 other/s)
+
+    * Updated build system
+    * Fixed missing keywords
+
+
+-- Thu, 14 Aug 2008 16:47:17 -0000 by deveiant (r12) -----
+   Added:   lib/redleaf/node.rb (new)
+            ext/graph.c (new)
+            ext/statement.c (new)
+            ext/node.c (new)
+   Changed: ext/parser.c
+            lib/redleaf/statement.rb
+            .irbrc
+            ext/redleaf.c
+            ext/redleaf.h
+            lib/redleaf.rb (and 1 other/s)
+
+    * Set logger to debug level if $DBEUG is on.
+    * Added a few more stub extension classes.
+
+
+-- Wed, 13 Aug 2008 16:50:32 -0000 by deveiant (r11) -----
+   Added:   lib/redleaf/statement.rb (new)
+            spec/redleaf/graph_spec.rb (new)
+            spec/redleaf/statement_spec.rb (new)
+   Changed: ext/redleaf.c
+            ChangeLog
+            ext/redleaf.h
+            Rakefile.local
+            lib/redleaf/graph.rb
+
+    * Added initial connection of Redland's logging callback to Redleaf's logger. This is as-yet
+    untested.
+    * Added initial minimal implementation of Redleaf::Graph and Redleaf::Statement classes.
+    * Made :build a dependency of the :spec task so the C sources will (re)build if necessary before
+    the specs run.
+
+
 -- Tue, 12 Aug 2008 17:14:21 -0000 by deveiant (r10) -----
    Added:   ext/parser.c (new)
             .irbrc (new)

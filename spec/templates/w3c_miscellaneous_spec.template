@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+# Notice:
+#   This is a generated file. Any modifications you make here will be overwritten
+#   the next time the specs are generated.
+#   It was generated from: <%= template %>
+
 BEGIN {
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
@@ -44,24 +49,7 @@ describe Redleaf::Parser do
 <% example.description.each_line do |descline| %>
 	# <%= descline.strip.chomp %>
 <% end %>
-<% if example.is_negative_test? %>
-	it "correctly holds the document '<%= example.input_doc %>' to be in error" do
- 		model = Redleaf::Model.new
-		lambda {
-			model.parse( @datadir + '<%= example.input_doc %>' )
-		}.should raise_error( Redleaf::ParseError, /incorrect/ )
-	end
-<% else %>
-	it "correctly parses the document '<%= example.input_doc %>'" do
- 		input_model = Redleaf::Model.new
-		expected_model = Redleaf::Model.new
-		
-		input_model.parse( @datadir + '<%= example.input_doc %>' )
-		expected_model.parse( @datadir + '<%= example.output_doc %>' )
-
-		input_model.should == expected_model
-	end
-<% end %>
+	it "passes the W3C miscellaneous test '<%= example.id %>'"
 
 <% end %>
 
