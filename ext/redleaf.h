@@ -59,7 +59,6 @@
 
 extern VALUE rleaf_mRedleaf;
 extern VALUE rleaf_cRedleafGraph;
-extern VALUE rleaf_cRedleafNode;
 extern VALUE rleaf_cRedleafStatement;
 extern VALUE rleaf_cRedleafParser;
 
@@ -77,7 +76,6 @@ void rleaf_log( const char*, const char* );
 void Init_redleaf_ext( void );
 
 void rleaf_init_redleaf_graph( void );
-void rleaf_init_redleaf_node( void );
 void rleaf_init_redleaf_parser( void );
 void rleaf_init_redleaf_statement( void );
 

@@ -150,7 +150,6 @@ void Init_redleaf_ext( void ) {
 
 	/* Initialize all the other classes */
 	rleaf_init_redleaf_graph();
-	rleaf_init_redleaf_node();
 	rleaf_init_redleaf_parser();
 	rleaf_init_redleaf_statement();
 }
