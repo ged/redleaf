@@ -139,7 +139,7 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
 void Init_redleaf_ext( void ) {
 
 	/* Load the Redland module from the Ruby source to get the logger */
-	rb_require( "redland" );
+	rb_require( "redleaf" );
 
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 
