@@ -40,9 +40,13 @@ namespace :spec do
 end
 	
 
+task :debug do
+	$DEBUG = true
+end
+
 desc "Make the Rakefile for the C extension"
 file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
-	require 'misc/monkeypatches' # Fix Mkrf's output
+	require 'misc/monkeypatches' # Fix Mkrf's output and some other stuff
 	
 	log "Configuring redleaf C extension"
 	Dir.chdir( EXTDIR ) do

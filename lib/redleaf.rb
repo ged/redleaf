@@ -29,7 +29,7 @@ module Redleaf
 	SVNId = %q$Id$
 
 	# Library version
-	VERSION = '0.1.1'
+	VERSION = '0.0.1'
 
 
 	# Load the logformatters and some other stuff first

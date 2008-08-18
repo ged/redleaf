@@ -50,25 +50,54 @@ librdf_world *rleaf_rdf_world = NULL;
 /*
  * Log a message to the given +context+ object's logger.
  */
-void rleaf_log_with_context( VALUE context, const char *level, const char *msg ) {
+void
+#ifdef HAVE_STDARG_PROTOTYPES
+rleaf_log_with_context( VALUE context, const char *level, const char *fmt, ... ) 
+#else
+rleaf_log_with_context( VALUE context, const char *level, const char *fmt, va_dcl ) 
+#endif
+{
+	char buf[BUFSIZ];
+	va_list	args;
 	VALUE logger = Qnil;
-	VALUE message = rb_str_new2( msg );
+	VALUE message = Qnil;
+
+	va_start( args, fmt );
+	vsnprintf( buf, BUFSIZ, fmt, args );
+	message = rb_str_new2( buf );
 	
 	logger = rb_funcall( context, rb_intern("log"), 0, 0 );
 	rb_funcall( logger, rb_intern(level), 1, message );
+
+	va_end( args );
 }
 
 
 /* 
  * Log a message to the global logger.
  */
-void rleaf_log( const char *level, const char *msg ) {
+void
+#ifdef HAVE_STDARG_PROTOTYPES
+rleaf_log( const char *level, const char *fmt, ... ) 
+#else
+rleaf_log( const char *level, const char *fmt, va_dcl ) 
+#endif
+{
+	char buf[BUFSIZ];
+	va_list	args;
 	VALUE logger = Qnil;
-	VALUE message = rb_str_new2( msg );
+	VALUE message = Qnil;
 
+	va_init_list( args, fmt );
+	vsnprintf( buf, BUFSIZ, fmt, args );
+	message = rb_str_new2( buf );
+	
 	logger = rb_funcall( rleaf_mRedleaf, rb_intern("logger"), 0, 0 );
 	rb_funcall( logger, rb_intern(level), 1, message );
+
+	va_end( args );
 }
+
 
 
 /* --------------------------------------------------------------

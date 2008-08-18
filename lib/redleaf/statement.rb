@@ -33,13 +33,26 @@ class Redleaf::Statement
 	SVNId = %q$Id$
 
 
+	### Transform the given object to a node.
+	def object_to_node( object )
+	
+		case object
+		when URL, NilClass
+			object
+		else
+			# Figure out what else to return
+		end
+	end
+	
+
 
 	### Equivalence method -- two Redleaf::Statements are equivalent if their subject and object
 	### nodes are equivalent according to the bijective function described in:
 	###   http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/#section-graph-equality
 	### and they have the same predicate.
-	# def eql?( other_statement )
-	# end
+	def eql?( other_statement )
+		
+	end
 	
 
 end # class Redleaf::Statement

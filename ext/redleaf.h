@@ -66,12 +66,31 @@ extern librdf_world *rleaf_rdf_world;
 
 
 /* --------------------------------------------------------------
+ * Macros
+ * -------------------------------------------------------------- */
+#define IsStatement( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStatement )
+
+
+/* --------------------------------------------------------------
  * Function declarations
  * -------------------------------------------------------------- */
 
-void rleaf_log_with_context( VALUE, const char*, const char* );
-void rleaf_log( const char*, const char* );
+#ifdef HAVE_STDARG_PROTOTYPES
+#include <stdarg.h>
+#define va_init_list(a,b) va_start(a,b)
+void rleaf_log_with_context( VALUE context, const char *level, const char *fmt, ... );
+void rleaf_log( const char *level, const char *fmt, ... );
+#else
+#include <varargs.h>
+#define va_init_list(a,b) va_start(a)
+void rleaf_log_with_context( VALUE context, const char *level, const char *fmt, va_dcl );
+void rleaf_log( const char *level, const char *fmt, va_dcl );
+#endif
 
+
+/* --------------------------------------------------------------
+ * Initializers
+ * -------------------------------------------------------------- */
 
 void Init_redleaf_ext( void );
 

@@ -37,6 +37,7 @@ include Redleaf::Constants
 describe Redleaf::Statement do
 	include Redleaf::SpecHelpers
 
+	BOOK = Redleaf::Namespace.new( 'http://purl.org/net/schemas/book/' )
 
 	before( :all ) do
 		setup_logging( :debug )
@@ -44,13 +45,41 @@ describe Redleaf::Statement do
 
 
 	before( :each ) do
-		@statement = Redleaf::Statement.new
+		@subject = URI.parse( 'mailto:ged@FaerieMUD.org' )
+		@predicate = BOOK['favourite']
+		@object = URI.parse( 'urn:isbn:0297783297' )
+		@statement = Redleaf::Statement.new( @subject, @predicate, @object )
 	end
 	
 
 	after( :all ) do
 		reset_logging()
 	end
+
+
+	it "can be cleared" do
+		@statement.clear
+		@statement.subject.should be_nil()
+		@statement.predicate.should be_nil()
+		@statement.object.should be_nil()
+	end
+	
+	
+	# get_subject
+	# set_subject
+	# get_predicate
+	# set_predicate
+	# get_object
+	# set_object
+	# is_complete
+	# to_string
+	# print
+	# equals
+	# match
+	# encode
+	# encode_parts
+	# decode
+	# decode_parts
 
 
 end
