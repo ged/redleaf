@@ -121,28 +121,69 @@ static librdf_statement *get_statement( VALUE self ) {
 
 
 /*
+ * Convert the given resource librdf_node to a Ruby URI object and return it.
+ */
+static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
+	const librdf_uri *uri;
+	const unsigned char *uristring;
+
+	if ( (uri = librdf_node_get_uri( node )) == NULL )
+		rb_fatal( "Null pointer from node_get_uri in rleaf_librdf_node_to_uri" );
+	uristring = librdf_uri_as_string( uri );
+
+	rleaf_log( "debug", "converting %s to a URI object", uristring );
+	node_object = rb_funcall( rb_cURI, rb_intern("parse"), 1,
+		rb_str_new2((const char *)uristring) );
+}
+
+
+/*
+ * Convert the given literal librdf_node to a Ruby object and return it.
+ */
+static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
+	const librdf_uri *uri;
+
+	/* Plain literal -> String */
+	if ( (uri = librdf_node_get_literal_value_datatype_uri(node)) == NULL ) {
+		node_object = rb_str_new2( (const char *)librdf_node_get_literal_value(node) );
+	}
+	
+	/* Typed literal */
+	else {
+		
+	}
+}
+
+
+/*
  * Convert the given librdf_node to a Ruby object and return it as a VALUE.
  */
 static VALUE rleaf_librdf_node_to_value( librdf_node *node ) {
 	librdf_node_type nodetype = librdf_node_get_type( node );
+	VALUE node_object = Qnil;
 
 	switch( nodetype ) {
-		
-		/* URI */
-		case LIBRDF_NODE_TYPE_RESOURCE:
+
+	  /* URI node => URI */
+	  case LIBRDF_NODE_TYPE_RESOURCE:
+		node_object = rleaf_librdf_uri_node_to_object( librdf_node *node );
 		break;
 
-	  	case LIBRDF_NODE_TYPE_LITERAL:
+	  /* Blank node => nil */
+	  case LIBRDF_NODE_TYPE_BLANK:
+		node_object = Qnil;
+		break;
+
+	  /* Literal => <ruby object> */
+	  case LIBRDF_NODE_TYPE_LITERAL:
+		node_object = rleaf_librdf_literal_node_to_object( librdf_node *node );
 		break;
 		
-	  	case LIBRDF_NODE_TYPE_BLANK:
-		break;
-		
-		default:
+	  default:
 		rb_fatal( "Unknown node type %d encountered when converting a node.", nodetype );
 	}
 
-	return Qnil;
+	return node_object;
 }
 
 /*

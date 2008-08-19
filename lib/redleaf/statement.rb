@@ -1,8 +1,19 @@
 #!/usr/bin/env ruby
  
-require 'uri'
+begin
+	require 'uri'
+	require 'bigdecimal'
+	require 'date'
+	require 'duration'
 
-require 'redleaf'
+	require 'redleaf'
+rescue LoadError => err
+	unless Object.const_defined?( :Gem )
+		require 'rubygems'
+		retry
+	end
+	raise
+end
 
 
 # An RDF statement class. A statement is a node-arc-node triple (subject --predicate--> object). The
@@ -18,7 +29,7 @@ require 'redleaf'
 # * Michael Granger <ged@FaerieMUD.org>
 # * Mahlon Smith <mahlon@martini.nu>
 # 
-#:include: LICENSE
+# :include: LICENSE
 #
 #---
 #
@@ -33,12 +44,26 @@ class Redleaf::Statement
 	SVNId = %q$Id$
 
 
-	### Transform the given object to a node.
-	def object_to_node( object )
+	### Transform the given +string_value+ into a Ruby object based on the datatype
+	### in +typeduri+.
+	def make_typed_literal_object( typeuri, string_value )
 	
-		case object
-		when URL, NilClass
-			object
+		case typeuri
+		when XSD[:string]
+			return string_value
+			
+		when XSD[:float]
+			return Float( string_value )
+			
+		when XSD[:decimal]
+			return BigDecimal( string_value )
+
+		when XSD[:dateTime]
+			return DateTime.parse( string_value )
+
+		when XDS[:duration]
+			return Duration.new( )
+
 		else
 			# Figure out what else to return
 		end

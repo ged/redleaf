@@ -3,23 +3,23 @@
 require 'logger' 
 
 
-### An RDF library for Ruby
-### 
-### == Subversion Id
-###
-###  $Id$
-### 
-### == Authors
-### 
-### * Michael Granger <ged@FaerieMUD.org>
-### * Mahlon Smith <mahlon@martini.nu>
-### 
-### :include: LICENSE
-###
-###---
-###
-### Please see the file LICENSE in the BASE directory for licensing details.
-###
+# An RDF library for Ruby. See the README for more details.
+# 
+# == Subversion Id
+#
+#  $Id$
+# 
+# == Authors
+# 
+# * Michael Granger <ged@FaerieMUD.org>
+# * Mahlon Smith <mahlon@martini.nu>
+# 
+# :include: LICENSE
+#
+#---
+#
+# Please see the file LICENSE in the BASE directory for licensing details.
+#
 module Redleaf
 
 	# SVN Revision

@@ -2,33 +2,43 @@
 # 
 # A collection of mixins shared between Redleaf classes. Stolen mostly from ThingFish.
 #
-# == Version
-#
-#  $Id$
-#
-# == Authors
-#
-# * Michael Granger <mgranger@laika.com>
-# * Mahlon E. Smith <mahlon@laika.com>
-#
-# :include: LICENSE
-#
-#---
-#
-# Please see the file LICENSE in the 'docs' directory for licensing details.
-#
 
-require 'rbconfig'
-require 'erb'
-require 'etc'
-require 'logger'
+begin
+	require 'rbconfig'
+	require 'erb'
+	require 'etc'
+	require 'logger'
 
-require 'redleaf'
+	require 'redleaf'
+rescue LoadError => err
+	unless Object.const_defined?( :Gem )
+		require 'rubygems'
+		retry
+	end
+	raise
+end
 
 
 module Redleaf # :nodoc:
 
-	### Add logging to a Redleaf class
+	# 
+	# Add logging to a Redleaf class. Including classes get #log and #log_debug methods.
+	# 
+	# == Version
+	#
+	#  $Id$
+	#
+	# == Authors
+	#
+	# * Michael Granger <mgranger@laika.com>
+	# * Mahlon E. Smith <mahlon@laika.com>
+	#
+	# :include: LICENSE
+	#
+	#---
+	#
+	# Please see the file LICENSE in the 'docs' directory for licensing details.
+	#
 	module Loggable
 
 		LEVEL = {
@@ -41,7 +51,7 @@ module Redleaf # :nodoc:
 
 		### A logging proxy class that wraps calls to the logger into calls that include
 		### the name of the calling class.
-		class ClassNameProxy
+		class ClassNameProxy # :nodoc:
 
 			### Create a new proxy for the given +klass+.
 			def initialize( klass, force_debug=false )

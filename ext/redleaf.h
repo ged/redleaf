@@ -62,6 +62,8 @@ extern VALUE rleaf_cRedleafGraph;
 extern VALUE rleaf_cRedleafStatement;
 extern VALUE rleaf_cRedleafParser;
 
+extern VALUE rb_cURI;
+
 extern librdf_world *rleaf_rdf_world;
 
 

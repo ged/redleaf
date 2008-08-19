@@ -50,6 +50,10 @@ VALUE rleaf_cRedleafGraph;
  * Redleaf Graph class
  */
 void rleaf_init_redleaf_graph( void ) {
+#ifdef FOR_RDOC
+	rleaf_mRedleaf = rb_define_module( "Redleaf" );
+#endif
+
 	rleaf_cRedleafGraph = rb_define_class_under( rleaf_mRedleaf, "Graph", rb_cObject );
 	
 	rleaf_log( "debug", "Initializing Redleaf::Graph" );

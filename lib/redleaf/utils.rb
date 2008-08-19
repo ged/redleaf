@@ -1,22 +1,4 @@
 #!/usr/bin/ruby
-# 
-# A collection of little utility classes used elsewhere throughout the code
-#
-# == Version
-#
-#  $Id$
-#
-# == Authors
-#
-# * Michael Granger <mgranger@laika.com>
-# * Mahlon E. Smith <mahlon@laika.com>
-#
-# :include: LICENSE
-#
-#---
-#
-# Please see the file LICENSE in the 'docs' directory for licensing details.
-#
 
 require 'logger'
 require 'erb'
@@ -28,7 +10,29 @@ require 'redleaf/mixins'
 
 module Redleaf # :nodoc:
 
-	### A alternate formatter for Logger instances.
+	# 
+	# A alternate formatter for Logger instances.
+	# 
+	# == Usage
+	# 
+	#   require 'redleaf/utils'
+	#   Redleaf.logger.formatter = Redleaf::LogFormatter.new( Redleaf.logger )
+	# 
+	# == Version
+	#
+	#  $Id$
+	#
+	# == Authors
+	#
+	# * Michael Granger <mgranger@laika.com>
+	# * Mahlon E. Smith <mahlon@laika.com>
+	#
+	# :include: LICENSE
+	#
+	#---
+	#
+	# Please see the file LICENSE in the 'docs' directory for licensing details.
+	#
 	class LogFormatter < Logger::Formatter
 
 		# The format to output unless debugging is turned on
@@ -83,11 +87,34 @@ module Redleaf # :nodoc:
 	end # class LogFormatter
 	
 	
-	### An alternate formatter for Logger instances that outputs <dd> HTML
-	### fragments.
+	# 
+	# An alternate formatter for Logger instances that outputs +dd+ HTML
+	# fragments.
+	# 
+	# == Usage
+	# 
+	#   require 'redleaf/utils'
+	#   Redleaf.logger.formatter = Redleaf::HtmlLogFormatter.new( Redleaf.logger )
+	# 
+	# == Version
+	#
+	#  $Id$
+	#
+	# == Authors
+	#
+	# * Michael Granger <mgranger@laika.com>
+	# * Mahlon E. Smith <mahlon@laika.com>
+	#
+	# :include: LICENSE
+	#
+	#---
+	#
+	# Please see the file LICENSE in the 'docs' directory for licensing details.
+	#
 	class HtmlLogFormatter < Logger::Formatter
 		include ERB::Util  # for html_escape()
 
+		# The default HTML fragment that'll be used as the template for each log message.
 		HTML_LOG_FORMAT = %q{
 		<dd class="log-message %5$s">
 			<span class="log-time">%1$s.%2$06d</span>

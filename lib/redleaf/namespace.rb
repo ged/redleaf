@@ -1,9 +1,17 @@
 #!/usr/bin/env ruby
  
-require 'uri'
-require 'pathname'
+begin
+	require 'uri'
+	require 'pathname'
 
-require 'redleaf'
+	require 'redleaf'
+rescue LoadError => err
+	unless Object.const_defined?( :Gem )
+		require 'rubygems'
+		retry
+	end
+	raise
+end
 
 
 # A convenience class for building Redleaf::Resource objects.
@@ -17,7 +25,7 @@ require 'redleaf'
 # * Michael Granger <ged@FaerieMUD.org>
 # * Mahlon Smith <mahlon@martini.nu>
 # 
-#:include: LICENSE
+# :include: LICENSE
 #
 #---
 #

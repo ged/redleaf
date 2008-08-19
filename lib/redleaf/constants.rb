@@ -1,7 +1,16 @@
 #!/usr/bin/env ruby
  
-require 'redleaf'
-require 'redleaf/namespace'
+begin
+	require 'redleaf'
+	require 'redleaf/namespace'
+rescue LoadError => err
+	unless Object.const_defined?( :Gem )
+		require 'rubygems'
+		retry
+	end
+	raise
+end
+
 
 # A module of library-wide constants
 # 
@@ -14,7 +23,7 @@ require 'redleaf/namespace'
 # * Michael Granger <ged@FaerieMUD.org>
 # * Mahlon Smith <mahlon@martini.nu>
 # 
-#:include: LICENSE
+# :include: LICENSE
 #
 #---
 #

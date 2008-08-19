@@ -44,7 +44,9 @@
 
 VALUE rleaf_mRedleaf;
 
+
 librdf_world *rleaf_rdf_world = NULL;
+VALUE rb_cURI = Qnil;
 
 
 /*
@@ -171,6 +173,10 @@ void Init_redleaf_ext( void ) {
 	rb_require( "redleaf" );
 
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
+
+	/* Get references to class objects we'll use a lot */
+	rb_require( "uri" );
+	rb_cURI = rb_const_get( rb_cObject, rb_intern("URI") );
 
 	/* Set up the world and the finalizer for it */
 	rleaf_rdf_world = librdf_new_world();

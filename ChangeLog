@@ -1,3 +1,43 @@
+-- Mon, 18 Aug 2008 15:50:34 -0000 by deveiant (r17) -----
+   Changed: lib/redleaf/statement.rb
+            ext/redleaf.c
+            ext/statement.c
+            ext/redleaf.h
+            lib/redleaf.rb
+            Rakefile.local (and 2 other/s)
+
+    * Made logging from C accept sprintf()-style arguments.
+    * Started work on the Redleaf::Statement class.
+    * Fixed version number: 0.1.1 -> 0.0.1
+
+
+-- Sat, 16 Aug 2008 01:51:47 -0000 by deveiant (r16) -----
+   Changed: Rakefile
+            ext/redleaf.c
+            misc/monkeypatches.rb
+            Rakefile.local
+
+    * Fixed bug in redleaf.c -> 'redland' should be 'redleaf'
+    * Updated build system
+    * Make all spec tasks depend on :build instead of just the main one
+    * A bunch of mkrf monkeypatch additions to make it build on FreeBSD
+
+
+-- Fri, 15 Aug 2008 17:13:48 -0000 by deveiant (r15) -----
+   Added:   spec/templates/w3c_entailment_spec.template (new)
+            spec/templates/w3c_miscellaneous_spec.template (new)
+   Changed: ext/graph.c
+            spec/templates/w3c_parser_spec.template
+            ChangeLog
+            misc/monkeypatches.rb
+            spec
+            Rakefile.local (and 2 other/s)
+
+    * More work on the W3C spec generator
+    * Added some more workarounds to the Mkrf monkeypatches that cause it to
+    log output from header/library testing to the mkrf.log.
+
+
 -- Fri, 15 Aug 2008 00:51:31 -0000 by deveiant (r14) -----
    Changed: ext/redleaf.c
             ext/redleaf.h
