@@ -168,6 +168,8 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
  * -------------------------------------------------------------- */
 
 void Init_redleaf_ext( void ) {
+	const VALUE objectspace_module = rb_const_get( rb_cObject, rb_intern("ObjectSpace") );
+	VALUE finalizer_proc = Qnil;
 
 	/* Load the Redland module from the Ruby source to get the logger */
 	rb_require( "redleaf" );
@@ -180,8 +182,11 @@ void Init_redleaf_ext( void ) {
 
 	/* Set up the world and the finalizer for it */
 	rleaf_rdf_world = librdf_new_world();
+	finalizer_proc = rb_proc_new( rleaf_redleaf_finalizer, 0 );
+	rb_funcall( objectspace_module, "define_finalizer", 2, rleaf_mRedleaf, finalizer_proc );
+
+	/* Hook up the Redland global logger function to Redleaf's Logger instance */
 	librdf_world_set_logger( rleaf_rdf_world, NULL, rleaf_rdflib_log_handler );
-	rb_set_end_proc( rleaf_redleaf_finalizer, 0 );
 
 	/* Initialize all the other classes */
 	rleaf_init_redleaf_graph();
