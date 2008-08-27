@@ -64,6 +64,9 @@ rleaf_log_with_context( VALUE context, const char *level, const char *fmt, va_dc
 	VALUE logger = Qnil;
 	VALUE message = Qnil;
 
+	/* Don't log stuff if the world is already gone. */
+	if ( ! rleaf_rdf_world ) return;
+
 	va_start( args, fmt );
 	vsnprintf( buf, BUFSIZ, fmt, args );
 	message = rb_str_new2( buf );
@@ -90,6 +93,9 @@ rleaf_log( const char *level, const char *fmt, va_dcl )
 	VALUE logger = Qnil;
 	VALUE message = Qnil;
 
+	/* Don't log stuff if the world is already gone. */
+	if ( ! rleaf_rdf_world ) return;
+
 	va_init_list( args, fmt );
 	vsnprintf( buf, BUFSIZ, fmt, args );
 	message = rb_str_new2( buf );
@@ -113,6 +119,7 @@ static void rleaf_redleaf_finalizer( VALUE unused ) {
 	if ( rleaf_rdf_world ) {
 		rleaf_log( "debug", "Freeing librdf world." );
 		librdf_free_world( rleaf_rdf_world );
+		rleaf_rdf_world = NULL;
 	} else {
 		rleaf_log( "debug", "librdf world was NULL, so not trying to free it." );
 	}
@@ -168,12 +175,8 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
  * -------------------------------------------------------------- */
 
 void Init_redleaf_ext( void ) {
-	const VALUE objectspace_module = rb_const_get( rb_cObject, rb_intern("ObjectSpace") );
-	VALUE finalizer_proc = Qnil;
-
-	/* Load the Redland module from the Ruby source to get the logger */
+	/* Load the Redland module from the Ruby source */
 	rb_require( "redleaf" );
-
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 
 	/* Get references to class objects we'll use a lot */
@@ -182,8 +185,7 @@ void Init_redleaf_ext( void ) {
 
 	/* Set up the world and the finalizer for it */
 	rleaf_rdf_world = librdf_new_world();
-	finalizer_proc = rb_proc_new( rleaf_redleaf_finalizer, 0 );
-	rb_funcall( objectspace_module, "define_finalizer", 2, rleaf_mRedleaf, finalizer_proc );
+	rb_set_end_proc( rleaf_redleaf_finalizer, 0 ); 
 
 	/* Hook up the Redland global logger function to Redleaf's Logger instance */
 	librdf_world_set_logger( rleaf_rdf_world, NULL, rleaf_rdflib_log_handler );

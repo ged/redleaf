@@ -53,6 +53,7 @@ file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
 		Mkrf::Generator.new( 'redleaf_ext', FileList['*.c'] ) do |gen|
 			trace "Setting CFLAGS"
 			gen.cflags << ' -Wall'
+			gen.cflags << ' -ggdb'
 			gen.cflags << ' -DDEBUG'
 
 			%w[redland.h raptor.h rasqal.h].each do |header|
