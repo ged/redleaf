@@ -44,9 +44,13 @@ class Redleaf::Statement
 	SVNId = %q$Id$
 
 
+	#################################################################
+	###	C L A S S   M E T H O D S
+	#################################################################
+
 	### Transform the given +string_value+ into a Ruby object based on the datatype
 	### in +typeduri+.
-	def make_typed_literal_object( typeuri, string_value )
+	def self::make_typed_literal_object( typeuri, string_value )
 	
 		case typeuri
 		when XSD[:string]
@@ -68,6 +72,18 @@ class Redleaf::Statement
 			# Figure out what else to return
 		end
 	end
+	
+	### Transform the given +object+ into a tuple of [ canonical_string_value, datatype_uri ]
+	### and return it as an Array.
+	def self::make_object_typed_literal( object )
+		raise NotImplementedError, "Not implemented yet"
+	end
+	
+
+	#################################################################
+	###	I N S T A N C E   M E T H O D S
+	#################################################################
+
 	
 
 

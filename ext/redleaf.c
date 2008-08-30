@@ -43,10 +43,15 @@
 #include "redleaf.h"
 
 VALUE rleaf_mRedleaf;
-
+VALUE rb_cURI = Qnil;
 
 librdf_world *rleaf_rdf_world = NULL;
-VALUE rb_cURI = Qnil;
+
+const librdf_uri *rleaf_xsd_string_typeuri;
+const librdf_uri *rleaf_xsd_float_typeuri;
+const librdf_uri *rleaf_xsd_decimal_typeuri;
+const librdf_uri *rleaf_xsd_integer_typeuri;
+const librdf_uri *rleaf_xsd_boolean_typeuri;
 
 
 /*
@@ -118,7 +123,7 @@ rleaf_log( const char *level, const char *fmt, va_dcl )
 static void rleaf_redleaf_finalizer( VALUE unused ) {
 	if ( rleaf_rdf_world ) {
 		rleaf_log( "debug", "Freeing librdf world." );
-		librdf_free_world( rleaf_rdf_world );
+		// librdf_free_world( rleaf_rdf_world );
 		rleaf_rdf_world = NULL;
 	} else {
 		rleaf_log( "debug", "librdf world was NULL, so not trying to free it." );
@@ -185,10 +190,18 @@ void Init_redleaf_ext( void ) {
 
 	/* Set up the world and the finalizer for it */
 	rleaf_rdf_world = librdf_new_world();
+	librdf_world_open( rleaf_rdf_world );
 	rb_set_end_proc( rleaf_redleaf_finalizer, 0 ); 
 
 	/* Hook up the Redland global logger function to Redleaf's Logger instance */
 	librdf_world_set_logger( rleaf_rdf_world, NULL, rleaf_rdflib_log_handler );
+
+	/* Set up the XSD type URI constants */
+	rleaf_xsd_string_typeuri  = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("string") );
+	rleaf_xsd_float_typeuri   = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("float") );
+	rleaf_xsd_decimal_typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("decimal") );
+	rleaf_xsd_integer_typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("integer") );
+	rleaf_xsd_boolean_typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("boolean") );
 
 	/* Initialize all the other classes */
 	rleaf_init_redleaf_graph();

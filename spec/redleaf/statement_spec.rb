@@ -40,7 +40,7 @@ describe Redleaf::Statement do
 	BOOK = Redleaf::Namespace.new( 'http://purl.org/net/schemas/book/' )
 
 	before( :all ) do
-		setup_logging( :debug )
+		setup_logging( :fatal )
 	end
 
 
@@ -65,12 +65,42 @@ describe Redleaf::Statement do
 	end
 	
 	
-	# get_subject
-	# set_subject
-	# get_predicate
-	# set_predicate
-	# get_object
-	# set_object
+	# Subject
+	
+	it "allows its subject to be set to a URI" do
+		deveiate = URI.parse( 'http://deveiate.org/' )
+		@statement.subject = deveiate
+		@statement.subject.should == deveiate
+	end
+	
+
+	it "allows its subject to be set to a blank node" do
+		@statement.subject = nil
+		@statement.subject.should be_nil()
+	end
+
+	
+	it "does not allow its subject to be set to a literal"
+
+
+	# Predicate
+
+	it "allows its predicate to be set to a URI"
+	it "does not allow its predicate to be set to a blank node"
+	it "does not allow its predicate to be set to a literal"
+
+
+	# Object
+
+	it "allows its object to be set to a URI"
+	it "allows its object to be set to a blank node"
+	it "allows its object to be set to a plain literal"
+	it "allows its object to be set to a Fixnum"
+	it "allows its object to be set to a Float"
+	it "allows its object to be set to true"
+	it "allows its object to be set to false"
+
+
 	# is_complete
 	# to_string
 	# print

@@ -45,6 +45,11 @@
 VALUE rleaf_cRedleafStatement;
 
 
+/* --------------------------------------------------------------
+ * Predeclarations
+ * -------------------------------------------------------------- */
+
+
 /* --------------------------------------------------
  *	Memory-management functions
  * -------------------------------------------------- */
@@ -63,7 +68,7 @@ static librdf_statement *rleaf_statement_alloc() {
  * GC Mark function
  */
 static void rleaf_statement_gc_mark( librdf_statement *ptr ) {
-		rleaf_log( "debug", "in mark function for RedLeaf::Statement %p", ptr );
+	rleaf_log( "debug", "in mark function for RedLeaf::Statement %p", ptr );
 	
 	if ( ptr ) {
 		rleaf_log( "debug", "marked" );
@@ -75,6 +80,7 @@ static void rleaf_statement_gc_mark( librdf_statement *ptr ) {
 }
 
 
+
 /*
  * GC Free function
  */
@@ -82,8 +88,10 @@ static void rleaf_statement_gc_free( librdf_statement *ptr ) {
 	if ( ptr ) {
 		rleaf_log( "debug", "in free function of Redleaf::Statement <%p>", ptr );
 		librdf_free_statement( ptr );
+		
+		ptr = NULL;
 	}
-	
+
 	else {
 		rleaf_log( "warn", "not freeing an uninitialized Redleaf::Statement" );
 	}
@@ -128,6 +136,7 @@ static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 	librdf_uri *uri;
 	const unsigned char *uristring;
 
+	rleaf_log( "debug", "trying to convert node %p to a URI object", node );
 	if ( (uri = librdf_node_get_uri( node )) == NULL )
 		rb_fatal( "Null pointer from node_get_uri in rleaf_librdf_node_to_uri" );
 	uristring = librdf_uri_as_string( uri );
@@ -135,6 +144,8 @@ static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 	rleaf_log( "debug", "converting %s to a URI object", uristring );
 	node_object = rb_funcall( rb_cURI, rb_intern("parse"), 1,
 		rb_str_new2((const char *)uristring) );
+	
+	return node_object;
 }
 
 
@@ -143,16 +154,23 @@ static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
  */
 static VALUE rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 	VALUE node_object = Qnil;
-	const librdf_uri *uri;
+	librdf_uri *uri;
+	const char *literalstring, *uristring;
+
+	uri = librdf_node_get_literal_value_datatype_uri( node );
+	literalstring = (const char *)librdf_node_get_literal_value( node );
 
 	/* Plain literal -> String */
-	if ( (uri = librdf_node_get_literal_value_datatype_uri(node)) == NULL ) {
-		node_object = rb_str_new2( (const char *)librdf_node_get_literal_value(node) );
+	if ( uri == NULL ) {
+		rleaf_log( "debug", "Converting plain literal %s to a String.", literalstring );
+		node_object = rb_str_new2( literalstring );
 	}
 	
 	/* Typed literal */
 	else {
-		
+		uristring = (const char *)librdf_uri_to_string( uri );
+		rleaf_log( "debug", "Converting <%s> literal %s to a String.", uristring, literalstring );
+		node_object = rb_str_new2( literalstring );
 	}
 	
 	return node_object;
@@ -191,13 +209,80 @@ static VALUE rleaf_librdf_node_to_value( librdf_node *node ) {
 }
 
 /*
- * Convert the given Ruby +object+ to a librdf_node.
+ * Convert the given Ruby +object+ (VALUE) to a librdf_node.
  */
 static librdf_node *rleaf_value_to_librdf_node( VALUE object ) {
-	librdf_node *node = librdf_new_node_from_blank_identifier( rleaf_rdf_world, NULL );
+	VALUE str, typeuristr, converted_pair;
+	VALUE inspected_object = rb_inspect( object );
+	librdf_uri *typeuri;
 	
-	return node;
+	/* :TODO: how to set language? is_xml flag? */
+
+	rleaf_log( "debug", "Converting %s to a librdf_node.", RSTRING(inspected_object)->ptr );
+	switch( TYPE(object) ) {
+		
+		/* nil -> bnode */
+		case T_NIL:
+		return librdf_new_node_from_blank_identifier( rleaf_rdf_world, NULL );
+		
+		/* String -> plain literal */
+		case T_STRING:
+		str = StringValue( object );
+		typeuri = XSD_STRING_TYPE;
+		break;
+		
+		/* Float -> xsd:float */
+		case T_FLOAT:
+		str = StringValue( object );
+		typeuri = XSD_FLOAT_TYPE;
+		break;
+
+		/* Bignum -> xsd:decimal */
+		case T_BIGNUM:
+		str = StringValue( object );
+		typeuri = XSD_DECIMAL_TYPE;
+		break;
+
+		/* Fixnum -> xsd:integer */
+		case T_FIXNUM:
+		str = StringValue( object );
+		typeuri = XSD_INTEGER_TYPE;
+		break;
+		
+		/* TrueClass/FalseClass -> xsd:boolean */
+		case T_TRUE:
+		case T_FALSE:
+		str = StringValue( object );
+		typeuri = XSD_BOOLEAN_TYPE;
+		break;
+		
+		/* URI -> librdf_uri */
+		case T_OBJECT:
+		if ( rb_obj_is_kind_of(object, rb_cURI) ) {
+			rleaf_log( "debug", "Converting URI object to librdf_uri node" );
+			str = rb_funcall( object, rb_intern("to_s"), 0 );
+			return librdf_new_node_from_uri_string( rleaf_rdf_world, (unsigned char*)RSTRING(str)->ptr );
+		}
+		/* fallthrough */
+		
+		/* Delegate anything else to Redleaf::object_to_node */
+		default:
+		converted_pair = rb_funcall( rleaf_cRedleafStatement, rb_intern("object_to_node"), 1, object );
+		str = rb_ary_entry( converted_pair, 0 );
+		typeuristr = rb_ary_entry( converted_pair, 1 );
+		typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char*)RSTRING(typeuristr)->ptr );
+	}
+	
+	return librdf_new_node_from_typed_counted_literal( 
+		rleaf_rdf_world,
+		(unsigned char *)RSTRING(str)->ptr,
+		RSTRING(str)->len,
+		NULL,
+		0,
+		typeuri );
 }
+
+
 
 
 /* --------------------------------------------------------------
@@ -264,7 +349,7 @@ static VALUE rleaf_redleaf_statement_clear( VALUE self ) {
 
 /*
  *  call-seq:
- *     statement.subject   -> URL or nil
+ *     statement.subject   -> URI or nil
  *
  *  Return the subject (node) of the statement.
  *
@@ -272,18 +357,29 @@ static VALUE rleaf_redleaf_statement_clear( VALUE self ) {
 static VALUE rleaf_redleaf_statement_subject( VALUE self ) {
 	librdf_statement *stmt = get_statement( self );
 	librdf_node *node;
-	unsigned char *nodestring;
-	VALUE subjectstring;
 	
 	if ( (node = librdf_statement_get_subject( stmt )) == NULL )
 		return Qnil;
-	if ( (nodestring = librdf_node_to_string( node )) == NULL )
-		rb_fatal( "nodestring was NULL for subject of statement <%p>", stmt );
 
-	subjectstring = rb_str_new2( (const char *)nodestring );
-	xfree( nodestring );
+	return rleaf_librdf_node_to_value( node );
+}
 
-	return subjectstring;
+
+/*
+ *  call-seq:
+ *     statement.subject= uri_or_nil
+ *
+ *  Set the subject (node) of the statement.
+ *
+ */
+static VALUE rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject ) {
+	librdf_node *node;
+	librdf_statement *stmt = get_statement( self );
+	
+	node = rleaf_value_to_librdf_node( new_subject );
+	librdf_statement_set_subject( stmt, node );
+
+	return Qnil;
 }
 
 
@@ -343,6 +439,7 @@ static VALUE rleaf_redleaf_statement_object( VALUE self ) {
  * Redleaf Statement class
  */
 void rleaf_init_redleaf_statement( void ) {
+	rb_require( "redleaf/statement" );
 	rleaf_cRedleafStatement = rb_define_class_under( rleaf_mRedleaf, "Statement", rb_cObject );
 	
 	rleaf_log( "debug", "Initializing Redleaf::Statement" );
@@ -353,8 +450,11 @@ void rleaf_init_redleaf_statement( void ) {
 	rb_define_method( rleaf_cRedleafStatement, "clear", rleaf_redleaf_statement_clear, 0 );
 
 	rb_define_method( rleaf_cRedleafStatement, "subject", rleaf_redleaf_statement_subject, 0 );
+	rb_define_method( rleaf_cRedleafStatement, "subject=", rleaf_redleaf_statement_subject_eq, 1 );
 	rb_define_method( rleaf_cRedleafStatement, "predicate", rleaf_redleaf_statement_predicate, 0 );
 	rb_define_method( rleaf_cRedleafStatement, "object", rleaf_redleaf_statement_object, 0 );
 
+
+	
 }
 

@@ -66,11 +66,26 @@ extern VALUE rb_cURI;
 
 extern librdf_world *rleaf_rdf_world;
 
+extern const librdf_uri *rleaf_xsd_string_typeuri;
+extern const librdf_uri *rleaf_xsd_float_typeuri;
+extern const librdf_uri *rleaf_xsd_decimal_typeuri;
+extern const librdf_uri *rleaf_xsd_integer_typeuri;
+extern const librdf_uri *rleaf_xsd_boolean_typeuri;
+
 
 /* --------------------------------------------------------------
  * Macros
  * -------------------------------------------------------------- */
 #define IsStatement( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStatement )
+
+#define XSD_URI_BASE "http://www.w3.org/TR/xmlschema-2/#"
+#define XSD_URI(s) XSD_URI_BASE # s
+
+#define XSD_STRING_TYPE  (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_string_typeuri ))
+#define XSD_FLOAT_TYPE   (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_float_typeuri ))
+#define XSD_DECIMAL_TYPE (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_decimal_typeuri ))
+#define XSD_INTEGER_TYPE (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_integer_typeuri ))
+#define XSD_BOOLEAN_TYPE (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_boolean_typeuri ))
 
 
 /* --------------------------------------------------------------
