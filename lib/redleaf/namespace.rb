@@ -43,6 +43,7 @@ class Redleaf::Namespace
 	### Set up a namespace for the specified +uri+.
 	def initialize( uri )
 		@uri = uri.is_a?( URI ) ? uri : URI.parse( uri )
+		@fragment_style = ! uri.index('#')
 	end
 
 
@@ -63,7 +64,11 @@ class Redleaf::Namespace
 	### Return a fully-qualified URI for the specified +term+ relative to the namespace.
 	def []( term )
 		term_uri = self.uri.dup
-		term_uri.path += term.to_s
+		if @fragment_style
+			term_uri.path += term.to_s
+		else
+			term_uri.fragment = term.to_s
+		end
 		
 		return term_uri
 	end

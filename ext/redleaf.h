@@ -48,9 +48,7 @@
 #include <rasqal.h>
 #include <redland.h>
 
-#include <ruby.h>
-#include <intern.h> /* for rb_set_end_proc() and others */
-#include <rubyio.h>
+#include "ruby.h"
 
 
 /* --------------------------------------------------------------
@@ -79,7 +77,7 @@ extern const librdf_uri *rleaf_xsd_boolean_typeuri;
 #define IsStatement( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStatement )
 
 #define XSD_URI_BASE "http://www.w3.org/TR/xmlschema-2/#"
-#define XSD_URI(s) XSD_URI_BASE # s
+#define XSD_URI(s) XSD_URI_BASE s
 
 #define XSD_STRING_TYPE  (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_string_typeuri ))
 #define XSD_FLOAT_TYPE   (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_float_typeuri ))
@@ -87,6 +85,7 @@ extern const librdf_uri *rleaf_xsd_boolean_typeuri;
 #define XSD_INTEGER_TYPE (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_integer_typeuri ))
 #define XSD_BOOLEAN_TYPE (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_boolean_typeuri ))
 
+#define STRINGIFY(a) #a
 
 /* --------------------------------------------------------------
  * Function declarations

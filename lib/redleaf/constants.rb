@@ -62,8 +62,11 @@ module Redleaf::Constants
 		OWL        = Redleaf::Namespace.new( 'http://www.w3.org/2002/07/owl#' )
 
 		# The XML Schema namespace
-		XSD        = Redleaf::Namespace.new( 'http://www.w3.org/2001/XMLSchema#' )
+		XSD        = Redleaf::Namespace.new( 'http://www.w3.org/TR/xmlschema-2/#' )
 		
+		# The "Friend-Of-A-Friend" namespace
+		FOAF       = Redleaf::Namespace.new( 'http://xmlns.com/foaf/0.1/' )
+
 	end # module CommonNamespaces
 
 end # class Redleaf::Constants

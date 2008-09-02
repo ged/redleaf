@@ -14,12 +14,50 @@ h1. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
-Redleaf is a RDF library for Ruby.
+Redleaf is an RDF library for Ruby.
+
+h2. What is RDF?
+
+RDF is the "Resource Description Framework":http://www.w3.org/RDF/, a format for encoding knowledge in a regular, machine-digestable format. There are many excellent RDF resources, but a good starting point is "What Is RDF":http://www.xml.com/pub/a/2001/01/24/rdf.html, a 
+
+
+
+It's composed of a hand-written C binding to the Redland RDF
+Libraries, and a high-level, more idiomatic layer written in Ruby that wraps the low-level Redland
+API functions.
+
 
 h2. Other RDF Libraries
 
-* Redland — http://librdf.org/
-* Semitar — http://blah.org/
+We tried out a few other RDF libraries for Ruby, and while each of them is full of great ideas, we ultimately needed something a little different than what any of them offered.
+
+<dl class="link-catalog">
+	<dt>Redland – "http://librdf.org/":http://librdf.org/</dt>
+	<dd>The Ruby binding for the excellent collection of RDF libraries grouped under
+		the name 'Redland' came the closest to what we wanted. The SWIG-based interface
+		ultimately still showed through, and our initial trials exposed some design decisions
+		that we didn't feel like we could work around. We're of course still using the same
+		C backend, but we're custom-fitting it to Ruby in a more intimate way, and adding
+		what we think is a more-natural way of using RDF from Ruby for practical tasks.</dd>
+	<dt>Semitar – "http://semitar.projects.semwebcentral.org/":http://semitar.projects.semwebcentral.org/</dt>
+	<dd>This was a project that Rich Kilmer described to be in great detail at the 2003
+		RubyConf, but it has languished since then due to Rich being perpetually swamped
+		with some other exciting new project or other. Large parts of the high-level interface
+		are heavily influenced by his ideas.</dd>
+	<dt>Rena — "http://www.tom.sfc.keio.ac.jp/~sakai/hiki/?Rena":http://www.tom.sfc.keio.ac.jp/~sakai/hiki/?Rena</dt>
+	<dd>A pure-Ruby RDF library, originally written by Masahiro Sakai, Rena provides some of
+		the same low-level functionality that is (more completely) addressed by Redland, but
+		it hasn't been maintained since 2004 and is a bit sparse and depends on a @hyperset@ 
+		library which seems to have disappeared. There's also another more-recent project 
+		called "Rena" by Tim Morris (http://github.com/tommorris/rena/new) that claims
+		some ancestry with Sakai's code, but seems in reality to share only the name[1].
+	</dd>
+	<dt>Others</dt>
+	<dd>There are a few other libraries for doing RDF stuff on Rubyforge, but nothing that
+		is as feature-complete or flexible as Redland, and nothing that presents a 
+		more-Rubyish interface. That's not to say that they're bad, of course, just not
+		our cup of tea.</dd>
+</dl>
 
 h2. Authors
 
@@ -30,28 +68,28 @@ h2. Authors
 h2. License
 
 Copyright © 2008, Michael Granger and Mahlon E. Smith
+
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without modification, are permitted
+provided that the following conditions are met:
 
-* Redistributions of source code must retain the above copyright notice, this list of
-  conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of
-  conditions and the following disclaimer in the documentation and/or other materials
-  provided with the distribution.
-* Neither the name of the authors nor contributors may be used to endorse or promote products
+* Redistributions of source code must retain the above copyright notice, this list of conditions and 
+  the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions 
+  and the following disclaimer in the documentation and/or other materials provided with the 
+  distribution.
+* Neither the name of the authors nor contributors may be used to endorse or promote products 
   derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <div id="cc-license">
 <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">
@@ -61,3 +99,11 @@ The content of this manual, including images, video, and any example source code
 licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative 
 	Commons Attribution 3.0 License</a>.
 </div>
+
+
+fn1. I base this assertion on the fact that the two projects share only two like-named files in
+common, each of which share only blank lines and <code>end</code>s. Tom's version is under a
+different copyright which makes no mention of the "original" code, is under a different license, and
+behaves very differently than the original Rena. That said, what code there is is well-tested, seems
+pretty clean, and seems to be actively worked on. -MG
+

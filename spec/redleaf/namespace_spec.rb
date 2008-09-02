@@ -42,28 +42,54 @@ describe Redleaf::Namespace do
 		setup_logging( :debug )
 	end
 
-	before( :each ) do
-		@namespace = TEST_NAMESPACE.dup
-	end
-	
-
 	after( :all ) do
 		reset_logging()
 	end
 
 
-	it "returns its stringified URI when stringified" do
-		@namespace.to_s.should == @namespace.uri.to_s
-	end
+	describe "for a directory-style namespace URI" do
+
+		before( :each ) do
+			@namespace = Redleaf::Namespace.new( 'http://xmlns.com/foaf/0.1/' )
+		end
+	
+
+		it "returns its stringified URI when stringified" do
+			@namespace.to_s.should == @namespace.uri.to_s
+		end
 
 
-	it "returns terms qualified relative to the namespace" do
-		@namespace[ 'Person' ].to_s.should == @namespace.uri.to_s + 'Person'
-	end
+		it "returns terms qualified relative to the namespace" do
+			@namespace[ 'Person' ].to_s.should == @namespace.uri.to_s + 'Person'
+		end
 
-	it "accepts Symbols as terms as well as Strings" do
-		@namespace[ :member_name ].to_s.should == @namespace.uri.to_s + 'member_name'
-	end
+		it "accepts Symbols as terms as well as Strings" do
+			@namespace[ :member_name ].to_s.should == @namespace.uri.to_s + 'member_name'
+		end
+	end	
+	
+	
+	describe "for a fragment-style namespace URI" do
+
+		before( :each ) do
+			@namespace = Redleaf::Namespace.new( 'http://www.w3.org/TR/xmlschema-2/#' )
+		end
+	
+
+		it "returns its stringified URI when stringified" do
+			@namespace.to_s.should == @namespace.uri.to_s
+		end
+
+
+		it "returns terms qualified relative to the namespace" do
+			@namespace[ 'integer' ].to_s.should == @namespace.uri.to_s + 'integer'
+		end
+
+		it "accepts Symbols as terms as well as Strings" do
+			@namespace[ :string ].to_s.should == @namespace.uri.to_s + 'string'
+		end
+	end	
+	
 	
 end
 

@@ -1,4 +1,7 @@
-/* @override http://gont.ljc.laika.com/Redleaf/css/manual.css */
+/* @override 
+	http://gont.ljc.laika.com/Redleaf/css/manual.css
+	http://localhost/Redleaf/css/manual.css
+*/
 
 /* 
  *	Redleaf Manual Stylesheet
@@ -32,7 +35,7 @@
 body {
 	margin: 0;
 	padding: 2em 4em;
-	font: 14px/1.2em "Helvetica Neue", Helvetica, Tahoma, sans-serif;
+	font: 14px/1.2em "Gill Sans", Helvetica, Tahoma, sans-serif;
 	background: #f3f3f3;
 	color: #333;
 	border-left: 5px solid #ca2f1b;

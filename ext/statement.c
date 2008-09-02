@@ -49,6 +49,10 @@ VALUE rleaf_cRedleafStatement;
  * Predeclarations
  * -------------------------------------------------------------- */
 
+static VALUE rleaf_redleaf_statement_subject_eq( VALUE, VALUE );
+static VALUE rleaf_redleaf_statement_predicate_eq( VALUE, VALUE );
+static VALUE rleaf_redleaf_statement_object_eq( VALUE, VALUE );
+
 
 /* --------------------------------------------------
  *	Memory-management functions
@@ -155,22 +159,22 @@ static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 static VALUE rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 	VALUE node_object = Qnil;
 	librdf_uri *uri;
-	const char *literalstring, *uristring;
+	VALUE literalstring, uristring;
 
 	uri = librdf_node_get_literal_value_datatype_uri( node );
-	literalstring = (const char *)librdf_node_get_literal_value( node );
+	literalstring = rb_str_new2( (char *)librdf_node_get_literal_value(node) );
 
 	/* Plain literal -> String */
 	if ( uri == NULL ) {
 		rleaf_log( "debug", "Converting plain literal %s to a String.", literalstring );
-		node_object = rb_str_new2( literalstring );
+		node_object = literalstring;
 	}
 	
 	/* Typed literal */
 	else {
-		uristring = (const char *)librdf_uri_to_string( uri );
-		rleaf_log( "debug", "Converting <%s> literal %s to a String.", uristring, literalstring );
-		node_object = rb_str_new2( literalstring );
+		uristring = rb_str_new2( (char *)librdf_uri_to_string(uri) );
+		node_object = rb_funcall( rleaf_cRedleafStatement, 
+			rb_intern("make_typed_literal_object"), 2, uristring, literalstring );
 	}
 	
 	return node_object;
@@ -227,32 +231,32 @@ static librdf_node *rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* String -> plain literal */
 		case T_STRING:
-		str = StringValue( object );
+		str = object;
 		typeuri = XSD_STRING_TYPE;
 		break;
 		
 		/* Float -> xsd:float */
 		case T_FLOAT:
-		str = StringValue( object );
+		str = rb_funcall( object, rb_intern("to_s"), 0 );
 		typeuri = XSD_FLOAT_TYPE;
 		break;
 
 		/* Bignum -> xsd:decimal */
 		case T_BIGNUM:
-		str = StringValue( object );
+		str = rb_funcall( object, rb_intern("to_s"), 0 );
 		typeuri = XSD_DECIMAL_TYPE;
 		break;
 
 		/* Fixnum -> xsd:integer */
 		case T_FIXNUM:
-		str = StringValue( object );
+		str = rb_funcall( object, rb_intern("to_s"), 0 );
 		typeuri = XSD_INTEGER_TYPE;
 		break;
 		
 		/* TrueClass/FalseClass -> xsd:boolean */
 		case T_TRUE:
 		case T_FALSE:
-		str = StringValue( object );
+		str = rb_funcall( object, rb_intern("to_s"), 0 );
 		typeuri = XSD_BOOLEAN_TYPE;
 		break;
 		
@@ -319,8 +323,16 @@ static VALUE rleaf_redleaf_statement_s_allocate( VALUE klass ) {
 static VALUE rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE self ) {
 	if ( !check_statement(self) ) {
 		librdf_statement *stmt;
+		VALUE subject = Qnil, predicate = Qnil, object = Qnil;
+
+		// if ( argc > 3 ) rb_raise( rb_eArgError, "wrong number of arguments (%d for 3)", argc );
 	
 		DATA_PTR( self ) = stmt = rleaf_statement_alloc();
+		rb_scan_args( argc, argv, "03", &subject, &predicate, &object );
+		
+		if ( argc >= 1 ) rleaf_redleaf_statement_subject_eq( self, subject );
+		if ( argc >= 2 ) rleaf_redleaf_statement_predicate_eq( self, predicate );
+		if ( argc == 3 ) rleaf_redleaf_statement_object_eq( self, object );
 		
 	} else {
 		rb_raise( rb_eRuntimeError,
@@ -376,41 +388,60 @@ static VALUE rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject )
 	librdf_node *node;
 	librdf_statement *stmt = get_statement( self );
 	
-	node = rleaf_value_to_librdf_node( new_subject );
-	librdf_statement_set_subject( stmt, node );
+	if ( new_subject == Qnil || rb_obj_is_kind_of(new_subject, rb_cURI) ) {
+		node = rleaf_value_to_librdf_node( new_subject );
+		librdf_statement_set_subject( stmt, node );
+	} else {
+		rb_raise( rb_eArgError, "Subject must be blank or a URI" );
+	}
 
-	return Qnil;
+	return new_subject;
 }
 
 
 /*
  *  call-seq:
- *     statement.predicate   -> URL
+ *     statement.predicate   -> URI or nil
  *
- *  Return the predicate (arc) of the statement.
+ *  Return the predicate (node) of the statement.
  *
  */
 static VALUE rleaf_redleaf_statement_predicate( VALUE self ) {
 	librdf_statement *stmt = get_statement( self );
 	librdf_node *node;
-	unsigned char *nodestring;
-	VALUE predicatestring;
 	
 	if ( (node = librdf_statement_get_predicate( stmt )) == NULL )
 		return Qnil;
-	if ( (nodestring = librdf_node_to_string( node )) == NULL )
-		rb_fatal( "nodestring was NULL for predicate of statement <%p>", stmt );
 
-	predicatestring = rb_str_new2( (const char *)nodestring );
-	xfree( nodestring );
-
-	return predicatestring;
+	return rleaf_librdf_node_to_value( node );
 }
 
 
 /*
  *  call-seq:
- *     statement.object   -> URL or nil
+ *     statement.predicate= uri_or_nil
+ *
+ *  Set the predicate (node) of the statement.
+ *
+ */
+static VALUE rleaf_redleaf_statement_predicate_eq( VALUE self, VALUE new_predicate ) {
+	librdf_node *node;
+	librdf_statement *stmt = get_statement( self );
+	
+	if ( rb_obj_is_kind_of(new_predicate, rb_cURI) ) {
+		node = rleaf_value_to_librdf_node( new_predicate );
+		librdf_statement_set_predicate( stmt, node );
+	} else {
+		rb_raise( rb_eArgError, "Predicate must be a URI" );
+	}
+
+	return new_predicate;
+}
+
+
+/*
+ *  call-seq:
+ *     statement.object   -> URI or nil
  *
  *  Return the object (node) of the statement.
  *
@@ -418,19 +449,31 @@ static VALUE rleaf_redleaf_statement_predicate( VALUE self ) {
 static VALUE rleaf_redleaf_statement_object( VALUE self ) {
 	librdf_statement *stmt = get_statement( self );
 	librdf_node *node;
-	unsigned char *nodestring;
-	VALUE objectstring;
 	
 	if ( (node = librdf_statement_get_object( stmt )) == NULL )
 		return Qnil;
-	if ( (nodestring = librdf_node_to_string( node )) == NULL )
-		rb_fatal( "nodestring was NULL for object of statement <%p>", stmt );
 
-	objectstring = rb_str_new2( (const char *)nodestring );
-	xfree( nodestring );
-
-	return objectstring;
+	return rleaf_librdf_node_to_value( node );
 }
+
+
+/*
+ *  call-seq:
+ *     statement.object= uri_or_nil
+ *
+ *  Set the object (node) of the statement.
+ *
+ */
+static VALUE rleaf_redleaf_statement_object_eq( VALUE self, VALUE new_object ) {
+	librdf_node *node;
+	librdf_statement *stmt = get_statement( self );
+	
+	node = rleaf_value_to_librdf_node( new_object );
+	librdf_statement_set_object( stmt, node );
+
+	return new_object;
+}
+
 
 
 
@@ -452,7 +495,9 @@ void rleaf_init_redleaf_statement( void ) {
 	rb_define_method( rleaf_cRedleafStatement, "subject", rleaf_redleaf_statement_subject, 0 );
 	rb_define_method( rleaf_cRedleafStatement, "subject=", rleaf_redleaf_statement_subject_eq, 1 );
 	rb_define_method( rleaf_cRedleafStatement, "predicate", rleaf_redleaf_statement_predicate, 0 );
+	rb_define_method( rleaf_cRedleafStatement, "predicate=", rleaf_redleaf_statement_predicate_eq, 1 );
 	rb_define_method( rleaf_cRedleafStatement, "object", rleaf_redleaf_statement_object, 0 );
+	rb_define_method( rleaf_cRedleafStatement, "object=", rleaf_redleaf_statement_object_eq, 1 );
 
 
 	
