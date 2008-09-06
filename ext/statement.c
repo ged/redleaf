@@ -475,6 +475,93 @@ static VALUE rleaf_redleaf_statement_object_eq( VALUE self, VALUE new_object ) {
 }
 
 
+/* 
+ * call-seq:
+ *    statement.complete?   -> true or false
+ * 
+ * Check if statement is a complete and legal RDF triple. Checks that
+ * all subject, predicate, object fields are present and they have the
+ * allowed node types.
+ * 
+ */
+static VALUE rleaf_redleaf_statement_complete_p( VALUE self ) {
+	librdf_statement *stmt = get_statement( self );
+	
+	if ( librdf_statement_is_complete(stmt) ) {
+		return Qtrue;
+	} else {
+		return Qfalse;
+	}
+}
+
+
+/* 
+ * call-seq:
+ *    statement.to_s   -> string
+ * 
+ * Format the librdf_statement as a string. 
+ * 
+ */
+static VALUE rleaf_redleaf_statement_to_s( VALUE self ) {
+	librdf_statement *stmt = get_statement( self );
+	unsigned char *string;
+	VALUE rb_string;
+	
+	string = librdf_statement_to_string( stmt );
+	rb_string = rb_str_new2( (char *)string );
+	xfree( string );
+	
+	return rb_string;
+}
+
+
+/* 
+ * call-seq:
+ *    statement.eql?( other_statement )   -> true or false
+ * 
+ * Returns true if the receiver is equal to +other_statement+.
+ * 
+ */
+static VALUE rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
+	librdf_statement *stmt = get_statement( self );
+	librdf_statement *other_stmt;
+
+	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
+
+	other_stmt = get_statement( other );
+	
+	if ( librdf_statement_equals(stmt, other_stmt) ) {
+		return Qtrue;
+	} else {
+		return Qfalse;
+	}
+}
+
+
+/* 
+ * call-seq:
+ *    statement === other_statement   -> true or false
+ * 
+ * Case equality: Returns true if the receiver matches +other_statement+, where some parts of the
+ * receiving statement - subject, predicate or object - can be empty (NULL). Empty parts match 
+ * against any value, parts with values must match exactly.
+ * 
+ */
+static VALUE rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
+	librdf_statement *stmt = get_statement( self );
+	librdf_statement *other_stmt;
+
+	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
+
+	other_stmt = get_statement( other );
+	
+	if ( librdf_statement_match(stmt, other_stmt) ) {
+		return Qtrue;
+	} else {
+		return Qfalse;
+	}
+}
+
 
 
 
@@ -499,7 +586,19 @@ void rleaf_init_redleaf_statement( void ) {
 	rb_define_method( rleaf_cRedleafStatement, "object", rleaf_redleaf_statement_object, 0 );
 	rb_define_method( rleaf_cRedleafStatement, "object=", rleaf_redleaf_statement_object_eq, 1 );
 
+	rb_define_method( rleaf_cRedleafStatement, "complete?", rleaf_redleaf_statement_complete_p, 0 );
 
+	rb_define_method( rleaf_cRedleafStatement, "to_s", rleaf_redleaf_statement_to_s, 0 );
+	// librdf_statement_print
+
+	rb_define_method( rleaf_cRedleafStatement, "eql?", rleaf_redleaf_statement_eql_p, 1 );
+	rb_define_alias( rleaf_cRedleafStatement, "==", "eql?" );
+	rb_define_method( rleaf_cRedleafStatement, "===", rleaf_redleaf_statement_threequal_op, 1 );
+
+	// librdf_statement_encode
+	// librdf_statement_encode_parts
+	// librdf_statement_decode
+	// librdf_statement_decode_parts
 	
 }
 

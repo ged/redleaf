@@ -93,8 +93,6 @@ describe Redleaf::Statement do
 	end
 
 
-	# Subject
-	
 	describe "created with no subject, predicate, or object" do
 		
 		before( :each ) do
@@ -102,6 +100,8 @@ describe Redleaf::Statement do
 		end
 	
 
+		# Subject
+	
 		it "allows its subject to be set to a URI" do
 			deveiate = URI.parse( 'http://deveiate.org/' )
 			@statement.subject = deveiate
@@ -179,17 +179,24 @@ describe Redleaf::Statement do
 			@statement.object = false
 			@statement.object.should == false
 		end
+
+
+		# Other stuff
+
+		it "isn't complete" do
+			@statement.should_not be_complete()
+		end
+		
+		it "can be stringified" do
+			@statement.to_s.should == '{(null), (null), (null)}'
+		end
 		
 
-		# is_complete
-		# to_string
-		# print
-		# equals
-		# match
-		# encode
-		# encode_parts
-		# decode
-		# decode_parts
+		# :TODO: print
+		# :TODO: encode
+		# :TODO: encode_parts
+		# :TODO: decode
+		# :TODO: decode_parts
 	end
 
 
@@ -204,6 +211,14 @@ describe Redleaf::Statement do
 		end
 
 
+		it "can be cleared" do
+			@statement.clear
+			@statement.subject.should be_nil()
+			@statement.predicate.should be_nil()
+			@statement.object.should be_nil()
+		end
+	
+	
 		it "has its subject set" do
 			@statement.subject.should == @subject
 		end
@@ -219,28 +234,126 @@ describe Redleaf::Statement do
 		end
 
 
-		# is_complete
-		# to_string
-		# print
-		# equals
-		# match
-		# encode
-		# encode_parts
-		# decode
-		# decode_parts
-
-
-		it "can be cleared" do
-			@statement.clear
-			@statement.subject.should be_nil()
-			@statement.predicate.should be_nil()
-			@statement.object.should be_nil()
+		it "is complete" do
+			@statement.should be_complete()
 		end
-	
+		
+		
+		it "can be stringified" do
+			@statement.to_s.should == "{[#@subject], [#@predicate], [#@object]}"
+		end
+		
+		# :TODO: print
+		# :TODO: encode
+		# :TODO: encode_parts
+		# :TODO: decode
+		# :TODO: decode_parts
+
 	end
 
-	
 
+	describe " instances that share the same subject, predicate, and object" do
+		
+		before( :each ) do
+			@subject   = TEST_EMAIL_URL
+			@predicate = TEST_FAVORITE_BOOK_URI
+			@object    = TEST_ISBN_URN
+
+			@statement1 = Redleaf::Statement.new( @subject, @predicate, @object )
+			@statement2 = Redleaf::Statement.new( @subject, @predicate, @object )
+		end
+
+		it "are == to each other" do
+			@statement1.should == @statement2
+		end
+		
+		it "are .eql? to each other" do
+			@statement1.should be_eql( @statement2 )
+		end
+
+		it "case match each other" do
+			@statement1.should === @statement2
+		end
+	end
+
+
+	describe " instances with different subjects" do
+		
+		before( :each ) do
+			@subject1  = TEST_EMAIL_URL
+			@subject2  = URI.parse('mailto:mahlon@martini.nu')
+			@predicate = TEST_FAVORITE_BOOK_URI
+			@object    = TEST_ISBN_URN
+
+			@statement1 = Redleaf::Statement.new( @subject1, @predicate, @object )
+			@statement2 = Redleaf::Statement.new( @subject2, @predicate, @object )
+		end
+
+		it "are not == to each other" do
+			@statement1.should_not == @statement2
+		end
+		
+		it "are not .eql? to each other" do
+			@statement1.should_not be_eql( @statement2 )
+		end
+
+		it "do not case match each other" do
+			@statement1.should_not === @statement2
+		end
+	end
+
+
+	describe " instances with bnode subjects" do
+		
+		before( :each ) do
+			@predicate = TEST_FAVORITE_BOOK_URI
+			@object    = TEST_ISBN_URN
+
+			@statement1 = Redleaf::Statement.new( nil, @predicate, @object )
+			@statement2 = Redleaf::Statement.new( nil, @predicate, @object )
+		end
+
+		it "are not == to each other" do
+			@statement1.should_not == @statement2
+		end
+		
+		it "are not .eql? to each other" do
+			@statement1.should_not be_eql( @statement2 )
+		end
+
+		it "do not case match each other" do
+			@statement1.should_not === @statement2
+		end
+	end
+
+
+	describe " instances, one with a NULL subject and one with a set subject" do
+		
+		before( :each ) do
+			@subject   = TEST_EMAIL_URL
+			@predicate = TEST_FAVORITE_BOOK_URI
+			@object    = TEST_ISBN_URN
+
+			# :TODO: Nil should be a NULL node, and a Symbol should be a labelled bnode
+			@statement1 = Redleaf::Statement.new( @subject, @predicate, @object )
+			@statement2 = Redleaf::Statement.new
+			@statement2.predicate = @predicate
+			@statement2.object = @object
+		end
+
+		it "are not == to each other" do
+			@statement1.should_not == @statement2
+		end
+		
+		it "are not .eql? to each other" do
+			@statement1.should_not be_eql( @statement2 )
+		end
+
+		it "case match each other" do
+			@statement1.should === @statement2
+		end
+
+	end
 
 end
 

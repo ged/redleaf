@@ -132,18 +132,6 @@ class Redleaf::Statement
 	###	I N S T A N C E   M E T H O D S
 	#################################################################
 
-	
-
-
-	### Equivalence method -- two Redleaf::Statements are equivalent if their subject and object
-	### nodes are equivalent according to the bijective function described in:
-	###   http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/#section-graph-equality
-	### and they have the same predicate.
-	def eql?( other_statement )
-		
-	end
-	
-
 end # class Redleaf::Statement
 
 # vim: set nosta noet ts=4 sw=4:

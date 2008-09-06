@@ -56,7 +56,9 @@ LIB_FILES     = Pathname.glob( LIBDIR + '**/*.rb' ).delete_if {|item| item =~ /\
 EXT_FILES     = Pathname.glob( EXTDIR + '**/*.{c,h,rb}' ).delete_if {|item| item =~ /\.svn/ }
 
 SPECDIR       = BASEDIR + 'spec'
-SPEC_FILES    = Pathname.glob( SPECDIR + '**/*_spec.rb' ).delete_if {|item| item =~ /\.svn/ }
+SPECLIBDIR    = SPECDIR + 'lib'
+SPEC_FILES    = Pathname.glob( SPECDIR + '**/*_spec.rb' ).delete_if {|item| item =~ /\.svn/ } +
+                Pathname.glob( SPECLIBDIR + '**/*.rb' ).delete_if {|item| item =~ /\.svn/ }
 
 TESTDIR       = BASEDIR + 'tests'
 TEST_FILES    = Pathname.glob( TESTDIR + '**/*.tests.rb' ).delete_if {|item| item =~ /\.svn/ }
