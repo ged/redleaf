@@ -53,6 +53,8 @@ const librdf_uri *rleaf_xsd_decimal_typeuri;
 const librdf_uri *rleaf_xsd_integer_typeuri;
 const librdf_uri *rleaf_xsd_boolean_typeuri;
 
+ID rleaf_anon_bnodeid;
+
 
 /*
  * Log a message to the given +context+ object's logger.
@@ -187,6 +189,9 @@ void Init_redleaf_ext( void ) {
 	/* Get references to class objects we'll use a lot */
 	rb_require( "uri" );
 	rb_cURI = rb_const_get( rb_cObject, rb_intern("URI") );
+
+	/* Set the ID of the placeholder for anonymous bnodes */
+	rleaf_anon_bnodeid = rb_intern( "_" );
 
 	/* Set up the world and the finalizer for it */
 	rleaf_rdf_world = librdf_new_world();

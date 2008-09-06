@@ -70,6 +70,8 @@ extern const librdf_uri *rleaf_xsd_decimal_typeuri;
 extern const librdf_uri *rleaf_xsd_integer_typeuri;
 extern const librdf_uri *rleaf_xsd_boolean_typeuri;
 
+extern ID rleaf_anon_bnodeid;
+
 
 /* --------------------------------------------------------------
  * Macros

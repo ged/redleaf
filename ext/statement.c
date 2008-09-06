@@ -187,6 +187,8 @@ static VALUE rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 static VALUE rleaf_librdf_node_to_value( librdf_node *node ) {
 	VALUE node_object = Qnil;
 	librdf_node_type nodetype = librdf_node_get_type( node );
+	unsigned char *bnode_idname = NULL;
+	ID bnode_id;
 
 	switch( nodetype ) {
 
@@ -197,7 +199,13 @@ static VALUE rleaf_librdf_node_to_value( librdf_node *node ) {
 
 	  /* Blank node => nil */
 	  case LIBRDF_NODE_TYPE_BLANK:
-		node_object = Qnil;
+		bnode_idname = librdf_node_get_blank_identifier( node );
+		if ( bnode_idname ) {
+			bnode_id = rb_intern( (char *)bnode_idname );
+			node_object = ID2SYM( bnode_id );
+		} else {
+			node_object = Qnil;
+		}
 		break;
 
 	  /* Literal => <ruby object> */
@@ -219,6 +227,7 @@ static librdf_node *rleaf_value_to_librdf_node( VALUE object ) {
 	VALUE str, typeuristr, converted_pair;
 	VALUE inspected_object = rb_inspect( object );
 	librdf_uri *typeuri;
+	ID id;
 	
 	/* :TODO: how to set language? is_xml flag? */
 
@@ -227,7 +236,15 @@ static librdf_node *rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* nil -> bnode */
 		case T_NIL:
-		return librdf_new_node_from_blank_identifier( rleaf_rdf_world, NULL );
+		return NULL;
+		
+		case T_SYMBOL:
+		id = SYM2ID( object );
+		if ( id == rleaf_anon_bnodeid ) {
+			return librdf_new_node_from_blank_identifier( rleaf_rdf_world, NULL );
+		} else {
+			return librdf_new_node_from_blank_identifier( rleaf_rdf_world, (unsigned char *)rb_id2name(id) );
+		}
 		
 		/* String -> plain literal */
 		case T_STRING:
@@ -388,7 +405,7 @@ static VALUE rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject )
 	librdf_node *node;
 	librdf_statement *stmt = get_statement( self );
 	
-	if ( new_subject == Qnil || rb_obj_is_kind_of(new_subject, rb_cURI) ) {
+	if ( new_subject == Qnil || TYPE(new_subject) == T_SYMBOL || rb_obj_is_kind_of(new_subject, rb_cURI) ) {
 		node = rleaf_value_to_librdf_node( new_subject );
 		librdf_statement_set_subject( stmt, node );
 	} else {

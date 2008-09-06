@@ -109,9 +109,16 @@ describe Redleaf::Statement do
 		end
 	
 
-		it "allows its subject to be set to a blank node" do
-			@statement.subject = nil
-			@statement.subject.should be_nil()
+		it "allows its subject to be set to a named blank node" do
+			@statement.subject = :blanknode
+			@statement.subject.should == :blanknode
+		end
+
+	
+		it "allows its subject to be set to an anonymous blank node" do
+			@statement.subject = :_
+			@statement.subject.should_not == :_
+			@statement.subject.should be_an_instance_of( Symbol )
 		end
 
 	
@@ -122,6 +129,12 @@ describe Redleaf::Statement do
 		end
 
 
+		it "allows its subject to be cleared by setting it to nil" do
+			@statement.subject = nil
+			@statement.subject.should == nil
+		end
+
+	
 		# Predicate
 
 		it "allows its predicate to be set to a URI" do
@@ -150,9 +163,15 @@ describe Redleaf::Statement do
 			@statement.object.should == TEST_ISBN_URN
 		end
 		
-		it "allows its object to be set to a blank node"  do
-			@statement.object = nil
-			@statement.object.should == nil
+		it "allows its object to be set to a named blank node"  do
+			@statement.object = :blanknode
+			@statement.object.should == :blanknode
+		end
+		
+		it "allows its object to be set to an anonymous blank node"  do
+			@statement.object = :_
+			@statement.object.should_not == :_
+			@statement.object.should be_an_instance_of( Symbol )
 		end
 		
 		it "allows its object to be set to a plain literal"  do
@@ -277,7 +296,7 @@ describe Redleaf::Statement do
 	end
 
 
-	describe " instances with different subjects" do
+	describe " instances with different URI subjects" do
 		
 		before( :each ) do
 			@subject1  = TEST_EMAIL_URL
@@ -303,7 +322,7 @@ describe Redleaf::Statement do
 	end
 
 
-	describe " instances with bnode subjects" do
+	describe " instances with null subjects" do
 		
 		before( :each ) do
 			@predicate = TEST_FAVORITE_BOOK_URI
@@ -321,8 +340,8 @@ describe Redleaf::Statement do
 			@statement1.should_not be_eql( @statement2 )
 		end
 
-		it "do not case match each other" do
-			@statement1.should_not === @statement2
+		it "case match each other" do
+			@statement1.should === @statement2
 		end
 	end
 
