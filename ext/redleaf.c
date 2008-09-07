@@ -202,13 +202,19 @@ void Init_redleaf_ext( void ) {
 	librdf_world_set_logger( rleaf_rdf_world, NULL, rleaf_rdflib_log_handler );
 
 	/* Set up the XSD type URI constants */
-	rleaf_xsd_string_typeuri  = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("string") );
-	rleaf_xsd_float_typeuri   = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("float") );
-	rleaf_xsd_decimal_typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("decimal") );
-	rleaf_xsd_integer_typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("integer") );
-	rleaf_xsd_boolean_typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("boolean") );
+	rleaf_xsd_string_typeuri  = 
+		librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("string") );
+	rleaf_xsd_float_typeuri   = 
+		librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("float") );
+	rleaf_xsd_decimal_typeuri = 
+		librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("decimal") );
+	rleaf_xsd_integer_typeuri = 
+		librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("integer") );
+	rleaf_xsd_boolean_typeuri = 
+		librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("boolean") );
 
 	/* Initialize all the other classes */
+	rleaf_init_redleaf_store();
 	rleaf_init_redleaf_graph();
 	rleaf_init_redleaf_parser();
 	rleaf_init_redleaf_statement();

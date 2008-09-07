@@ -209,13 +209,7 @@ describe Redleaf::Statement do
 		it "can be stringified" do
 			@statement.to_s.should == '{(null), (null), (null)}'
 		end
-		
 
-		# :TODO: print
-		# :TODO: encode
-		# :TODO: encode_parts
-		# :TODO: decode
-		# :TODO: decode_parts
 	end
 
 
@@ -262,12 +256,11 @@ describe Redleaf::Statement do
 			@statement.to_s.should == "{[#@subject], [#@predicate], [#@object]}"
 		end
 		
-		# :TODO: print
-		# :TODO: encode
-		# :TODO: encode_parts
-		# :TODO: decode
-		# :TODO: decode_parts
 
+		it "can be serialized" do
+			Marshal.load( Marshal.dump(@statement) ).should == @statement
+		end
+		
 	end
 
 
@@ -346,7 +339,7 @@ describe Redleaf::Statement do
 	end
 
 
-	describe " instances, one with a NULL subject and one with a set subject" do
+	describe " instances, one with a null subject and one with a set subject" do
 		
 		before( :each ) do
 			@subject   = TEST_EMAIL_URL

@@ -45,6 +45,136 @@
 VALUE rleaf_cRedleafGraph;
 
 
+/* --------------------------------------------------
+ *	Memory-management functions
+ * -------------------------------------------------- */
+
+/*
+ * Allocation function
+ */
+static librdf_model *rleaf_graph_alloc() {
+	librdf_storage *storage = NULL;
+	librdf_model *ptr = NULL;
+	
+	storage = librdf_new_storage( rleaf_rdf_world, "hashes", NULL, "hash-type='memory'" );
+	librdf_new_model( rleaf_rdf_world, storage, "" );
+
+	rleaf_log( "debug", "initialized a librdf_model <%p>", ptr );
+	return ptr;
+}
+
+
+/*
+ * GC Mark function
+ */
+static void rleaf_graph_gc_mark( librdf_model *ptr ) {
+	rleaf_log( "debug", "in mark function for RedLeaf::Graph %p", ptr );
+	
+	if ( ptr ) {
+		rleaf_log( "debug", "marked" );
+	}
+	
+	else {
+		rleaf_log( "debug", "not marked" );
+	}
+}
+
+
+
+/*
+ * GC Free function
+ */
+static void rleaf_graph_gc_free( librdf_model *ptr ) {
+	if ( ptr ) {
+		rleaf_log( "debug", "in free function of Redleaf::Graph <%p>", ptr );
+		librdf_free_model( ptr );
+		
+		ptr = NULL;
+	}
+
+	else {
+		rleaf_log( "warn", "not freeing an uninitialized Redleaf::Graph" );
+	}
+}
+
+
+/*
+ * Object validity checker. Returns the data pointer.
+ */
+static librdf_model *check_graph( VALUE self ) {
+	rleaf_log( "debug", "checking a Redleaf::Graph object (%d).", self );
+	Check_Type( self, T_DATA );
+
+    if ( !IsGraph(self) ) {
+		rb_raise( rb_eTypeError, "wrong argument type %s (expected Redleaf::Graph)",
+				  rb_class2name(CLASS_OF( self )) );
+    }
+	
+	return DATA_PTR( self );
+}
+
+
+/*
+ * Fetch the data pointer and check it for sanity.
+ */
+static librdf_model *get_graph( VALUE self ) {
+	librdf_model *stmt = check_graph( self );
+
+	rleaf_log( "debug", "fetching a Graph <%p>.", stmt );
+	if ( !stmt )
+		rb_raise( rb_eRuntimeError, "uninitialized Graph" );
+
+	return stmt;
+}
+
+
+/* --------------------------------------------------------------
+ * Class methods
+ * -------------------------------------------------------------- */
+
+/*
+ *  call-seq:
+ *     Redleaf::Graph.allocate   -> graph
+ *
+ *  Allocate a new Redleaf::Graph object.
+ *
+ */
+static VALUE rleaf_redleaf_graph_s_allocate( VALUE klass ) {
+	rleaf_log( "debug", "wrapping an uninitialized Redleaf::Graph pointer." );
+	return Data_Wrap_Struct( klass, rleaf_graph_gc_mark, rleaf_graph_gc_free, 0 );
+}
+
+
+/* --------------------------------------------------------------
+ * Instance methods
+ * -------------------------------------------------------------- */
+
+/*
+ *  call-seq:
+ *     Redleaf::Graph.new()                               -> graph
+ *     Redleaf::Graph.new( subject, predicate, object )   -> graph
+ *
+ *  Create a new Redleaf::Graph object. If the optional +subject+ (a URI or nil), 
+ *  +predicate+ (a URI), and +object+ (a URI, nil, or any immediate Ruby object) are given, 
+ *  the graph will be initialized with them.
+ *
+ */
+static VALUE rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
+	if ( !check_graph(self) ) {
+		librdf_model *stmt;
+		VALUE subject = Qnil, predicate = Qnil, object = Qnil;
+
+		DATA_PTR( self ) = stmt = rleaf_graph_alloc();
+		
+	} else {
+		rb_raise( rb_eRuntimeError,
+				  "Cannot re-initialize a graph once it's been created." );
+	}
+
+	return self;
+}
+
+
 
 /*
  * Redleaf Graph class

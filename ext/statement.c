@@ -546,7 +546,11 @@ static VALUE rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
 	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
 
 	other_stmt = get_statement( other );
-	
+
+	/* Statements with incomplete nodes can't be equal to any other statement */
+	if ( !librdf_statement_is_complete(stmt) || !librdf_statement_is_complete(other_stmt) )
+		return Qfalse;
+
 	if ( librdf_statement_equals(stmt, other_stmt) ) {
 		return Qtrue;
 	} else {
@@ -580,6 +584,52 @@ static VALUE rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
 }
 
 
+/*
+ *  call-seq:
+ *     marshal_dump   => string
+ *
+ *  (Marshal API) Serialize the object to a String.
+ *
+ */
+static VALUE rleaf_redleaf_statement_marshal_dump( VALUE self ) {
+	librdf_statement *stmt = get_statement( self );
+	unsigned char *buf = NULL;
+	size_t buflen = librdf_statement_encode( stmt, NULL, 0 );
+
+	buf = ALLOCA_N( unsigned char, buflen + 1 );
+	librdf_statement_encode( stmt, buf, buflen );
+
+	return rb_str_new( (char *)buf, buflen );
+}
+
+
+/*
+ *  call-seq:
+ *     marshal_load( data )
+ *
+ *  (Marshal API) Deserialize the object state in +data+ back into the receiver.
+ *
+ */
+static VALUE rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
+
+	if ( !check_statement(self) ) {
+		VALUE datastring = StringValue( data );
+		librdf_statement *stmt;
+
+		DATA_PTR( self ) = stmt = rleaf_statement_alloc();
+		
+		if ( librdf_statement_decode(stmt, (unsigned char *)RSTRING(datastring)->ptr,
+		     RSTRING(datastring)->len) == 0 )
+			rb_raise( rb_eRuntimeError, "librdf_statement_decode() failed." );
+	
+	} else {
+		rb_raise( rb_eRuntimeError,
+				  "Cannot load marshalled data into a statement once it's been created." );
+	}
+
+	return Qtrue;
+}
+
 
 
 /*
@@ -594,28 +644,29 @@ void rleaf_init_redleaf_statement( void ) {
 	rb_define_alloc_func( rleaf_cRedleafStatement, rleaf_redleaf_statement_s_allocate );
 
 	rb_define_method( rleaf_cRedleafStatement, "initialize", rleaf_redleaf_statement_initialize, -1 );
+
 	rb_define_method( rleaf_cRedleafStatement, "clear", rleaf_redleaf_statement_clear, 0 );
 
 	rb_define_method( rleaf_cRedleafStatement, "subject", rleaf_redleaf_statement_subject, 0 );
 	rb_define_method( rleaf_cRedleafStatement, "subject=", rleaf_redleaf_statement_subject_eq, 1 );
 	rb_define_method( rleaf_cRedleafStatement, "predicate", rleaf_redleaf_statement_predicate, 0 );
-	rb_define_method( rleaf_cRedleafStatement, "predicate=", rleaf_redleaf_statement_predicate_eq, 1 );
+	rb_define_method( rleaf_cRedleafStatement, "predicate=", 
+		rleaf_redleaf_statement_predicate_eq, 1 );
 	rb_define_method( rleaf_cRedleafStatement, "object", rleaf_redleaf_statement_object, 0 );
 	rb_define_method( rleaf_cRedleafStatement, "object=", rleaf_redleaf_statement_object_eq, 1 );
 
 	rb_define_method( rleaf_cRedleafStatement, "complete?", rleaf_redleaf_statement_complete_p, 0 );
 
 	rb_define_method( rleaf_cRedleafStatement, "to_s", rleaf_redleaf_statement_to_s, 0 );
-	// librdf_statement_print
 
 	rb_define_method( rleaf_cRedleafStatement, "eql?", rleaf_redleaf_statement_eql_p, 1 );
 	rb_define_alias( rleaf_cRedleafStatement, "==", "eql?" );
 	rb_define_method( rleaf_cRedleafStatement, "===", rleaf_redleaf_statement_threequal_op, 1 );
 
-	// librdf_statement_encode
-	// librdf_statement_encode_parts
-	// librdf_statement_decode
-	// librdf_statement_decode_parts
+	rb_define_method( rleaf_cRedleafStatement, "marshal_dump", 
+		rleaf_redleaf_statement_marshal_dump, 0 );
+	rb_define_method( rleaf_cRedleafStatement, "marshal_load", 
+		rleaf_redleaf_statement_marshal_load, 1 );
 	
 }
 

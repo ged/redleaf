@@ -83,6 +83,8 @@ module Redleaf
 	require 'redleaf_ext'
 	require 'redleaf/parser'
 	require 'redleaf/namespace'
+	require 'redleaf/store'
+	require 'redleaf/graph'
 
 end # module Redleaf
 

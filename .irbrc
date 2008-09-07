@@ -16,6 +16,7 @@ BEGIN {
 
 # Try to require the 'thingfish' library
 begin
+	$stderr.puts "Loading Redleaf..."
 	require 'redleaf'
 rescue => e
 	$stderr.puts "Ack! Redleaf library failed to load: #{e.message}\n\t" +

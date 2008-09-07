@@ -44,6 +44,8 @@
 #define __REDLEAF_H__
 
 #include <stdio.h>
+#include <string.h>
+
 #include <raptor.h>
 #include <rasqal.h>
 #include <redland.h>
@@ -77,6 +79,9 @@ extern ID rleaf_anon_bnodeid;
  * Macros
  * -------------------------------------------------------------- */
 #define IsStatement( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStatement )
+#define IsGraph( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafGraph )
+#define IsStore( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStore )
+
 
 #define XSD_URI_BASE "http://www.w3.org/TR/xmlschema-2/#"
 #define XSD_URI(s) XSD_URI_BASE s
@@ -112,6 +117,7 @@ void rleaf_log( const char *level, const char *fmt, va_dcl );
 
 void Init_redleaf_ext( void );
 
+void rleaf_init_redleaf_store( void );
 void rleaf_init_redleaf_graph( void );
 void rleaf_init_redleaf_parser( void );
 void rleaf_init_redleaf_statement( void );

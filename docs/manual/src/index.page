@@ -16,20 +16,25 @@ h1. <%= page.config['title'] %>
 
 Redleaf is an RDF library for Ruby.
 
-h2. What is RDF?
+RDF is the "Resource Description Framework":http://www.w3.org/RDF/, a format for encoding knowledge in a regular, machine-digestable format. There are many excellent RDF resources, but a good starting point is "What Is RDF":http://www.xml.com/pub/a/2001/01/24/rdf.html. 
 
-RDF is the "Resource Description Framework":http://www.w3.org/RDF/, a format for encoding knowledge in a regular, machine-digestable format. There are many excellent RDF resources, but a good starting point is "What Is RDF":http://www.xml.com/pub/a/2001/01/24/rdf.html, a 
+Redleaf is composed of a hand-written C binding to the "Redland RDF Libraries":http://librdf.org/,
+and a high-level, more idiomatic layer written in Ruby that wraps the low-level Redland API
+functions. The high-level layer is intended to make Redland mesh more naturally with the way Ruby
+works, so the objects for working with RDF behave the same as any other Ruby object. The intent is
+to make adding RDF to a Ruby application as simple as possible.
 
+h2. What Can I Use It For?
 
+The impetus of this project was the desire to take advantage of RDF's features to build the metadata layer for a digital asset management system. We wanted to not only keep structured metadata about the assets we were tracking, but also be able to add additional data sources and knowledge that would allow us to tie them together in new and unforeseen ways later. 
 
-It's composed of a hand-written C binding to the Redland RDF
-Libraries, and a high-level, more idiomatic layer written in Ruby that wraps the low-level Redland
-API functions.
+This is just way you might want to use RDF. You might also want to be able to query the rapidly-growing web of social information in one of your favorite social networking sites, 
+
 
 
 h2. Other RDF Libraries
 
-We tried out a few other RDF libraries for Ruby, and while each of them is full of great ideas, we ultimately needed something a little different than what any of them offered.
+We tried out a few other RDF libraries for Ruby, and while each of them is full of great ideas, we ultimately wanted something a little different than what any of them offered.
 
 <dl class="link-catalog">
 	<dt>Redland – "http://librdf.org/":http://librdf.org/</dt>
@@ -37,8 +42,9 @@ We tried out a few other RDF libraries for Ruby, and while each of them is full 
 		the name 'Redland' came the closest to what we wanted. The SWIG-based interface
 		ultimately still showed through, and our initial trials exposed some design decisions
 		that we didn't feel like we could work around. We're of course still using the same
-		C backend, but we're custom-fitting it to Ruby in a more intimate way, and adding
-		what we think is a more-natural way of using RDF from Ruby for practical tasks.</dd>
+		excellent C backend, but we're custom-fitting it to Ruby in a more intimate way, and 
+		adding what we think is a more-natural way of using RDF from Ruby for practical 
+		tasks.</dd>
 	<dt>Semitar – "http://semitar.projects.semwebcentral.org/":http://semitar.projects.semwebcentral.org/</dt>
 	<dd>This was a project that Rich Kilmer described to be in great detail at the 2003
 		RubyConf, but it has languished since then due to Rich being perpetually swamped
