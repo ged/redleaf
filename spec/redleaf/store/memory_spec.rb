@@ -54,8 +54,13 @@ describe Redleaf::MemoryStore do
 		store.should have_contexts()
 	end
 	
+	it "can be created with a name" do
+		store = Redleaf::MemoryStore.new( "storename" )
+		store.should have_contexts()
+	end
+	
 	it "can be created with contexts disabled" do
-		store = Redleaf::MemoryStore.new( false )
+		store = Redleaf::MemoryStore.new( nil, false )
 		store.should_not have_contexts()
 	end
 

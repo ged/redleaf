@@ -1,16 +1,7 @@
 #!/usr/bin/env ruby
  
-begin
-	require 'redleaf'
-	require 'redleaf/namespace'
-rescue LoadError => err
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
-
+require 'redleaf'
+require 'redleaf/namespace'
 
 # A module of library-wide constants
 # 

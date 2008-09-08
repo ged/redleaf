@@ -34,8 +34,8 @@ class Redleaf::MemoryStore < Redleaf::Store
 	
 
 	### Create a new Redleaf::MemoryStore, optionally enabling contexts.
-	def initialize( enable_contexts=true )
-		super( :contexts => enable_contexts )
+	def initialize( name=nil, enable_contexts=true )
+		super( name, :contexts => enable_contexts ? 'yes' : 'no' )
 	end
 	
 

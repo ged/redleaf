@@ -1,17 +1,8 @@
 #!/usr/bin/env ruby
  
-begin
-	require 'uri'
-
-	require 'redleaf'
-rescue LoadError => err
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
-
+require 'uri'
+require 'redleaf'
+require 'redleaf/mixins'
 
 # An RDF graph class
 # 
@@ -31,6 +22,7 @@ end
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::Graph
+	include Redleaf::Loggable
 
 	# SVN Revision
 	SVNRev = %q$Rev$

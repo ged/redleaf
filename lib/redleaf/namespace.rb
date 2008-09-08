@@ -1,18 +1,10 @@
 #!/usr/bin/env ruby
  
-begin
-	require 'uri'
-	require 'pathname'
+require 'uri'
+require 'pathname'
 
-	require 'redleaf'
-rescue LoadError => err
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
-
+require 'redleaf'
+require 'redleaf/mixins'
 
 # A convenience class for building Redleaf::Resource objects.
 # 
@@ -32,6 +24,7 @@ end
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::Namespace
+	include Redleaf::Loggable
 
 	# SVN Revision
 	SVNRev = %q$Rev$

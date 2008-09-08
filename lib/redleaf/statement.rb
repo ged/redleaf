@@ -35,7 +35,8 @@ end
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::Statement
-	include Redleaf::Constants::CommonNamespaces
+	include Redleaf::Loggable,
+	        Redleaf::Constants::CommonNamespaces
 
 	# SVN Revision
 	SVNRev = %q$Rev$

@@ -52,8 +52,10 @@ VALUE rleaf_cRedleafStore;
 /*
  * Allocation function
  */
-static librdf_storage *rleaf_store_alloc() {
-	librdf_storage *ptr = librdf_new_storage( rleaf_rdf_world, NULL, NULL, NULL );
+static librdf_storage *
+rleaf_store_alloc( const char *backend, const char *name, const char *optstring ) {
+	librdf_storage *ptr = librdf_new_storage( rleaf_rdf_world, backend, name, optstring );
+
 	rleaf_log( "debug", "initialized a librdf_storage <%p>", ptr );
 	return ptr;
 }
@@ -179,17 +181,27 @@ static VALUE rleaf_redleaf_store_s_allocate( VALUE klass ) {
 static VALUE rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 	if ( !check_store(self) ) {
 		librdf_storage *store;
-		VALUE opthash = Qnil;
-		char* optstring = NULL;
+		VALUE backend = Qnil, name = Qnil, opthash = Qnil;
+		const char *backendname = NULL, *storename = NULL;
+		char *optstring = NULL;
 
-		if ( rb_scan_args(argc, argv, "01", &opthash) > 1 )
+		if ( rb_scan_args(argc, argv, "02", &name, &opthash) > 2 )
 			rb_raise( rb_eArgError, "wrong number of arguments (%d for 1)", argc );
 		if ( TYPE(opthash) != T_HASH )
 			rb_raise( rb_eArgError, "cannot convert %s to Hash", rb_class2name(CLASS_OF(opthash)) );
 
+		/* Get the backend name */
+		backend = rb_ivar_get( CLASS_OF(self), rb_intern("@backend") );
+		backendname = rb_id2name( rb_to_id(backend) );
+		storename = StringValuePtr( name );
+
+		/* Make the option string */
 		optstring = rleaf_optstring_from_rubyhash( opthash );
-		rleaf_log( "debug", "Got optstring %s", optstring );
-		DATA_PTR( self ) = store = rleaf_store_alloc( optstring );
+		rleaf_log( "debug", "Got backend = '%s', name = '%s', optstring = '%s'", 
+		           backendname, storename, optstring );
+
+		DATA_PTR( self ) = store = rleaf_store_alloc( backendname, storename, optstring );
+
 		xfree( optstring );
 		
 	} else {
@@ -211,6 +223,9 @@ static VALUE rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self )
  */
 static VALUE rleaf_redleaf_store_has_contexts_p( VALUE self ) {
 	librdf_storage *store = get_store( self );
+	
+	rleaf_log_with_context( self, "debug", "Checking for contexts in %s:%p", 
+		rb_class2name(CLASS_OF(self)), store );
 	
 	/* Suggested by laalto on irc://freenode.net/#redland */
 	if ( librdf_storage_get_contexts(store) == NULL ) {

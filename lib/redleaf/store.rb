@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
  
 require 'redleaf'
+require 'redleaf/mixins'
 
 # An RDF triplestore abstract base class
 # 
@@ -20,6 +21,7 @@ require 'redleaf'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::Store
+	include Redleaf::Loggable
 
 	# SVN Revision
 	SVNRev = %q$Rev$

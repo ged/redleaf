@@ -1,24 +1,16 @@
 #!/usr/bin/ruby
+
+require 'rbconfig'
+require 'erb'
+require 'etc'
+require 'logger'
+
+require 'redleaf'
+
+
 # 
 # A collection of mixins shared between Redleaf classes. Stolen mostly from ThingFish.
 #
-
-begin
-	require 'rbconfig'
-	require 'erb'
-	require 'etc'
-	require 'logger'
-
-	require 'redleaf'
-rescue LoadError => err
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
-
-
 module Redleaf # :nodoc:
 
 	# 
