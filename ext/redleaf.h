@@ -46,8 +46,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <raptor.h>
-#include <rasqal.h>
 #include <redland.h>
 
 #include "ruby.h"

@@ -56,7 +56,7 @@ file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
 			gen.cflags << ' -ggdb'
 			gen.cflags << ' -DDEBUG'
 
-			%w[redland.h raptor.h rasqal.h].each do |header|
+			%w[redland.h raptor.h rasqal.h rdf_init.h].each do |header|
 				trace "Checking for #{header}"
 				gen.include_header( header, *ADDITIONAL_INCLUDE_DIRS ) or
 					fail( "Could not find #{header} header file" )
