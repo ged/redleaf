@@ -40,7 +40,7 @@ describe Redleaf::MemoryStore do
 
 
 	before( :all ) do
-		setup_logging( :debug )
+		setup_logging( :fatal )
 	end
 
 
@@ -49,12 +49,14 @@ describe Redleaf::MemoryStore do
 	end
 
 
-	it "has contexts enabled by defailt" do
+	it "has contexts enabled by default" do
+		pending "bugfix for http://bugs.librdf.org/mantis/view.php?id=273"
 		store = Redleaf::MemoryStore.new
 		store.should have_contexts()
 	end
 	
 	it "can be created with a name" do
+		pending "bugfix for http://bugs.librdf.org/mantis/view.php?id=273"
 		store = Redleaf::MemoryStore.new( "storename" )
 		store.should have_contexts()
 	end

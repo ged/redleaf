@@ -1,6 +1,6 @@
 /* 
  * Redleaf::Store -- RDF persistent storage classes
- * $Id: store.c 18 2008-08-19 02:39:46Z deveiant $
+ * $Id$
  * --
  * Authors
  * 
@@ -193,7 +193,11 @@ static VALUE rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self )
 		/* Get the backend name */
 		backend = rb_ivar_get( CLASS_OF(self), rb_intern("@backend") );
 		backendname = rb_id2name( rb_to_id(backend) );
-		storename = StringValuePtr( name );
+
+		if ( name == Qnil )
+			storename = NULL;
+		else
+			storename = StringValuePtr( name );
 
 		/* Make the option string */
 		optstring = rleaf_optstring_from_rubyhash( opthash );
@@ -223,14 +227,16 @@ static VALUE rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self )
  */
 static VALUE rleaf_redleaf_store_has_contexts_p( VALUE self ) {
 	librdf_storage *store = get_store( self );
+	librdf_iterator *contexts;
 	
 	rleaf_log_with_context( self, "debug", "Checking for contexts in %s:%p", 
 		rb_class2name(CLASS_OF(self)), store );
 	
 	/* Suggested by laalto on irc://freenode.net/#redland */
-	if ( librdf_storage_get_contexts(store) == NULL ) {
+	if ( (contexts = librdf_storage_get_contexts( store )) == NULL ) {
 		return Qfalse;
 	} else {
+		librdf_free_iterator( contexts );
 		return Qtrue;
 	}
 }

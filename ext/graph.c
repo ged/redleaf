@@ -162,7 +162,6 @@ static VALUE rleaf_redleaf_graph_s_allocate( VALUE klass ) {
 static VALUE rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
 	if ( !check_graph(self) ) {
 		librdf_model *stmt;
-		VALUE subject = Qnil, predicate = Qnil, object = Qnil;
 
 		DATA_PTR( self ) = stmt = rleaf_graph_alloc();
 		
@@ -175,17 +174,38 @@ static VALUE rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self )
 }
 
 
+/*
+ *  call-seq:
+ *     graph.size   => fixnum
+ *
+ * Return the number of statements in the graph. If the underlying store doesn't support
+ * fetching the size of the graph, the return value will be negative.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_size( VALUE self ) {
+	librdf_model *graph = get_graph( self );
+	int size = librdf_model_size( graph );
+	
+	return INT2FIX( size );
+}
+
+
+
 
 /*
  * Redleaf Graph class
  */
 void rleaf_init_redleaf_graph( void ) {
+	rleaf_log( "debug", "Initializing Redleaf::Graph" );
+
 #ifdef FOR_RDOC
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 #endif
 
 	rleaf_cRedleafGraph = rb_define_class_under( rleaf_mRedleaf, "Graph", rb_cObject );
+
+	rb_define_method( rleaf_cRedleafGraph, "size", rleaf_redleaf_graph_size, 0 );
 	
-	rleaf_log( "debug", "Initializing Redleaf::Graph" );
 }
 
