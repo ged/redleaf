@@ -18,7 +18,7 @@ begin
 	require 'spec/lib/store_behavior'
 
 	require 'redleaf'
-	require 'redleaf/store/memory'
+	require 'redleaf/store/hashes'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -35,7 +35,7 @@ include Redleaf::Constants
 ###	C O N T E X T S
 #####################################################################
 
-describe Redleaf::MemoryStore do
+describe Redleaf::HashesStore do
 	include Redleaf::SpecHelpers
 
 
@@ -49,44 +49,15 @@ describe Redleaf::MemoryStore do
 	end
 
 
-	it "can be created with a name" do
-		Redleaf::MemoryStore.new( "storename" )
-	end
-
-
 	describe "instance" do
 		
 		before( :each ) do
-			@store = Redleaf::MemoryStore.new
+			@store = Redleaf::HashesStore.new
 		end
 		
 		
 		it_should_behave_like "A Store"
 		
-
-		describe "without an associated Redleaf::Graph" do
-			it "raises an error when checked for contexts" do
-				lambda {
-					@store.has_contexts?
-				}.should raise_error( RuntimeError, /associated with a graph/i )
-			end
-		end
-
-		describe "with an associated Redleaf::Graph" do
-		
-			before( :each ) do
-				@store.graph = Redleaf::Graph.new
-			end
-
-
-			it_should_behave_like "A Store with an associated Graph"
-		
-
-			it "has contexts enabled by default" do
-				@store.should have_contexts()
-			end
-	
-		end
 	end
 
 end

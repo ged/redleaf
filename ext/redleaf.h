@@ -59,6 +59,8 @@ extern VALUE rleaf_mRedleaf;
 extern VALUE rleaf_cRedleafGraph;
 extern VALUE rleaf_cRedleafStatement;
 extern VALUE rleaf_cRedleafParser;
+extern VALUE rleaf_cRedleafStore;
+extern VALUE rleaf_cRedleafHashesStore;
 
 extern VALUE rb_cURI;
 
@@ -71,6 +73,24 @@ extern const librdf_uri *rleaf_xsd_integer_typeuri;
 extern const librdf_uri *rleaf_xsd_boolean_typeuri;
 
 extern ID rleaf_anon_bnodeid;
+
+
+/* --------------------------------------------------------------
+ * Typedefs
+ * -------------------------------------------------------------- */
+
+/* Redleaf::Store struct */
+typedef struct rleaf_store_object {
+	librdf_storage	*storage;
+	VALUE			graph;
+} rleaf_STORE;
+
+
+/* Redleaf::Graph struct */
+typedef struct rleaf_graph_object {
+	librdf_model	*model;
+	VALUE			store;
+} rleaf_GRAPH;
 
 
 /* --------------------------------------------------------------
@@ -92,6 +112,9 @@ extern ID rleaf_anon_bnodeid;
 
 #define STRINGIFY(a) #a
 
+#define DEFAULT_STORE_CLASS rleaf_cRedleafHashesStore
+
+
 /* --------------------------------------------------------------
  * Function declarations
  * -------------------------------------------------------------- */
@@ -107,6 +130,12 @@ void rleaf_log( const char *level, const char *fmt, ... );
 void rleaf_log_with_context( VALUE context, const char *level, const char *fmt, va_dcl );
 void rleaf_log( const char *level, const char *fmt, va_dcl );
 #endif
+
+
+/* T_DATA fetcher functions */
+rleaf_STORE *rleaf_get_store( VALUE );
+rleaf_GRAPH *rleaf_get_graph( VALUE );
+
 
 
 /* --------------------------------------------------------------

@@ -39,7 +39,7 @@ describe Redleaf::Graph do
 
 
 	before( :all ) do
-		setup_logging( :debug )
+		setup_logging( :fatal )
 	end
 
 
@@ -58,6 +58,11 @@ describe Redleaf::Graph do
 			other_graph = Redleaf::Graph.new
 			@graph.should == other_graph
 		end
+		
+		it "has a default store" do
+			@graph.store.should be_an_instance_of( Redleaf::DEFAULT_STORE_CLASS )
+		end
+		
 	end
 	
 end

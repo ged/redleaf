@@ -213,14 +213,14 @@ void Init_redleaf_ext( void ) {
 	rleaf_xsd_boolean_typeuri = 
 		librdf_new_uri( rleaf_rdf_world, (unsigned char *)XSD_URI("boolean") );
 
-	/* Set up some constants */
-	rb_define_const( rleaf_mRedleaf, "REDLAND_VERSION", rb_str_new2(PACKAGE_VERSION) );
-	rb_define_const( rleaf_mRedleaf, "REDLAND_PACKAGE_STRING", rb_str_new2(PACKAGE_STRING) );
-
 	/* Initialize all the other classes */
 	rleaf_init_redleaf_store();
 	rleaf_init_redleaf_graph();
 	rleaf_init_redleaf_parser();
 	rleaf_init_redleaf_statement();
+	
+	/* Define some constants */
+	rb_define_const( rleaf_mRedleaf, "DEFAULT_STORE_CLASS", DEFAULT_STORE_CLASS );
+
 }
 

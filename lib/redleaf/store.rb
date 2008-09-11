@@ -48,7 +48,17 @@ class Redleaf::Store
 
 	### Make a librdf_hash-style optstring from the given +opthash+ and return it.
 	def self::make_optstring( opthash )
-		return opthash.collect {|k,v| %:%s = '%s': % [k,v] }.join( ',' )
+		return opthash.collect {|k,v| "%s = '%s'" % [k.to_s.gsub(/_/, '-'),v] }.join( ',' )
+	end
+	
+	
+	#################################################################
+	###	I N S T A N C E   M E T H O D S
+	#################################################################
+
+	### Returns +true+ if the Store persists after the process has exited.
+	def persistent?
+		return false
 	end
 	
 

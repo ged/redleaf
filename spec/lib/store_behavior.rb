@@ -42,6 +42,23 @@ describe "A Store", :shared => true do
 		@store.class.backend.should_not be_nil()
 	end
 	
+	it "knows whether it is persistent or not" do
+		result = @store.persistent?
+		[ true, false ].should include( result )
+	end
+	
+end
+
+
+describe "A Store with an associated Graph", :shared => true do
+	include Redleaf::SpecHelpers
+
+	it "allows the association of a new Graph" do
+		graph = Redleaf::Graph.new
+		@store.graph = graph
+		@store.graph.should == graph
+	end
+
 end
 
 # vim: set nosta noet ts=4 sw=4:

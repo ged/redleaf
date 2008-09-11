@@ -31,19 +31,15 @@ class Redleaf::Graph
 	SVNId = %q$Id$
 
 
-	### Create a new Redleaf::Graph populated with the given +statements+.
-	def initialize( *statements )
-		@statements = statements
-	end
-	
-	
+
 	######
 	public
 	######
 
-	# The statements which make up the graph
-	attr_accessor :statements
-	
+	### Return the statements in the graph
+	def statements
+		[]
+	end
 
 	### Equivalence method -- two Redleaf::Graphs are equivalent if the graphs they represent are 
 	### equivalent according to the Graph Equivalence rules of:
@@ -58,7 +54,7 @@ class Redleaf::Graph
 	### Set XOR: Return the set of statements that are exclusive to either the receiver 
 	### or +other_graph+ (the union of their complements).
 	def ^( other_graph )
-		( self.statements & other_graph.statements ) - ( self.statements & other_graph.statements )
+		( self.statements | other_graph.statements ) - ( self.statements & other_graph.statements )
 	end
 	
 	

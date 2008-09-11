@@ -42,7 +42,14 @@
 
 #include "redleaf.h"
 
+
+/* --------------------------------------------------------------
+ * Declarations
+ * -------------------------------------------------------------- */
 VALUE rleaf_cRedleafStore;
+VALUE rleaf_cRedleafHashesStore;
+
+static VALUE rleaf_redleaf_store_graph_eq( VALUE, VALUE );
 
 
 /* --------------------------------------------------
@@ -52,11 +59,20 @@ VALUE rleaf_cRedleafStore;
 /*
  * Allocation function
  */
-static librdf_storage *
+static rleaf_STORE *
 rleaf_store_alloc( const char *backend, const char *name, const char *optstring ) {
-	librdf_storage *ptr = librdf_new_storage( rleaf_rdf_world, backend, name, optstring );
+	librdf_storage *storage = NULL;
+	rleaf_STORE *ptr = ALLOC( rleaf_STORE );
+	
+	if ( (storage = librdf_new_storage( rleaf_rdf_world, backend, name, optstring )) == 0 )
+		rb_raise( rb_eRuntimeError, 
+			"Could not create a new storage with: backend=\"%s\", name=\"%s\", optstring=\"%s\"", 
+			backend, name, optstring );
 
-	rleaf_log( "debug", "initialized a librdf_storage <%p>", ptr );
+	ptr->storage = storage;
+	ptr->graph   = Qnil;
+
+	rleaf_log( "debug", "alloc'ed a rleaf_STORE <%p> with storage <%p>", ptr, ptr->storage );
 	return ptr;
 }
 
@@ -64,15 +80,17 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
 /*
  * GC Mark function
  */
-static void rleaf_store_gc_mark( librdf_storage *ptr ) {
+static void 
+rleaf_store_gc_mark( rleaf_STORE *ptr ) {
 	rleaf_log( "debug", "in mark function for RedLeaf::Store %p", ptr );
 	
 	if ( ptr ) {
-		rleaf_log( "debug", "marked" );
+		rleaf_log( "debug", "marking graph of rleaf_STORE <%p>", ptr );
+		rb_gc_mark( ptr->graph );
 	}
 	
 	else {
-		rleaf_log( "debug", "not marked" );
+		rleaf_log( "debug", "not marking graph for uninitialized rleaf_STORE" );
 	}
 }
 
@@ -81,11 +99,17 @@ static void rleaf_store_gc_mark( librdf_storage *ptr ) {
 /*
  * GC Free function
  */
-static void rleaf_store_gc_free( librdf_storage *ptr ) {
+static void
+rleaf_store_gc_free( rleaf_STORE *ptr ) {
 	if ( ptr ) {
 		rleaf_log( "debug", "in free function of Redleaf::Store <%p>", ptr );
-		librdf_free_storage( ptr );
+		if ( ptr->storage )
+			librdf_free_storage( ptr->storage );
 		
+		ptr->storage = NULL;
+		ptr->graph   = Qnil;
+		
+		xfree( ptr );
 		ptr = NULL;
 	}
 
@@ -98,7 +122,8 @@ static void rleaf_store_gc_free( librdf_storage *ptr ) {
 /*
  * Object validity checker. Returns the data pointer.
  */
-static librdf_storage *check_store( VALUE self ) {
+static rleaf_STORE *
+check_store( VALUE self ) {
 	rleaf_log( "debug", "checking a %s object (%d).", rb_class2name(CLASS_OF(self)), self );
 	Check_Type( self, T_DATA );
 
@@ -114,8 +139,9 @@ static librdf_storage *check_store( VALUE self ) {
 /*
  * Fetch the data pointer and check it for sanity.
  */
-static librdf_storage *get_store( VALUE self ) {
-	librdf_storage *stmt = check_store( self );
+rleaf_STORE *
+rleaf_get_store( VALUE self ) {
+	rleaf_STORE *stmt = check_store( self );
 
 	rleaf_log( "debug", "fetching a Store <%p>.", stmt );
 	if ( !stmt )
@@ -133,7 +159,8 @@ static librdf_storage *get_store( VALUE self ) {
  * Make a librdf-style option string out of a Ruby Hash. The returned pointer will need to be
  * freed by the caller.
  */
-static char *rleaf_optstring_from_rubyhash( VALUE opthash ) {
+static char *
+rleaf_optstring_from_rubyhash( VALUE opthash ) {
 	VALUE rb_optstring = rb_funcall( rleaf_cRedleafStore, rb_intern("make_optstring"), 1, opthash );
 	char *optstring = ALLOC_N( char, RSTRING(rb_optstring)->len + 1 );
 	
@@ -156,7 +183,8 @@ static char *rleaf_optstring_from_rubyhash( VALUE opthash ) {
  *  Allocate a new Redleaf::Store object.
  *
  */
-static VALUE rleaf_redleaf_store_s_allocate( VALUE klass ) {
+static VALUE 
+rleaf_redleaf_store_s_allocate( VALUE klass ) {
 	if ( klass == rleaf_cRedleafStore ) {
 		rb_raise( rb_eRuntimeError, "cannot allocate a Redleaf::Store, as it is an abstract class" );
 	}
@@ -178,9 +206,12 @@ static VALUE rleaf_redleaf_store_s_allocate( VALUE klass ) {
  *  Create a new Redleaf::Store object. .
  *
  */
-static VALUE rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
+static VALUE 
+rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
+	rleaf_log_with_context( self, "debug", "Initializing 0x%x", self );
+
 	if ( !check_store(self) ) {
-		librdf_storage *store;
+		rleaf_STORE *store;
 		VALUE backend = Qnil, name = Qnil, opthash = Qnil;
 		const char *backendname = NULL, *storename = NULL;
 		char *optstring = NULL;
@@ -201,13 +232,13 @@ static VALUE rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self )
 
 		/* Make the option string */
 		optstring = rleaf_optstring_from_rubyhash( opthash );
-		rleaf_log( "debug", "Got backend = '%s', name = '%s', optstring = '%s'", 
-		           backendname, storename, optstring );
+		rleaf_log_with_context( self, "debug", 
+			"Got backend = \"%s\", name = \"%s\", optstring = \"%s\"", 
+			backendname, storename, optstring );
 
 		DATA_PTR( self ) = store = rleaf_store_alloc( backendname, storename, optstring );
-
 		xfree( optstring );
-		
+
 	} else {
 		rb_raise( rb_eRuntimeError,
 				  "Cannot re-initialize a store once it's been created." );
@@ -219,26 +250,85 @@ static VALUE rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self )
 
 /*
  *  call-seq:
- *     store.has_contexts?   => true or false
+ *     store.has_contexts?   -> true or false
  *
  *  Return +true+ if the backend of the receiver supports contexts and the receiver has them 
  *  enabled.
  *
  */
-static VALUE rleaf_redleaf_store_has_contexts_p( VALUE self ) {
-	librdf_storage *store = get_store( self );
+static VALUE 
+rleaf_redleaf_store_has_contexts_p( VALUE self ) {
+	rleaf_STORE *store = rleaf_get_store( self );
 	librdf_iterator *contexts;
+
+	if ( store->graph == Qnil )
+		rb_raise( rb_eRuntimeError, "Storage has not yet been associated with a graph." );
 	
 	rleaf_log_with_context( self, "debug", "Checking for contexts in %s:%p", 
 		rb_class2name(CLASS_OF(self)), store );
 	
 	/* Suggested by laalto on irc://freenode.net/#redland */
-	if ( (contexts = librdf_storage_get_contexts( store )) == NULL ) {
+	if ( (contexts = librdf_storage_get_contexts( store->storage )) == NULL ) {
 		return Qfalse;
 	} else {
 		librdf_free_iterator( contexts );
 		return Qtrue;
 	}
+}
+
+
+/*
+ *  call-seq:
+ *     store.graph   -> graph
+ *
+ *  Return the Redleaf::Graph associated with this Store, creating one if one if necessary.
+ *
+ */
+static VALUE
+rleaf_redleaf_store_graph( VALUE self ) {
+	rleaf_STORE *store = rleaf_get_store( self );
+	VALUE graph = Qnil;
+	
+	/* Auto-create a new graph for the store and assign it if it doesn't already have one. */
+	if ( store->graph == Qnil ) {
+		graph = rb_class_new_instance( 1, &self, rleaf_cRedleafGraph );
+		return rleaf_redleaf_store_graph_eq( self, graph );
+	}
+		
+	return store->graph;
+}
+
+
+/*
+ *  call-seq:
+ *     store.graph = newgraph
+ *
+ *  Set the store's graph to +newgraph+.
+ *
+ */
+static VALUE
+rleaf_redleaf_store_graph_eq( VALUE self, VALUE graphobj ) {
+	rleaf_STORE *store = rleaf_get_store( self );
+	rleaf_GRAPH *graph = rleaf_get_graph( graphobj );
+	
+	/* If there was already a graph associated with this store, tell it that its store 
+	   is going away and break the association. */
+	if ( store->graph != Qnil ) {
+		rb_funcall( store->graph, rb_intern("store="), 1, Qnil );
+		store->graph = Qnil;
+
+		if ( librdf_storage_close(store->storage) != 0 )
+			rb_fatal( "librdf_storage_close failed on rleaf_STORE <%p>.", store );
+	}
+
+	rleaf_log_with_context( self, "debug", "Associating rleaf_STORE <%p> with rleaf_GRAPH <%p>", store, graph );
+	if ( librdf_storage_open(store->storage, graph->model) != 0 )
+		rb_fatal( "librdf_storage_open failed on rleaf_STORE <%p> for rleaf_GRAPH <%p>", store, graph );
+
+	store->graph = graphobj;
+	graph->store = self;
+
+	return graphobj;
 }
 
 
@@ -253,12 +343,22 @@ void rleaf_init_redleaf_store( void ) {
 #endif
 
 	rb_require( "redleaf/store" );
-	rleaf_cRedleafStore = rb_define_class_under( rleaf_mRedleaf, "Store", rb_cObject );
 
+	/* Redleaf::Store */
+	rleaf_cRedleafStore = rb_define_class_under( rleaf_mRedleaf, "Store", rb_cObject );
 	rb_define_alloc_func( rleaf_cRedleafStore, rleaf_redleaf_store_s_allocate );
 	
 	rb_define_method( rleaf_cRedleafStore, "initialize", rleaf_redleaf_store_initialize, -1 );
 
 	rb_define_method( rleaf_cRedleafStore, "has_contexts?", rleaf_redleaf_store_has_contexts_p, 0 );
+	rb_define_method( rleaf_cRedleafStore, "graph", rleaf_redleaf_store_graph, 0 );
+	rb_define_method( rleaf_cRedleafStore, "graph=", rleaf_redleaf_store_graph_eq, 1 );
+
+	
+	/* Redleaf::HashesStore -- the default concrete Store class */
+	rb_require( "redleaf/store/hashes" );
+	rleaf_cRedleafHashesStore = 
+		rb_define_class_under( rleaf_mRedleaf, "HashesStore", rleaf_cRedleafStore );
+
 }
 
