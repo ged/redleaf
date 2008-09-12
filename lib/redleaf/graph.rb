@@ -36,11 +36,6 @@ class Redleaf::Graph
 	public
 	######
 
-	### Return the statements in the graph
-	def statements
-		[]
-	end
-
 	### Equivalence method -- two Redleaf::Graphs are equivalent if the graphs they represent are 
 	### equivalent according to the Graph Equivalence rules of:
 	###   http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/#section-graph-equality

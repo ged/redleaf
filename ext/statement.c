@@ -61,7 +61,8 @@ static VALUE rleaf_redleaf_statement_object_eq( VALUE, VALUE );
 /*
  * Allocation function
  */
-static librdf_statement *rleaf_statement_alloc() {
+static librdf_statement *
+rleaf_statement_alloc() {
 	librdf_statement *ptr = librdf_new_statement( rleaf_rdf_world );
 	rleaf_log( "debug", "initialized a librdf_statement <%p>", ptr );
 	return ptr;
@@ -71,7 +72,8 @@ static librdf_statement *rleaf_statement_alloc() {
 /*
  * GC Mark function
  */
-static void rleaf_statement_gc_mark( librdf_statement *ptr ) {
+static void 
+rleaf_statement_gc_mark( librdf_statement *ptr ) {
 	rleaf_log( "debug", "in mark function for RedLeaf::Statement %p", ptr );
 	
 	if ( ptr ) {
@@ -88,7 +90,8 @@ static void rleaf_statement_gc_mark( librdf_statement *ptr ) {
 /*
  * GC Free function
  */
-static void rleaf_statement_gc_free( librdf_statement *ptr ) {
+static void 
+rleaf_statement_gc_free( librdf_statement *ptr ) {
 	if ( ptr ) {
 		rleaf_log( "debug", "in free function of Redleaf::Statement <%p>", ptr );
 		librdf_free_statement( ptr );
@@ -105,7 +108,8 @@ static void rleaf_statement_gc_free( librdf_statement *ptr ) {
 /*
  * Object validity checker. Returns the data pointer.
  */
-static librdf_statement *check_statement( VALUE self ) {
+static librdf_statement *
+check_statement( VALUE self ) {
 	rleaf_log( "debug", "checking a Redleaf::Statement object (%d).", self );
 	Check_Type( self, T_DATA );
 
@@ -121,7 +125,8 @@ static librdf_statement *check_statement( VALUE self ) {
 /*
  * Fetch the data pointer and check it for sanity.
  */
-static librdf_statement *get_statement( VALUE self ) {
+librdf_statement *
+rleaf_get_statement( VALUE self ) {
 	librdf_statement *stmt = check_statement( self );
 
 	rleaf_log( "debug", "fetching a Statement <%p>.", stmt );
@@ -135,7 +140,8 @@ static librdf_statement *get_statement( VALUE self ) {
 /*
  * Convert the given resource librdf_node to a Ruby URI object and return it.
  */
-static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
+static VALUE 
+rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 	VALUE node_object = Qnil;
 	librdf_uri *uri;
 	const unsigned char *uristring;
@@ -156,7 +162,8 @@ static VALUE rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 /*
  * Convert the given literal librdf_node to a Ruby object and return it.
  */
-static VALUE rleaf_librdf_literal_node_to_object( librdf_node *node ) {
+static VALUE 
+rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 	VALUE node_object = Qnil;
 	librdf_uri *uri;
 	VALUE literalstring, uristring;
@@ -184,7 +191,8 @@ static VALUE rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 /*
  * Convert the given librdf_node to a Ruby object and return it as a VALUE.
  */
-static VALUE rleaf_librdf_node_to_value( librdf_node *node ) {
+static VALUE 
+rleaf_librdf_node_to_value( librdf_node *node ) {
 	VALUE node_object = Qnil;
 	librdf_node_type nodetype = librdf_node_get_type( node );
 	unsigned char *bnode_idname = NULL;
@@ -317,10 +325,25 @@ static librdf_node *rleaf_value_to_librdf_node( VALUE object ) {
  *  Allocate a new Redleaf::Statement object.
  *
  */
-static VALUE rleaf_redleaf_statement_s_allocate( VALUE klass ) {
+static VALUE
+rleaf_redleaf_statement_s_allocate( VALUE klass ) {
 	rleaf_log( "debug", "wrapping an uninitialized Redleaf::Statement pointer." );
 	return Data_Wrap_Struct( klass, rleaf_statement_gc_mark, rleaf_statement_gc_free, 0 );
 }
+
+
+/*
+ * Copy the given +statement+ and create a new Redleaf::Statement to wrap it.
+ */
+VALUE
+rleaf_statement_to_object( VALUE klass, librdf_statement *statement ) {
+	VALUE object = rleaf_redleaf_statement_s_allocate( klass );
+	librdf_statement *stmt = librdf_new_statement_from_statement( statement );
+	
+	DATA_PTR( object ) = stmt;
+	return rb_funcall( object, rb_intern("initialize"), 0 );
+}
+
 
 
 /* --------------------------------------------------------------
@@ -337,7 +360,8 @@ static VALUE rleaf_redleaf_statement_s_allocate( VALUE klass ) {
  *  the statement will be initialized with them.
  *
  */
-static VALUE rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE self ) {
+static VALUE 
+rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE self ) {
 	if ( !check_statement(self) ) {
 		librdf_statement *stmt;
 		VALUE subject = Qnil, predicate = Qnil, object = Qnil;
@@ -351,9 +375,6 @@ static VALUE rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE se
 		if ( argc >= 2 ) rleaf_redleaf_statement_predicate_eq( self, predicate );
 		if ( argc == 3 ) rleaf_redleaf_statement_object_eq( self, object );
 		
-	} else {
-		rb_raise( rb_eRuntimeError,
-				  "Cannot re-initialize a statement once it's been created." );
 	}
 
 	return self;
@@ -367,8 +388,9 @@ static VALUE rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE se
  *  Clear all nodes from the statement.
  *
  */
-static VALUE rleaf_redleaf_statement_clear( VALUE self ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_clear( VALUE self ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 
 	librdf_statement_clear( stmt );
 
@@ -383,8 +405,9 @@ static VALUE rleaf_redleaf_statement_clear( VALUE self ) {
  *  Return the subject (node) of the statement.
  *
  */
-static VALUE rleaf_redleaf_statement_subject( VALUE self ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_subject( VALUE self ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_node *node;
 	
 	if ( (node = librdf_statement_get_subject( stmt )) == NULL )
@@ -401,9 +424,10 @@ static VALUE rleaf_redleaf_statement_subject( VALUE self ) {
  *  Set the subject (node) of the statement.
  *
  */
-static VALUE rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject ) {
+static VALUE 
+rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject ) {
 	librdf_node *node;
-	librdf_statement *stmt = get_statement( self );
+	librdf_statement *stmt = rleaf_get_statement( self );
 	
 	if ( new_subject == Qnil || TYPE(new_subject) == T_SYMBOL || rb_obj_is_kind_of(new_subject, rb_cURI) ) {
 		node = rleaf_value_to_librdf_node( new_subject );
@@ -423,8 +447,9 @@ static VALUE rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject )
  *  Return the predicate (node) of the statement.
  *
  */
-static VALUE rleaf_redleaf_statement_predicate( VALUE self ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_predicate( VALUE self ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_node *node;
 	
 	if ( (node = librdf_statement_get_predicate( stmt )) == NULL )
@@ -441,9 +466,10 @@ static VALUE rleaf_redleaf_statement_predicate( VALUE self ) {
  *  Set the predicate (node) of the statement.
  *
  */
-static VALUE rleaf_redleaf_statement_predicate_eq( VALUE self, VALUE new_predicate ) {
+static VALUE 
+rleaf_redleaf_statement_predicate_eq( VALUE self, VALUE new_predicate ) {
 	librdf_node *node;
-	librdf_statement *stmt = get_statement( self );
+	librdf_statement *stmt = rleaf_get_statement( self );
 	
 	if ( rb_obj_is_kind_of(new_predicate, rb_cURI) ) {
 		node = rleaf_value_to_librdf_node( new_predicate );
@@ -463,8 +489,9 @@ static VALUE rleaf_redleaf_statement_predicate_eq( VALUE self, VALUE new_predica
  *  Return the object (node) of the statement.
  *
  */
-static VALUE rleaf_redleaf_statement_object( VALUE self ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_object( VALUE self ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_node *node;
 	
 	if ( (node = librdf_statement_get_object( stmt )) == NULL )
@@ -481,9 +508,10 @@ static VALUE rleaf_redleaf_statement_object( VALUE self ) {
  *  Set the object (node) of the statement.
  *
  */
-static VALUE rleaf_redleaf_statement_object_eq( VALUE self, VALUE new_object ) {
+static VALUE 
+rleaf_redleaf_statement_object_eq( VALUE self, VALUE new_object ) {
 	librdf_node *node;
-	librdf_statement *stmt = get_statement( self );
+	librdf_statement *stmt = rleaf_get_statement( self );
 	
 	node = rleaf_value_to_librdf_node( new_object );
 	librdf_statement_set_object( stmt, node );
@@ -501,8 +529,9 @@ static VALUE rleaf_redleaf_statement_object_eq( VALUE self, VALUE new_object ) {
  * allowed node types.
  * 
  */
-static VALUE rleaf_redleaf_statement_complete_p( VALUE self ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_complete_p( VALUE self ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	
 	if ( librdf_statement_is_complete(stmt) ) {
 		return Qtrue;
@@ -519,8 +548,9 @@ static VALUE rleaf_redleaf_statement_complete_p( VALUE self ) {
  * Format the librdf_statement as a string. 
  * 
  */
-static VALUE rleaf_redleaf_statement_to_s( VALUE self ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_to_s( VALUE self ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	unsigned char *string;
 	VALUE rb_string;
 	
@@ -539,13 +569,14 @@ static VALUE rleaf_redleaf_statement_to_s( VALUE self ) {
  * Returns true if the receiver is equal to +other_statement+.
  * 
  */
-static VALUE rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_statement *other_stmt;
 
 	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
 
-	other_stmt = get_statement( other );
+	other_stmt = rleaf_get_statement( other );
 
 	/* Statements with incomplete nodes can't be equal to any other statement */
 	if ( !librdf_statement_is_complete(stmt) || !librdf_statement_is_complete(other_stmt) )
@@ -568,13 +599,14 @@ static VALUE rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
  * against any value, parts with values must match exactly.
  * 
  */
-static VALUE rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_statement *other_stmt;
 
 	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
 
-	other_stmt = get_statement( other );
+	other_stmt = rleaf_get_statement( other );
 	
 	if ( librdf_statement_match(stmt, other_stmt) ) {
 		return Qtrue;
@@ -591,8 +623,9 @@ static VALUE rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
  *  (Marshal API) Serialize the object to a String.
  *
  */
-static VALUE rleaf_redleaf_statement_marshal_dump( VALUE self ) {
-	librdf_statement *stmt = get_statement( self );
+static VALUE 
+rleaf_redleaf_statement_marshal_dump( VALUE self ) {
+	librdf_statement *stmt = rleaf_get_statement( self );
 	unsigned char *buf = NULL;
 	size_t buflen = librdf_statement_encode( stmt, NULL, 0 );
 
@@ -610,7 +643,8 @@ static VALUE rleaf_redleaf_statement_marshal_dump( VALUE self ) {
  *  (Marshal API) Deserialize the object state in +data+ back into the receiver.
  *
  */
-static VALUE rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
+static VALUE 
+rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
 
 	if ( !check_statement(self) ) {
 		VALUE datastring = StringValue( data );

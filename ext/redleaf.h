@@ -122,21 +122,22 @@ typedef struct rleaf_graph_object {
 #ifdef HAVE_STDARG_PROTOTYPES
 #include <stdarg.h>
 #define va_init_list(a,b) va_start(a,b)
-void rleaf_log_with_context( VALUE context, const char *level, const char *fmt, ... );
-void rleaf_log( const char *level, const char *fmt, ... );
+void rleaf_log_with_context( VALUE, const char *, const char *, ... );
+void rleaf_log( const char *, const char *, ... );
 #else
 #include <varargs.h>
 #define va_init_list(a,b) va_start(a)
-void rleaf_log_with_context( VALUE context, const char *level, const char *fmt, va_dcl );
-void rleaf_log( const char *level, const char *fmt, va_dcl );
+void rleaf_log_with_context( VALUE, const char *, const char *, va_dcl );
+void rleaf_log( const char *, const char *, va_dcl );
 #endif
 
 
 /* T_DATA fetcher functions */
 rleaf_STORE *rleaf_get_store( VALUE );
 rleaf_GRAPH *rleaf_get_graph( VALUE );
+librdf_statement *rleaf_get_statement( VALUE );
 
-
+VALUE rleaf_statement_to_object( VALUE, librdf_statement * );
 
 /* --------------------------------------------------------------
  * Initializers

@@ -40,7 +40,7 @@ describe Redleaf::MemoryStore do
 
 
 	before( :all ) do
-		setup_logging( :fatal )
+		setup_logging( :debug )
 	end
 
 

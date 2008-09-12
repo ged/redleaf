@@ -256,6 +256,95 @@ rleaf_redleaf_graph_store_eq( VALUE self, VALUE storeobj ) {
 
 
 /*
+ *  call-seq:
+ *     graph.statements   -> array
+ *
+ *  Return an Array of all the statements in the graph.
+ *
+ */
+static VALUE 
+rleaf_redleaf_graph_statements( VALUE self ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_stream *stream = librdf_model_as_stream( ptr->model );
+	VALUE statements = rb_ary_new();
+	
+	rleaf_log_with_context( self, "debug", 
+		"Creating statement objects for %d statements in Graph <0x%x>.",
+		librdf_model_size(ptr->model), self );
+	while ( ! librdf_stream_end(stream) ) {
+		librdf_statement *stmt = librdf_stream_get_object( stream );
+		VALUE stmt_obj = rleaf_statement_to_object( rleaf_cRedleafStatement, stmt );
+		
+		rb_ary_push( statements, stmt_obj );
+		librdf_stream_next( stream );
+	}
+	librdf_free_stream( stream );
+	
+	return statements;
+}
+
+
+/*
+ *  call-seq:
+ *     graph << statement                         -> graph
+ *     graph << [ subject, predicate, object ]    -> graph
+ *
+ *  Append a new statement to the graph, either as a Redleaf::Statement, or a valid triple
+ *  in an Array.
+ *  
+ *     require 'redleaf/constants'
+ *     incude Redleaf::Constants::CommonNamespaces # (for the FOAF namespace constant)
+ *     
+ *     michael = URI.parse( 'mailto:ged@FaerieMUD.org' )
+ *     knows   = FOAF[:knows]
+ *     mahlon  = URI.parse( 'mailto:mahlon@martini.nu' )
+ *
+ *     # The long way
+ *     graph = Redleaf::Graph.new
+ *     statement1 = Redleaf::Statement.new( mahlon, knows, michael )
+ *     statement2 = Redleaf::Statement.new( michael, knows, mahlon )
+ *     graph << stmt1 << stmt2
+ *     graph.size  # => 2
+ *
+ *     # The shorthand way
+ *     graph << [ mahlon, knows, michael ] << [ michael, knows, mahlon ]
+ *
+ */
+static VALUE 
+rleaf_redleaf_graph_append( VALUE self, VALUE statement ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_statement *stmt_ptr = NULL;
+
+	/* Check argument to see if it's an array or statement, error otherwise */
+	switch ( TYPE(statement) ) {
+		case T_ARRAY:
+		if ( RARRAY_LEN(statement) != 3 )
+			rb_raise( rb_eArgError, "Statement must have three elements." );
+		statement = rb_class_new_instance( 3, RARRAY_PTR(statement), rleaf_cRedleafStatement );
+		// fallthrough -- :FIXME: this is really clumsy. It creates a statement
+		// object just to get the node-normalization and error-checking. Really should
+		// factor out the node conversions to the Redleaf module or maybe a mixin.
+		
+		case T_DATA:
+		if ( CLASS_OF(statement) != rleaf_cRedleafStatement )
+			rb_raise( rb_eArgError, "can't convert %s into Redleaf::Statement", 
+				rb_class2name(CLASS_OF(statement)) );
+		stmt_ptr = rleaf_get_statement( statement );
+		break;
+		
+		default:
+		rb_raise( rb_eArgError, "can't convert %s into Redleaf::Statement",
+			rb_class2name(CLASS_OF(statement)) );
+	}
+	
+	if ( librdf_model_add_statement(ptr->model, stmt_ptr) != 0 )
+		rb_raise( rb_eRuntimeError, "could not add statement to graph 0x%x", self );
+	
+	return self;
+}
+
+
+/*
  * Redleaf Graph class
  */
 void 
@@ -274,6 +363,10 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_method( rleaf_cRedleafGraph, "size", rleaf_redleaf_graph_size, 0 );
 	rb_define_method( rleaf_cRedleafGraph, "store", rleaf_redleaf_graph_store, 0 );
 	rb_define_method( rleaf_cRedleafGraph, "store=", rleaf_redleaf_graph_store_eq, 1 );
+
+	rb_define_method( rleaf_cRedleafGraph, "statements", rleaf_redleaf_graph_statements, 0 );
+
+	rb_define_method( rleaf_cRedleafGraph, "<<", rleaf_redleaf_graph_append, 1 );
 	
 }
 
