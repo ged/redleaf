@@ -92,7 +92,7 @@ rleaf_statement_gc_mark( librdf_statement *ptr ) {
  */
 static void 
 rleaf_statement_gc_free( librdf_statement *ptr ) {
-	if ( ptr ) {
+	if ( ptr && rleaf_rdf_world ) {
 		rleaf_log( "debug", "in free function of Redleaf::Statement <%p>", ptr );
 		librdf_free_statement( ptr );
 		

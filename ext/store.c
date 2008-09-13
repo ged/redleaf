@@ -101,8 +101,11 @@ rleaf_store_gc_mark( rleaf_STORE *ptr ) {
  */
 static void
 rleaf_store_gc_free( rleaf_STORE *ptr ) {
-	if ( ptr ) {
+	if ( ptr && rleaf_rdf_world ) {
 		rleaf_log( "debug", "in free function of Redleaf::Store <%p>", ptr );
+
+		if ( ptr->graph )
+			librdf_storage_close( ptr->storage );
 		if ( ptr->storage )
 			librdf_free_storage( ptr->storage );
 		
@@ -124,7 +127,7 @@ rleaf_store_gc_free( rleaf_STORE *ptr ) {
  */
 static rleaf_STORE *
 check_store( VALUE self ) {
-	rleaf_log( "debug", "checking a %s object (%d).", rb_class2name(CLASS_OF(self)), self );
+	rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_class2name(CLASS_OF(self)), self );
 	Check_Type( self, T_DATA );
 
     if ( !IsStore(self) ) {
@@ -143,7 +146,7 @@ rleaf_STORE *
 rleaf_get_store( VALUE self ) {
 	rleaf_STORE *stmt = check_store( self );
 
-	rleaf_log( "debug", "fetching a Store <%p>.", stmt );
+	rleaf_log_with_context( self, "debug", "fetched a Store <0x%x>.", self );
 	if ( !stmt )
 		rb_raise( rb_eRuntimeError, "uninitialized Store" );
 
@@ -189,7 +192,6 @@ rleaf_redleaf_store_s_allocate( VALUE klass ) {
 		rb_raise( rb_eRuntimeError, "cannot allocate a Redleaf::Store, as it is an abstract class" );
 	}
 
-	rleaf_log( "debug", "wrapping an uninitialized %s pointer.", rb_class2name(klass) );
 	return Data_Wrap_Struct( klass, rleaf_store_gc_mark, rleaf_store_gc_free, 0 );
 }
 
@@ -314,6 +316,8 @@ rleaf_redleaf_store_graph_eq( VALUE self, VALUE graphobj ) {
 	/* If there was already a graph associated with this store, tell it that its store 
 	   is going away and break the association. */
 	if ( store->graph != Qnil ) {
+		rleaf_log_with_context( self, "info", "disassociating current graph <0x%x> from %s <0x%x>",
+			store->graph, rb_class2name(CLASS_OF(self)), self );
 		rb_funcall( store->graph, rb_intern("store="), 1, Qnil );
 		store->graph = Qnil;
 

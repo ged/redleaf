@@ -96,7 +96,7 @@ static void
 rleaf_graph_gc_free( rleaf_GRAPH *ptr ) {
 	rleaf_log( "debug", "in free function of Redleaf::Graph <%p>", ptr );
 
-	if ( ptr->model ) {
+	if ( ptr->model && rleaf_rdf_world ) {
 		librdf_free_model( ptr->model );
 
 		ptr->model = NULL;
@@ -118,7 +118,7 @@ rleaf_graph_gc_free( rleaf_GRAPH *ptr ) {
  */
 static rleaf_GRAPH *
 check_graph( VALUE self ) {
-	rleaf_log( "debug", "checking a Redleaf::Graph object (%d).", self );
+	rleaf_log_with_context( self, "debug", "checking a Redleaf::Graph object (%d).", self );
 	Check_Type( self, T_DATA );
 
     if ( !IsGraph(self) ) {
@@ -137,7 +137,7 @@ rleaf_GRAPH *
 rleaf_get_graph( VALUE self ) {
 	rleaf_GRAPH *stmt = check_graph( self );
 
-	rleaf_log( "debug", "fetching a Graph <%p>.", stmt );
+	rleaf_log_with_context( self, "debug", "fetching a Graph <%p>.", stmt );
 	if ( !stmt )
 		rb_raise( rb_eRuntimeError, "uninitialized Graph" );
 
@@ -159,7 +159,6 @@ rleaf_get_graph( VALUE self ) {
  */
 static VALUE 
 rleaf_redleaf_graph_s_allocate( VALUE klass ) {
-	rleaf_log( "debug", "wrapping an uninitialized Redleaf::Graph pointer." );
 	return Data_Wrap_Struct( klass, rleaf_graph_gc_mark, rleaf_graph_gc_free, 0 );
 }
 
@@ -246,8 +245,21 @@ static VALUE
 rleaf_redleaf_graph_store_eq( VALUE self, VALUE storeobj ) {
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
 	
-	if ( rb_obj_is_kind_of(storeobj, rleaf_cRedleafStore) )
+	if ( storeobj == Qnil ) {
+		rleaf_log_with_context( self, "info", 
+			"Graph <0x%x>'s store cleared. Setting it to a new %s.",
+		 	self, rb_class2name(DEFAULT_STORE_CLASS) );
+		storeobj = rb_class_new_instance( 0, NULL, DEFAULT_STORE_CLASS );
+	} 
+
+	if ( rb_obj_is_kind_of(storeobj, rleaf_cRedleafStore) ) {
+		rleaf_log_with_context( self, "info", "Graph <0x%x>'s store is now %s <0x%x>", 
+			self, rb_class2name(CLASS_OF(storeobj)), storeobj );
 		rb_funcall( storeobj, rb_intern("graph="), 1, self );
+	} else {
+		rb_raise( rb_eArgError, "cannot convert %s to Redleaf::Store", 
+			rb_class2name(CLASS_OF(storeobj)) );
+	}
 	
 	ptr->store = storeobj;
 	
@@ -345,6 +357,42 @@ rleaf_redleaf_graph_append( VALUE self, VALUE statement ) {
 
 
 /*
+ *  call-seq:
+ *     graph.parse( uri )   -> fixnum
+ *
+ *  Parse the RDF at the specified +uri+ into the receiving graph. Returns the number of statements
+ *  added to the graph.
+ *
+ *     graph = Redleaf::Graph.new
+ *     graph.parse( "http://bigasterisk.com/foaf.rdf" )
+ *     graph.parse( "http://www.w3.org/People/Berners-Lee/card.rdf" )
+ *     graph.parse( "http://danbri.livejournal.com/data/foaf" ) 
+ *     
+ *     graph.size
+ */
+static VALUE
+rleaf_redleaf_graph_parse( VALUE self, VALUE uri ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_parser *parser = NULL;
+	librdf_uri *rdfuri = NULL;
+	int statement_count = librdf_model_size( ptr->model );
+	
+	if ( (parser = librdf_new_parser( rleaf_rdf_world, NULL, NULL, NULL )) == NULL )
+		rb_raise( rb_eRuntimeError, "failed to create a parser." );
+	if ( (rdfuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)StringValuePtr(uri) )) == NULL )
+		rb_raise( rb_eRuntimeError, "failed to create a uri object from %s", 
+			RSTRING(rb_inspect(uri))->ptr );
+	
+	if ( librdf_parser_parse_into_model(parser, rdfuri, NULL, ptr->model) != 0 )
+		rb_raise( rb_eRuntimeError, "failed to parse %s into Model <0x%x>",
+		librdf_uri_as_string(rdfuri), self );
+
+	return INT2FIX( librdf_model_size(ptr->model) - statement_count );
+}
+
+
+
+/*
  * Redleaf Graph class
  */
 void 
@@ -368,5 +416,6 @@ rleaf_init_redleaf_graph( void ) {
 
 	rb_define_method( rleaf_cRedleafGraph, "<<", rleaf_redleaf_graph_append, 1 );
 	
+	rb_define_method( rleaf_cRedleafGraph, "parse", rleaf_redleaf_graph_parse, 1 );
 }
 

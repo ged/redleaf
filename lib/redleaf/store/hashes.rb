@@ -46,7 +46,6 @@ class Redleaf::HashesStore < Redleaf::Store
 	### Load the BDB-backed Redleaf::HashesStore from the specified +path+.
 	def self::load( path )
 		path = Pathname.new( path )
-		raise ArgumentError, "%s: not a directory" % [ path ] unless path.directory?
 		
 		options = {
 			:new => false,

@@ -18,7 +18,7 @@ begin
 	require 'spec/lib/store_behavior'
 
 	require 'redleaf'
-	require 'redleaf/store/memory'
+	require 'redleaf/store/sqlite'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -35,9 +35,10 @@ include Redleaf::Constants
 ###	C O N T E X T S
 #####################################################################
 
-describe Redleaf::MemoryStore do
+describe Redleaf::SQLiteStore do
 	include Redleaf::SpecHelpers
 
+	TESTING_STORE_NAME = 'splornk'
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -46,18 +47,19 @@ describe Redleaf::MemoryStore do
 
 	after( :all ) do
 		reset_logging()
+		File.delete( TESTING_STORE_NAME ) if File.exist?( TESTING_STORE_NAME )
 	end
 
 
 	it "can be created with a name" do
-		Redleaf::MemoryStore.new( "storename" )
+		Redleaf::SQLiteStore.new( TESTING_STORE_NAME )
 	end
 
 
 	describe "instance" do
 		
 		before( :each ) do
-			@store = Redleaf::MemoryStore.new
+			@store = Redleaf::SQLiteStore.new( TESTING_STORE_NAME )
 		end
 		
 		
