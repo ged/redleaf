@@ -135,13 +135,13 @@ check_graph( VALUE self ) {
  */
 rleaf_GRAPH *
 rleaf_get_graph( VALUE self ) {
-	rleaf_GRAPH *stmt = check_graph( self );
+	rleaf_GRAPH *graph = check_graph( self );
 
-	rleaf_log_with_context( self, "debug", "fetching a Graph <%p>.", stmt );
-	if ( !stmt )
+	rleaf_log_with_context( self, "debug", "fetching a Graph <%p>.", graph );
+	if ( !graph )
 		rb_raise( rb_eRuntimeError, "uninitialized Graph" );
 
-	return stmt;
+	return graph;
 }
 
 

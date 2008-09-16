@@ -1,3 +1,204 @@
+-- Sat, 13 Sep 2008 02:35:45 -0000 by deveiant (r33) -----
+   Added:   spec/redleaf/store/sqlite_spec.rb (new)
+            lib/redleaf/store/sqlite.rb (new)
+   Changed: ext/store.c
+            lib/redleaf/store/hashes.rb
+            ext/graph.c
+            ext/statement.c
+            spec/redleaf/graph_spec.rb
+            spec/redleaf/store/memory_spec.rb (and 1 other/s)
+
+    * Worked around the segfault that happens when the world is freed before its
+    objects are.
+    * Redleaf::Graph
+    - Fixed #store= so it doesn't accept non-store objects.
+    - Added #parse for loading RDF via URIs.
+    - Added tests for #<<.
+    * Added Redleaf::SQLiteStore.
+
+
+-- Fri, 12 Sep 2008 01:16:34 -0000 by deveiant (r32) -----
+   Changed: ext/graph.c
+            ext/statement.c
+            ext/redleaf.h
+            lib/redleaf/graph.rb
+            spec/redleaf/store/memory_spec.rb
+
+    * Got graphs and statements hooked up
+
+
+-- Thu, 11 Sep 2008 14:19:51 -0000 by deveiant (r31) -----
+   Added:   spec/redleaf/store/hashes_spec.rb (new)
+            lib/redleaf/store/hashes.rb (new)
+   Changed: ext/store.c
+            spec/lib/store_behavior.rb
+            ext/graph.c
+            ext/redleaf.c
+            lib/redleaf/store.rb
+            ext/redleaf.h (and 4 other/s)
+
+    * Added a HashesStore class for the Redland 'hashes' triplestore.
+    * Fleshed out the Store and Graph classes.
+
+
+-- Tue, 09 Sep 2008 13:30:39 -0000 by deveiant (r30) -----
+   Changed: ext/store.c
+            ext/graph.c
+            spec/node_conversions_spec.rb
+            spec/redleaf/store_spec.rb
+            spec/redleaf/store/memory_spec.rb
+
+   Log from r27:r30:
+   * Finished Redleaf::Statement.
+   * Started work on Redleaf::Graph and Redleaf::Store.
+   * Cleaned up requires
+   * Added the start of node conversions spec.
+
+
+-- Mon, 08 Sep 2008 16:46:46 -0000 by deveiant (r29) -----
+   Changed: ext/redleaf.c
+            ext/redleaf.h
+            Rakefile.local
+
+   Checkpoint commit -- broken build
+
+
+-- Mon, 08 Sep 2008 05:12:04 -0000 by deveiant (r28) -----
+   Added:   spec/node_conversions_spec.rb (new)
+   Changed: ext/store.c
+            lib/redleaf/statement.rb
+            lib/redleaf/store/memory.rb
+            lib/redleaf/mixins.rb
+            lib/redleaf/constants.rb
+            lib/redleaf/namespace.rb (and 5 other/s)
+
+   Checkpoint commit -- broken build
+
+
+-- Sun, 07 Sep 2008 20:21:50 -0000 by deveiant (r27) -----
+   Added:   lib/redleaf/store (new)
+            spec/redleaf/store_spec.rb (new)
+            lib/redleaf/store.rb (new)
+            spec/redleaf/store/memory_spec.rb (new)
+            ext/store.c (new)
+            spec/lib/store_behavior.rb (new) (and 3 other/s)
+   Changed: docs/Manual Outline.oo3/contents.xml
+            lib/redleaf.rb
+            spec/redleaf/statement_spec.rb
+            docs/manual/src/index.page
+            .irbrc
+            ext/graph.c (and 4 other/s)
+
+   Checkpoint commit -- broken build
+
+
+-- Sat, 06 Sep 2008 05:00:50 -0000 by deveiant (r26) -----
+   Added:   docs/Manual Outline.oo3/contents.xml (new)
+            docs/Manual Outline.oo3 (new)
+   Changed: ext/redleaf.c
+            ext/statement.c
+            ext/redleaf.h
+            spec/redleaf/statement_spec.rb
+
+    * Changed the way nil is used -- Symbols are now used to represent bnodes, and nil is now
+    used to indicate a null node.
+    * Added the manual outline
+
+
+-- Sat, 06 Sep 2008 01:41:35 -0000 by deveiant (r25) -----
+   Changed: lib/redleaf/statement.rb
+            Rakefile
+            ext/statement.c
+            spec/redleaf/statement_spec.rb
+
+    * More work on Redleaf::Statement:
+    - `#complete?`
+    - `#to_s `
+    - `#eql? (aliased to #==)`
+    - `#===`
+    * Updated the Rakefile
+
+
+-- Fri, 05 Sep 2008 13:20:16 -0000 by deveiant (r24) -----
+   Changed: lib/redleaf/statement.rb
+            spec/redleaf/statement_spec.rb
+
+    * Finished duration parsing
+    * Removed dependency on (inadequate) Duration library. Durations are just 
+    parsed to hashes for now. I'll switch it to a proper Duration class
+    at some point.
+
+
+-- Thu, 04 Sep 2008 01:32:36 -0000 by deveiant (r23) -----
+   Changed: Rakefile
+            project.yml
+
+   Updated build system.
+
+
+-- Tue, 02 Sep 2008 05:18:40 -0000 by deveiant (r22) -----
+   Changed: docs/manual/src/index.page
+            lib/redleaf/statement.rb
+            spec/lib/constants.rb
+            spec/redleaf/namespace_spec.rb
+            ext/statement.c
+            lib/redleaf/constants.rb (and 5 other/s)
+
+    * Implemented #predicate= and #object=.
+    * Changed Redleaf::Namespace to handle fragment-style URIs.
+    * A little more work on the manual.
+
+
+-- Sat, 30 Aug 2008 07:04:31 -0000 by deveiant (r21) -----
+   Changed: lib/redleaf/statement.rb
+            ext/redleaf.c
+            ext/statement.c
+            ext/redleaf.h
+            spec/redleaf/statement_spec.rb
+
+   A bit more work on Redleaf::Statement: #subject and #subject= now working for the most part. Still have some restrictions left to implement, and the literal conversion code is not yet well-tested.
+
+
+-- Wed, 27 Aug 2008 22:45:10 -0000 by deveiant (r20) -----
+   Added:   docs/manual/resources/images/shadows/large-70.png (new)
+            docs/manual/resources/images/shadows/smaller-30.png (new)
+            docs/manual/resources/images/shadows/tl.png (new)
+            docs/manual/resources/images/shadows/smaller-50.png (new)
+            docs/manual/resources/images/shadows/smaller-70.png (new)
+            docs/manual/layouts (new) (and 45 other/s)
+   Changed: project.yml
+            Rakefile.local
+            Rakefile
+            ext/redleaf.c
+            docs
+            LICENSE (and 1 other/s)
+
+    * Fixed the bug that caused a segfault if the world finalizer was run after
+    Redleaf's Logger object had already been garbage-collected during Ruby's
+    exit sequence.
+    * Turned on gdb debugging flag for the build.
+    * Added the manual-generation framework, and an initial page.
+
+
+-- Wed, 20 Aug 2008 01:48:31 -0000 by deveiant (r19) -----
+   Added:   spec/redleaf_spec.rb (new)
+   Changed: ext/redleaf.c
+            ext/statement.c
+
+   Checkpoint commit -- [build broken]
+
+
+-- Tue, 19 Aug 2008 02:39:46 -0000 by deveiant (r18) -----
+   Changed: lib/redleaf/statement.rb
+            lib/redleaf/mixins.rb
+            ext/graph.c
+            ext/redleaf.c
+            ext/statement.c
+            lib/redleaf/constants.rb (and 8 other/s)
+
+   Checkpoint commit of work done in the past day or so. [Broken build]
+
+
 -- Mon, 18 Aug 2008 15:50:34 -0000 by deveiant (r17) -----
    Changed: lib/redleaf/statement.rb
             ext/redleaf.c

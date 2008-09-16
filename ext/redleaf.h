@@ -99,6 +99,7 @@ typedef struct rleaf_graph_object {
 #define IsStatement( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStatement )
 #define IsGraph( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafGraph )
 #define IsStore( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStore )
+#define IsParser( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafParser )
 
 
 #define XSD_URI_BASE "http://www.w3.org/TR/xmlschema-2/#"
@@ -136,6 +137,7 @@ void rleaf_log( const char *, const char *, va_dcl );
 rleaf_STORE *rleaf_get_store( VALUE );
 rleaf_GRAPH *rleaf_get_graph( VALUE );
 librdf_statement *rleaf_get_statement( VALUE );
+librdf_parser *rleaf_get_parser( VALUE );
 
 VALUE rleaf_statement_to_object( VALUE, librdf_statement * );
 
