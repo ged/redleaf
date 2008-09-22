@@ -61,7 +61,7 @@ class Redleaf::HashesStore < Redleaf::Store
 	###	I N S T A N C E   M E T H O D S
 	#################################################################
 
-	### Create a new Redleaf::MemoryStore, optionally enabling contexts.
+	### Create a new Redleaf::HashesStore, optionally enabling contexts.
 	def initialize( name=nil, options={} )
 		if name.nil?
 			@hash_type = :memory
@@ -69,9 +69,12 @@ class Redleaf::HashesStore < Redleaf::Store
 			@hash_type = :bdb
 		end
 		
+		options ||= {}
 		options[:new] = true if options[:new].nil?
 		options[:hash_type] = @hash_type
-		
+
+		self.log.debug "Constructing a %p with name = %p, options = %p" % 
+			[ self.class.name, name, options ]
 		return super( name, options )
 	end
 

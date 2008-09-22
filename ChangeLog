@@ -1,3 +1,13 @@
+-- Tue, 16 Sep 2008 14:19:31 -0000 by deveiant (r34) -----
+   Changed: ext/parser.c
+            ext/graph.c
+            ChangeLog
+            ext/redleaf.h
+
+    * Fixed some inconsistencies in naming.
+    * Started work on Redleaf::Parser.
+
+
 -- Sat, 13 Sep 2008 02:35:45 -0000 by deveiant (r33) -----
    Added:   spec/redleaf/store/sqlite_spec.rb (new)
             lib/redleaf/store/sqlite.rb (new)

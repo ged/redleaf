@@ -45,6 +45,11 @@ describe Redleaf::SQLiteStore do
 	end
 
 
+	before( :each ) do
+		pending "no sqlite backend; will not test" unless Redleaf::SQLiteStore.is_supported?
+	end
+	
+
 	after( :all ) do
 		reset_logging()
 		File.delete( TESTING_STORE_NAME ) if File.exist?( TESTING_STORE_NAME )

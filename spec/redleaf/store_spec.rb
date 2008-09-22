@@ -55,6 +55,18 @@ describe Redleaf::Store do
 	end
 
 
+	it "raises an appropriate exception if you try to create a store that isn't present in " +
+	   "the local machine's Redland library" do
+		unimpl_storeclass = Class.new( Redleaf::Store ) do
+			backend :giraffes
+		end
+		
+		lambda {
+			unimpl_storeclass.new
+		}.should raise_error( Redleaf::FeatureError, /unsupported/ )
+	end
+	
+
 	describe "concrete subclass" do
 		
 		it "can set which Redland backend to use declaratively" do

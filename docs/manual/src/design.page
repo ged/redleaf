@@ -1,0 +1,20 @@
+---
+title: Design Overview
+layout: default
+tagline: Hooray for OmniGraffle!
+index: 3
+filters:
+  - erb
+  - links
+  - examples
+  - textile
+---
+
+h1. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+h2. Class Diagram
+
+The Redleaf classes follow the basic design of the Redland library, from which it derives most of its underlying functionality, with a few minor modifications:
+

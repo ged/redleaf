@@ -79,8 +79,9 @@ module Redleaf
 		return vstring
 	end
 
-	require 'redleaf/mixins'
 	require 'redleaf_ext'
+	require 'redleaf/mixins'
+	require 'redleaf/exceptions'
 	require 'redleaf/parser'
 	require 'redleaf/namespace'
 	require 'redleaf/store'

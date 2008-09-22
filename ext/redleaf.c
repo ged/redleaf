@@ -183,7 +183,6 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
 
 void Init_redleaf_ext( void ) {
 	/* Load the Redland module from the Ruby source */
-	rb_require( "redleaf" );
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 
 	/* Get references to class objects we'll use a lot */
@@ -222,5 +221,6 @@ void Init_redleaf_ext( void ) {
 	/* Define some constants */
 	rb_define_const( rleaf_mRedleaf, "DEFAULT_STORE_CLASS", DEFAULT_STORE_CLASS );
 
+	rb_require( "redleaf" );
 }
 

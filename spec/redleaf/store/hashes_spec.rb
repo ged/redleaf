@@ -44,6 +44,11 @@ describe Redleaf::HashesStore do
 	end
 
 
+	before( :each ) do
+		pending "no sqlite backend; will not test" unless Redleaf::HashesStore.is_supported?
+	end
+	
+
 	after( :all ) do
 		reset_logging()
 	end
@@ -57,6 +62,19 @@ describe Redleaf::HashesStore do
 		
 		
 		it_should_behave_like "A Store"
+		
+	end
+	
+	
+	describe "instance created with a name" do
+		
+		before( :each ) do
+			@store = Redleaf::HashesStore.new( 'hashesstore_spec', :new => true )
+		end
+		
+		it_should_behave_like "A Store"
+
+
 		
 	end
 

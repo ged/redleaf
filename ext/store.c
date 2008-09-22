@@ -196,6 +196,41 @@ rleaf_redleaf_store_s_allocate( VALUE klass ) {
 }
 
 
+/*
+ *  call-seq:
+ *     Redleaf::Store.backends   -> hash
+ *
+ *  Return a Hash of supported backends from the underlying Redland library.
+ *
+ *     Redleaf::Parser.features
+ *     # => {"raptor"=>"", 
+ *           "grddl"=>"Gleaning Resource Descriptions from Dialects of Languages", 
+ *           "rdfxml"=>"RDF/XML",
+ *           "guess"=>"Pick the parser to use using content type and URI", 
+ *           "rdfa"=>"RDF/A via librdfa",
+ *           "trig"=>"TriG - Turtle with Named Graphs", 
+ *           "turtle"=>"Turtle Terse RDF Triple Language",
+ *           "ntriples"=>"N-Triples", 
+ *           "rss-tag-soup"=>"RSS Tag Soup"}
+ */
+static VALUE
+rleaf_redleaf_store_s_backends( VALUE klass ) {
+	VALUE backends = rb_hash_new();
+	int i = 0;
+	const char *name, *label;
+
+	while ( (librdf_storage_enumerate(rleaf_rdf_world, i, &name, &label)) == 0 ) {
+		VALUE namestr = name ? rb_str_new2( name ) : rb_str_new( NULL, 0 );
+		VALUE labelstr = label ? rb_str_new2( label ) : rb_str_new( NULL, 0 );
+		
+		rb_hash_aset( backends, namestr, labelstr );
+		i++;
+	}
+
+	return backends;
+}
+
+
 /* --------------------------------------------------------------
  * Instance methods
  * -------------------------------------------------------------- */
@@ -218,13 +253,36 @@ rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 		const char *backendname = NULL, *storename = NULL;
 		char *optstring = NULL;
 
-		if ( rb_scan_args(argc, argv, "02", &name, &opthash) > 2 )
+		switch ( rb_scan_args(argc, argv, "02", &name, &opthash) ) {
+			case 0:
+			rleaf_log_with_context( self, "debug", "No-arg constructor called." );
+			opthash = rb_hash_new();
+			break;
+
+			case 1:
+			rleaf_log_with_context( self, "debug", "One-arg constructor called: %s.",
+				RSTRING(rb_inspect(name))->ptr );
+			if ( TYPE(name) == T_HASH ) {
+				rleaf_log_with_context( self, "debug", "Argument was a opthash; swapping it." );
+				opthash = name;
+				name = Qnil;
+			}
+			break;
+			
+			case 2:
+			rleaf_log_with_context( self, "debug", "Two-arg constructor called: %s, %s.",
+				RSTRING(rb_inspect(name))->ptr, RSTRING(rb_inspect(opthash))->ptr );
+			break;
+			
+			default:
 			rb_raise( rb_eArgError, "wrong number of arguments (%d for 1)", argc );
+		}
+		
 		if ( TYPE(opthash) != T_HASH )
 			rb_raise( rb_eArgError, "cannot convert %s to Hash", rb_class2name(CLASS_OF(opthash)) );
 
 		/* Get the backend name */
-		backend = rb_ivar_get( CLASS_OF(self), rb_intern("@backend") );
+		backend = rb_funcall( CLASS_OF(self), rb_intern("validated_backend"), 0 );
 		backendname = rb_id2name( rb_to_id(backend) );
 
 		if ( name == Qnil )
@@ -337,9 +395,30 @@ rleaf_redleaf_store_graph_eq( VALUE self, VALUE graphobj ) {
 
 
 /*
+ *  call-seq:
+ *     store.sync   -> true
+ *
+ *  Synchronizes the store to the underlying storage implementation. Raises a RuntimeError if the
+ *  sync fails.
+ *
+ */
+static VALUE
+rleaf_redleaf_store_sync( VALUE self ) {
+	rleaf_STORE *store = rleaf_get_store( self );
+	
+	if ( librdf_storage_sync(store->storage) == 0 )
+		rb_raise( rb_eRuntimeError, "Failed to sync to the underlying storage." );
+	
+	return Qtrue;
+}
+
+
+
+/*
  * Redleaf Store class
  */
-void rleaf_init_redleaf_store( void ) {
+void
+rleaf_init_redleaf_store( void ) {
 	rleaf_log( "debug", "Initializing Redleaf::Store" );
 
 #ifdef FOR_RDOC
@@ -351,12 +430,15 @@ void rleaf_init_redleaf_store( void ) {
 	/* Redleaf::Store */
 	rleaf_cRedleafStore = rb_define_class_under( rleaf_mRedleaf, "Store", rb_cObject );
 	rb_define_alloc_func( rleaf_cRedleafStore, rleaf_redleaf_store_s_allocate );
+
+	rb_define_singleton_method( rleaf_cRedleafStore, "backends", rleaf_redleaf_store_s_backends, 0 );
 	
 	rb_define_method( rleaf_cRedleafStore, "initialize", rleaf_redleaf_store_initialize, -1 );
 
 	rb_define_method( rleaf_cRedleafStore, "has_contexts?", rleaf_redleaf_store_has_contexts_p, 0 );
 	rb_define_method( rleaf_cRedleafStore, "graph", rleaf_redleaf_store_graph, 0 );
 	rb_define_method( rleaf_cRedleafStore, "graph=", rleaf_redleaf_store_graph_eq, 1 );
+	rb_define_method( rleaf_cRedleafStore, "sync", rleaf_redleaf_store_sync, 0 );
 
 	
 	/* Redleaf::HashesStore -- the default concrete Store class */

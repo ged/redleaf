@@ -199,9 +199,12 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		gem.add_runtime_dependency( name, version )
 	end
 	
-	DEVELOPMENT_DEPENDENCIES.each do |name, version|
-		version = '>= 0' if version.length.zero?
-		gem.add_development_dependency( name, version )
+	# Developmental dependencies don't work as of RubyGems 1.2.0
+	unless Gem::Version.new( Gem::RubyGemsVersion ) <= Gem::Version.new( "1.2.0" )
+		DEVELOPMENT_DEPENDENCIES.each do |name, version|
+			version = '>= 0' if version.length.zero?
+			gem.add_development_dependency( name, version )
+		end
 	end
 	
 	REQUIREMENTS.each do |name, version|
@@ -267,7 +270,7 @@ end
 
 ### Task: cruise (Cruisecontrol task)
 desc "Cruisecontrol build"
-task :cruise => [:clean, :spec, :package] do |task|
+task :cruise => [:clean, :test, :package] do |task|
 	raise "Artifacts dir not set." if ARTIFACTS_DIR.to_s.empty?
 	artifact_dir = ARTIFACTS_DIR.cleanpath
 	artifact_dir.mkpath

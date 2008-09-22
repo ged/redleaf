@@ -60,6 +60,6 @@ module Redleaf::Constants
 
 	end # module CommonNamespaces
 
-end # class Redleaf::Constants
+end # module Redleaf::Constants
 
 
