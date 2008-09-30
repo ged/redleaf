@@ -150,7 +150,11 @@ class Spec::Runner::Formatter::HtmlFormatter
 	end
 
 
-	alias_method :default_global_styles, :global_styles
+	if methods.include?( 'global_styles' )
+		alias_method :default_global_styles, :global_styles
+	else
+		def default_global_styles; ""; end
+	end
 	
 	def global_styles
 		css = default_global_styles()

@@ -270,7 +270,7 @@ end
 
 ### Task: cruise (Cruisecontrol task)
 desc "Cruisecontrol build"
-task :cruise => [:clean, :test, :package] do |task|
+task :cruise => [:clean, 'spec:html', :package] do |task|
 	raise "Artifacts dir not set." if ARTIFACTS_DIR.to_s.empty?
 	artifact_dir = ARTIFACTS_DIR.cleanpath
 	artifact_dir.mkpath

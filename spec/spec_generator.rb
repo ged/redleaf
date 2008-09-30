@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
 require 'xml/libxml'
 require 'logger'
 require 'erb'
