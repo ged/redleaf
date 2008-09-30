@@ -80,12 +80,13 @@ module Redleaf
 	end
 
 	require 'redleaf_ext'
-	require 'redleaf/mixins'
+
 	require 'redleaf/exceptions'
-	require 'redleaf/parser'
-	require 'redleaf/namespace'
-	require 'redleaf/store'
 	require 'redleaf/graph'
+	require 'redleaf/mixins'
+	require 'redleaf/namespace'
+	require 'redleaf/parser'
+	require 'redleaf/store'
 
 end # module Redleaf
 

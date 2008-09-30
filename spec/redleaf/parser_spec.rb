@@ -39,7 +39,7 @@ describe Redleaf::Parser do
 
 
 	before( :all ) do
-		setup_logging( :debug )
+		setup_logging( :fatal )
 	end
 
 	after( :all ) do
@@ -47,7 +47,30 @@ describe Redleaf::Parser do
 	end
 
 
-	it "is well-tested"
+	it "knows what features the local installation has" do
+		features = Redleaf::Parser.features
+		
+		features.should be_an_instance_of( Hash )
+		features.keys.should include( 'ntriples', 'raptor', 'guess' )
+	end
+
+
+	describe "instance (with defaults)" do
+		before( :each ) do
+			@parser = Redleaf::Parser.new
+		end
+		
+		
+		it "can build an accept header for the kinds of content it accepts" do
+			@parser.accept_header.should =~ %r{application/rdf\+xml}i
+		end
+
+		it "description" do
+			
+		end
+		
+		
+	end
 
 end
 

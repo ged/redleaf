@@ -110,7 +110,7 @@ rleaf_statement_gc_free( librdf_statement *ptr ) {
  */
 static librdf_statement *
 check_statement( VALUE self ) {
-	rleaf_log( "debug", "checking a Redleaf::Statement object (%d).", self );
+	rleaf_log_with_context( self, "debug", "checking a Redleaf::Statement object (%d).", self );
 	Check_Type( self, T_DATA );
 
     if ( !IsStatement(self) ) {
@@ -129,7 +129,7 @@ librdf_statement *
 rleaf_get_statement( VALUE self ) {
 	librdf_statement *stmt = check_statement( self );
 
-	rleaf_log( "debug", "fetching a Statement <%p>.", stmt );
+	rleaf_log_with_context( self, "debug", "fetching a Statement <%p>.", stmt );
 	if ( !stmt )
 		rb_raise( rb_eRuntimeError, "uninitialized Statement" );
 

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env ruby
  
 require 'redleaf'
@@ -57,6 +58,9 @@ module Redleaf::Constants
 		
 		# The "Friend-Of-A-Friend" namespace
 		FOAF       = Redleaf::Namespace.new( 'http://xmlns.com/foaf/0.1/' )
+
+		# The "Description Of A Project" namespace
+		DOAP       = Redleaf::Namespace.new( 'http://usefulinc.com/ns/doap#' )
 
 	end # module CommonNamespaces
 
