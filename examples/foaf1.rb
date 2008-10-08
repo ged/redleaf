@@ -25,7 +25,7 @@ graph.parse( "http://danbri.livejournal.com/data/foaf" )
 # Create foaf:name triples for each foaf:member_name (the attribute LiveJournal uses for the
 # member's full name)
 graph[ nil, FOAF[:member_name], nil ].each do |stmt|
-        graph << [ stmt.subject, FOAF[:name], stmt.object ]
+	graph << [ stmt.subject, FOAF[:name], stmt.object ]
 end
 
 sparql = %(
@@ -38,7 +38,7 @@ sparql = %(
 )
 
 graph.query( sparql, :foaf => FOAF ) do |row|
-        puts "%s knows %s" % row
+	puts "%s knows %s" % row
 end
 
 # Output:

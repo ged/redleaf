@@ -54,45 +54,6 @@ describe Redleaf::Statement do
 	end
 
 
-	it "converts an xsd:string to a String" do
-		Redleaf::Statement.make_typed_literal_object( XSD[:string], "a string" ).should == 'a string'
-	end
-	
-
-	it "converts an xsd:float to a Float" do
-		Redleaf::Statement.make_typed_literal_object( XSD[:float], "2.1415" ).should == 2.1415
-	end
-	
-	it "converts an xsd:decimal to a BigDecimal" do
-		Redleaf::Statement.make_typed_literal_object( XSD[:decimal], "2.1415" ).should == 2.1415
-	end
-
-	it "converts an xsd:integer to a Integer" do
-		Redleaf::Statement.make_typed_literal_object( XSD[:integer], "18" ).should == 18
-	end
-
-	it "converts an xsd:dateTime to a DateTime" do
-		Redleaf::Statement.
-			make_typed_literal_object( XSD[:dateTime], "2002-10-10T17:00:00Z" ).should == 
-			DateTime.parse( "2002-10-10T17:00:00Z" )
-	end
-
-	it "converts an xsd:duration to a Duration" do
-		Redleaf::Statement.make_typed_literal_object( XSD[:duration], "P1Y2M3DT10H30M" ).should == 
-			{ :years => 1, :months => 2, :days => 3, :hours => 10, :minutes => 30, :seconds => 0 }
-	end
-
-	it "converts an xsd:duration with a negative sign to a negative Duration" do
-		Redleaf::Statement.make_typed_literal_object( XSD[:duration], "-P1Y2M3DT10H30M" ).should == 
-			{ :years => -1, :months => -2, :days => -3, :hours => -10, :minutes => -30, :seconds => 0 }
-	end
-
-	it "converts an xsd:duration with a decimal seconds value to an equivalent Duration" do
-		Redleaf::Statement.make_typed_literal_object( XSD[:duration], "PT8M3.886S" ).should == 
-			{ :years => 0, :months => 0, :days => 0, :hours => 0, :minutes => 8, :seconds => 3.886 }
-	end
-
-
 	describe "created with no subject, predicate, or object" do
 		
 		before( :each ) do
@@ -144,7 +105,7 @@ describe Redleaf::Statement do
 	
 		it "does not allow its predicate to be set to a blank node" do
 			lambda {
-				@statement.predicate = nil
+				@statement.predicate = :glar
 			}.should raise_error( ArgumentError, /predicate must be a URI/i )
 		end
 	
@@ -154,6 +115,10 @@ describe Redleaf::Statement do
 			}.should raise_error( ArgumentError, /predicate must be a URI/i )
 		end
 	
+		it "allows its predicate to be cleared by setting it to nil" do
+			@statement.predicate = nil
+			@statement.predicate.should == nil
+		end
 
 
 		# Object

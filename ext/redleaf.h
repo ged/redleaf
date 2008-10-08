@@ -61,6 +61,7 @@ extern VALUE rleaf_cRedleafStatement;
 extern VALUE rleaf_cRedleafParser;
 extern VALUE rleaf_cRedleafStore;
 extern VALUE rleaf_cRedleafHashesStore;
+extern VALUE rleaf_mRedleafNodeConversion;
 
 extern VALUE rb_cURI;
 
@@ -117,7 +118,7 @@ typedef struct rleaf_graph_object {
 
 
 /* --------------------------------------------------------------
- * Function declarations
+ * Declarations
  * -------------------------------------------------------------- */
 
 #ifdef HAVE_STDARG_PROTOTYPES
@@ -132,14 +133,25 @@ void rleaf_log_with_context( VALUE, const char *, const char *, va_dcl );
 void rleaf_log( const char *, const char *, va_dcl );
 #endif
 
+/* Node conversion utility functions from node.c */
+VALUE rleaf_librdf_uri_node_to_object( librdf_node * );
+VALUE rleaf_librdf_literal_node_to_object( librdf_node * );
+VALUE rleaf_librdf_node_to_value( librdf_node * );
 
+librdf_node * rleaf_value_to_librdf_node( VALUE );
+librdf_node * rleaf_value_to_subject_node( VALUE );
+librdf_node * rleaf_value_to_predicate_node( VALUE );
+librdf_node * rleaf_value_to_object_node( VALUE );
+
+/* Statement conversion function from statement.c */
+VALUE rleaf_librdf_statement_to_value( librdf_statement * );
+librdf_statement * rleaf_value_to_librdf_statement( VALUE );
+	
 /* T_DATA fetcher functions */
 rleaf_STORE *rleaf_get_store( VALUE );
 rleaf_GRAPH *rleaf_get_graph( VALUE );
 librdf_statement *rleaf_get_statement( VALUE );
 librdf_parser *rleaf_get_parser( VALUE );
-
-VALUE rleaf_statement_to_object( VALUE, librdf_statement * );
 
 /* --------------------------------------------------------------
  * Initializers

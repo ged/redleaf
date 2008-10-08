@@ -150,10 +150,12 @@ class Spec::Runner::Formatter::HtmlFormatter
 	end
 
 
-	if methods.include?( 'global_styles' )
+	if instance_methods.include?( 'global_styles' )
 		alias_method :default_global_styles, :global_styles
 	else
-		def default_global_styles; ""; end
+		def default_global_styles
+			"/* No default global_styles (methods: %p)?!? */" % [ instance_methods ]
+		end
 	end
 	
 	def global_styles

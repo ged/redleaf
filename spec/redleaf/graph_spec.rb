@@ -51,7 +51,7 @@ describe Redleaf::Graph do
         [ ME,       FOAF[:family_name],         "Granger" ],
         [ ME,       FOAF[:homepage],            URI.parse('http://deveiate.org/') ],
         [ ME,       FOAF[:workplaceHomepage],   URI.parse('http://laika.com/') ],
-        [ ME,       FOAF[:phone],               URI.parse('tel:971.645.5490') ],
+        [ ME,       FOAF[:phone],               URI.parse('tel:303.555.1212') ],
         [ ME,       FOAF[:mbox_sha1sum],        "8680b054d586d747a6fcb7046e9ce7cb39554404"],
         [ ME,       FOAF[:knows],               :mahlon ],
         [ :mahlon,  RDF[:type],                 FOAF[:Person] ],
@@ -60,7 +60,7 @@ describe Redleaf::Graph do
 	]
 
 	before( :all ) do
-		setup_logging( :debug )
+		setup_logging( :fatal )
 
 		@basedir     = Pathname.new( __FILE__ ).dirname.parent.parent
 		@specdir     = @basedir + 'spec'
@@ -125,7 +125,60 @@ describe Redleaf::Graph do
 			@graph.append( *TEST_FOAF_TRIPLES )
 		end
 		
-		it ""
+		it "provides a way to remove statements by passing a triple" do
+			triple = [ ME, FOAF[:phone], URI.parse('tel:303.555.1212') ]
+
+			stmts = @graph.remove( triple )
+
+			stmts.should have(1).members
+			stmts[0].should be_an_instance_of( Redleaf::Statement )
+			stmts[0].subject.should == ME
+			stmts[0].predicate.should == FOAF[:phone]
+			stmts[0].object.should == URI.parse('tel:303.555.1212')
+			
+			@graph[ nil, FOAF[:phone], nil ].should be_empty()
+		end
+		
+		it "provides a way to remove statements by passing a statement object" do
+			target = Redleaf::Statement.new( ME, FOAF[:phone], URI.parse('tel:303.555.1212') )
+
+			stmts = @graph.remove( target )
+
+			stmts.should have(1).members
+			stmts[0].should be_an_instance_of( Redleaf::Statement )
+			stmts[0].subject.should == ME
+			stmts[0].predicate.should == FOAF[:phone]
+			stmts[0].object.should == URI.parse('tel:303.555.1212')
+			
+			@graph[ nil, FOAF[:phone], nil ].should be_empty()
+		end
+
+		it "uses NULL nodes in the triple passed to #remove as wildcards" do
+			stmts = @graph.remove([ ME, nil, nil ])
+
+			@graph.size.should == 3
+			stmts.should have(9).members
+			stmts.all? {|stmt| stmt.subject == ME }.should be_true()
+			
+			@graph[ ME, nil, nil ].should be_empty()
+		end
+		
+		it "raises an error if you try to #remove anything but a statement or triple" do
+			lambda {
+				@graph.remove( :glar )
+			}.should raise_error( ArgumentError, /can't convert a Symbol to a statement/i )
+			lambda {
+				@graph.remove( @graph )
+			}.should raise_error( ArgumentError, /can't convert a Redleaf::Graph to a statement/i )
+		end
+		
+		it "can find statements which contain nodes that match specified ones" do
+			stmts = @graph[ ME, nil, nil ]
+			
+			stmts.should have(9).members
+			stmts.all? {|stmt| stmt.subject == ME }.should be_true()
+		end
+		
 	end
 end
 

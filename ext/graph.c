@@ -285,7 +285,7 @@ rleaf_redleaf_graph_statements( VALUE self ) {
 		librdf_model_size(ptr->model), self );
 	while ( ! librdf_stream_end(stream) ) {
 		librdf_statement *stmt = librdf_stream_get_object( stream );
-		VALUE stmt_obj = rleaf_statement_to_object( rleaf_cRedleafStatement, stmt );
+		VALUE stmt_obj = rleaf_librdf_statement_to_value( stmt );
 		
 		rb_ary_push( statements, stmt_obj );
 		librdf_stream_next( stream );
@@ -339,9 +339,7 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 			if ( RARRAY_LEN(statement) != 3 )
 				rb_raise( rb_eArgError, "Statement must have three elements." );
 			statement = rb_class_new_instance( 3, RARRAY_PTR(statement), rleaf_cRedleafStatement );
-			// fallthrough -- :FIXME: this is really clumsy. It creates a statement
-			// object just to get the node-normalization and error-checking. Really should
-			// factor out the node conversions to the Redleaf module or maybe a mixin.
+			// fallthrough
 		
 			case T_DATA:
 			if ( CLASS_OF(statement) != rleaf_cRedleafStatement )
@@ -365,19 +363,158 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 
 /*
  *  call-seq:
- *     graph.remove( statement )   -> Redleaf::Statement
+ *     graph.remove( statement )   -> array
  *
- *  Remove the given +statement+ (either a Redleaf::Statement or a valid 
- *  triple in an Array) and return it. If no such statement exists in the
- *  receiver, returns +nil+.
+ *  Removes one or more statements from the graph that match the specified +statement+ 
+ *  (either a Redleaf::Statement or a valid triple in an Array) and returns any that 
+ *  were removed.
  *
- *     graph.remove([ :Redleaf, DOAP[:] ])
+ *  Any +nil+ values in the statement will match any value.
+ *
+ *     # Set a new home page for the Redleaf project, preserving the old one
+ *     # as the 'old_homepage'
+ *     stmt = graph.remove([ :Redleaf, DOAP[:homepage], nil ])
+ *     stmt.predicate = DOAP[:old_homepage]
+ *     graph.append( stmt )
+ *     graph.append([ :Redleaf, DOAP[:homepage], 
+ *                    URL.parse('http://deveiate.org/projects/Redleaf') ])
  */
 static VALUE
 rleaf_redleaf_graph_remove( VALUE self, VALUE statement ) {
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_statement *search_statement, *stmt;
+	librdf_stream *stream;
+	int count = 0;
+	VALUE rval = rb_ary_new();
 
-	return Qnil;
+	rleaf_log_with_context( self, "debug", "removing statements matching %s",
+		RSTRING(rb_inspect(statement))->ptr );
+	search_statement = rleaf_value_to_librdf_statement( statement );
+ 	stream = librdf_model_find_statements( ptr->model, search_statement );
+
+	if ( !stream ) {
+		librdf_free_statement( search_statement );
+		rb_raise( rb_eRuntimeError, "could not create a stream when removing %s from %s",
+		 	RSTRING(rb_inspect(statement))->ptr,
+			RSTRING(rb_inspect(self))->ptr );
+	}
+
+	while ( ! librdf_stream_end(stream) ) {
+		if ( (stmt = librdf_stream_get_object( stream )) == NULL ) break;
+
+		count++;
+		rb_ary_push( rval, rleaf_librdf_statement_to_value(stmt) );
+
+		if ( librdf_model_remove_statement(ptr->model, stmt) != 0 ) {
+			librdf_free_stream( stream );
+			librdf_free_statement( search_statement );
+			rb_raise( rb_eRuntimeError, "failed to remove statement from model" );
+		}
+		
+		librdf_stream_next( stream );
+	}
+
+	rleaf_log_with_context( self, "debug", "removed %d statements", count );
+
+	librdf_free_stream( stream );
+	librdf_free_statement( search_statement );
+
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.search( subject, predicate, object )   -> array
+ *     graph[ subject, predicate, object ]          -> array
+ *
+ *  Search for statements in the graph with the specified +subject+, +predicate+, and +object+ and
+ *  return them. If +subject+, +predicate+, or +object+ are nil, they will match any value.
+ *
+ *     # Match any statements about authors
+ *     graph.load( 'http://deveiant.livejournal.com/data/foaf' )
+ *
+ *     # 
+ *     graph[ nil, FOAF[:knows], nil ]  # => [...]
+ */
+static VALUE
+rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *subject_node, *predicate_node, *object_node;
+	librdf_statement *search_statement, *stmt;
+	librdf_stream *stream;
+	int count = 0;
+	VALUE rval = rb_ary_new();
+
+	rleaf_log_with_context( self, "debug", "searching for statements matching [%s, %s, %s]",
+		RSTRING(rb_inspect(subject))->ptr,
+		RSTRING(rb_inspect(predicate))->ptr,
+		RSTRING(rb_inspect(object))->ptr );
+
+	subject_node   = rleaf_value_to_subject_node( subject );
+	predicate_node = rleaf_value_to_predicate_node( predicate );
+	object_node    = rleaf_value_to_object_node( object );
+
+	search_statement = librdf_new_statement_from_nodes( rleaf_rdf_world, subject_node, predicate_node, object_node );
+	if ( !search_statement )
+		rb_raise( rb_eRuntimeError, "could not create a statement from nodes [%s, %s, %s]",
+			RSTRING(rb_inspect(subject))->ptr,
+			RSTRING(rb_inspect(predicate))->ptr,
+			RSTRING(rb_inspect(object))->ptr );
+
+ 	stream = librdf_model_find_statements( ptr->model, search_statement );
+	if ( !stream ) {
+		librdf_free_statement( search_statement );
+		rb_raise( rb_eRuntimeError, "could not create a stream when searching" );
+	}
+
+	while ( ! librdf_stream_end(stream) ) {
+		stmt = librdf_stream_get_object( stream );
+		if ( !stmt ) break;
+
+		count++;
+		rb_ary_push( rval, rleaf_librdf_statement_to_value(stmt) );
+		librdf_stream_next( stream );
+	}
+
+	rleaf_log_with_context( self, "debug", "found %d statements", count );
+
+	librdf_free_stream( stream );
+	librdf_free_statement( search_statement );
+
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.each_statement {|statement| block }   -> graph
+ *     graph.each {|statement| block }             	-> graph
+ *
+ *  Call +block+ once for each statement in the graph.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_each_statement( VALUE self ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_stream *stream;
+	librdf_statement *stmt;
+	
+	stream = librdf_model_as_stream( ptr->model );
+	if ( !stream )
+		rb_raise( rb_eRuntimeError, "Failed to create stream for graph" );
+	
+	while ( ! librdf_stream_end(stream) ) {
+		stmt = librdf_stream_get_object( stream );
+		if ( !stmt ) break;
+
+		rb_yield( rleaf_librdf_statement_to_value(stmt) );
+		librdf_stream_next( stream );
+	}
+
+	librdf_free_stream( stream );
+	
+	return self;
 }
 
 
@@ -442,6 +579,13 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_method( rleaf_cRedleafGraph, "append", rleaf_redleaf_graph_append, -1 );
 	rb_define_alias ( rleaf_cRedleafGraph, "<<", "append" );
 	rb_define_method( rleaf_cRedleafGraph, "remove", rleaf_redleaf_graph_remove, 1 );
+	rb_define_alias ( rleaf_cRedleafGraph, "delete", "remove" );
+	
+	rb_define_method( rleaf_cRedleafGraph, "search", rleaf_redleaf_graph_search, 3 );
+	rb_define_alias ( rleaf_cRedleafGraph, "[]", "search" );
+	
+	rb_define_method( rleaf_cRedleafGraph, "each_statement", rleaf_redleaf_graph_each_statement, 0 );
+	rb_define_alias ( rleaf_cRedleafGraph, "each", "each_statement" );
 	
 	rb_define_method( rleaf_cRedleafGraph, "load", rleaf_redleaf_graph_load, 1 );
 }

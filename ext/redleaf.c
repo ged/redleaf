@@ -43,6 +43,7 @@
 #include "redleaf.h"
 
 VALUE rleaf_mRedleaf;
+VALUE rleaf_mRedleafNodeConversion;
 VALUE rb_cURI = Qnil;
 
 librdf_world *rleaf_rdf_world = NULL;
@@ -160,7 +161,6 @@ static const char *rleaf_message_level_name( librdf_log_level level ) {
 }
 
 
-
 /* 
  * Log handler function for transforming rdflib log messages into Redleaf ones.
  */
@@ -182,8 +182,9 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
  * -------------------------------------------------------------- */
 
 void Init_redleaf_ext( void ) {
-	/* Load the Redland module from the Ruby source */
+	/* Load the Redleaf and Redleaf::NodeConversion modules from the Ruby source */
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
+	rleaf_mRedleafNodeConversion = rb_define_module_under( rleaf_mRedleaf, "NodeConversion" );
 
 	/* Get references to class objects we'll use a lot */
 	rb_require( "uri" );

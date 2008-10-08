@@ -22,7 +22,8 @@ require 'redleaf/mixins'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::Graph
-	include Redleaf::Loggable
+	include Redleaf::Loggable,
+	        Enumerable
 
 	# SVN Revision
 	SVNRev = %q$Rev$
