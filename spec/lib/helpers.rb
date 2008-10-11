@@ -15,13 +15,15 @@ end
 ### RSpec helper functions.
 module Redleaf::SpecHelpers
 
-	LEVEL = {
-		:debug => Logger::DEBUG,
-		:info  => Logger::INFO,
-		:warn  => Logger::WARN,
-		:error => Logger::ERROR,
-		:fatal => Logger::FATAL,
-	  }
+	unless defined?( LEVEL )
+		LEVEL = {
+			:debug => Logger::DEBUG,
+			:info  => Logger::INFO,
+			:warn  => Logger::WARN,
+			:error => Logger::ERROR,
+			:fatal => Logger::FATAL,
+		  }
+	end
 
 	###############
 	module_function
@@ -59,20 +61,22 @@ end
 class HtmlLogFormatter < Logger::Formatter
 	include ERB::Util  # for html_escape()
 
-	HTML_LOG_FORMAT = %q{
-	<dd class="log-message %5$s">
-		<span class="log-time">%1$s.%2$06d</span>
-		[
-			<span class="log-pid">%3$d</span>
-			/
-			<span class="log-tid">%4$s</span>
-		]
-		<span class="log-level">%5$s</span>
-		:
-		<span class="log-name">%6$s</span>
-		<span class="log-message-text">%7$s</span>
-	</dd>
-	}
+	unless defined?( HTML_LOG_FORMAT )
+		HTML_LOG_FORMAT = %q{
+		<dd class="log-message %5$s">
+			<span class="log-time">%1$s.%2$06d</span>
+			[
+				<span class="log-pid">%3$d</span>
+				/
+				<span class="log-tid">%4$s</span>
+			]
+			<span class="log-level">%5$s</span>
+			:
+			<span class="log-name">%6$s</span>
+			<span class="log-message-text">%7$s</span>
+		</dd>
+		}
+	end
 
 	### Override the logging formats with ones that generate HTML fragments
 	def initialize( logger, format=HTML_LOG_FORMAT ) # :notnew:

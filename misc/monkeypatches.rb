@@ -42,12 +42,14 @@ RAKEFILE_TEMPLATE = %q{
 	task :default => EXT
 
 	rule '.#{objext}' => '.#{@source_extension}' do |t|
-	  sh "\#{CC} \#{CFLAGS} \#{INCLUDES} -c \#{t.source}"
+		$stderr.puts "  building \#{t.name} from \#{t.source}"
+		sh "\#{CC} \#{CFLAGS} \#{INCLUDES} -c \#{t.source}"
 	end
 
 	desc "Build this extension"
 	file EXT => OBJ do
-	  sh "\#{LDSHARED} \#{LIBPATH} #{@available.ld_outfile(@extension_name)} \#{OBJ} \#{ADDITIONAL_OBJECTS} \#{LIBS} \#{LIBRUBYARG_SHARED}"
+		$stderr.puts "  linking \#{OBJ.join(', ')} into \#{EXT}"
+		sh "\#{LDSHARED} \#{LIBPATH} #{@available.ld_outfile(@extension_name)} \#{OBJ} \#{ADDITIONAL_OBJECTS} \#{LIBS} \#{LIBRUBYARG_SHARED}"
 	end
 
 
@@ -55,7 +57,7 @@ RAKEFILE_TEMPLATE = %q{
 
 	desc "Install this extension"
 	task :install => [EXT, RUBYARCHDIR] do
-	  install EXT, RUBYARCHDIR, :verbose => true
+		install EXT, RUBYARCHDIR, :verbose => true
 	end
 
 	#{additional_code}

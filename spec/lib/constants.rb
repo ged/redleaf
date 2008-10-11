@@ -6,9 +6,11 @@ require 'redleaf/constants'
 
 module Redleaf::TestConstants
 	include Redleaf::Constants,
-		Redleaf::Constants::CommonNamespaces
+	        Redleaf::Constants::CommonNamespaces
 
-	TEST_NAMESPACE = FOAF
+	unless defined?( TEST_NAMESPACE )
+		TEST_NAMESPACE = FOAF
+	end
 	
 end
 

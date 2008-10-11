@@ -71,6 +71,11 @@ describe Redleaf::Graph do
 		reset_logging()
 	end
 
+	it "knows what types of models the underlying Redland library supports" do
+		Redleaf::Graph.model_types.should be_an_instance_of( Hash )
+		Redleaf::Graph.model_types.should have_at_least(1).members
+	end
+	
 
 	describe "with no nodes" do
 		before( :each ) do
@@ -78,9 +83,41 @@ describe Redleaf::Graph do
 		end
 
 
+		it "has the same store as duplicates of itself" do
+			@graph.dup.store.should equal( @graph.store )
+		end
+
+
+		it "assigns an anonymous bnode when given the special token :_ as a subject" do
+			@graph << [ :_, FOAF[:knows], ME ]
+			stmt = @graph[ nil, FOAF[:knows], ME ].first
+			stmt.subject.should_not == :_
+			
+			# :FIXME: This is Redland's identifier pattern; not sure if I should be testing it
+			# this specifically or not
+			stmt.subject.to_s.should =~ /r\d+r\d+r\d+/
+		end
+		
+
+		it "considers bnodes to be equivalent when testing graph equality" do
+			@graph << [ :_, FOAF[:knows], ME ]
+			
+			other_graph = Redleaf::Graph.new
+			other_graph << [ :mahlon, FOAF[:knows], ME ]
+			
+			@graph.should === other_graph
+		end
+		
+
+		it "produces tainted duplicates if it itself is tainted" do
+			@graph.taint
+			@graph.dup.should be_tainted()
+		end
+		
+
 		it "is equivalent to another graph with no nodes" do
 			other_graph = Redleaf::Graph.new
-			@graph.should == other_graph
+			@graph.should === other_graph
 		end
 		
 		it "has a default store" do
@@ -114,16 +151,53 @@ describe Redleaf::Graph do
 		it "can load URIs that point to RDF data" do
 			rdfxml_file = @specdatadir + 'mgranger-foaf.xml'
 			uri = URI.parse( 'file:' + rdfxml_file )
-			@graph.load( uri.to_s ).should == 12
+			@graph.load( uri.to_s ).should == TEST_FOAF_TRIPLES.length
 		end
 	end
 
 
 	describe "with some nodes" do
+		before( :all ) do
+			setup_logging( :fatal )
+		end
+
 		before( :each ) do
 			@graph = Redleaf::Graph.new
 			@graph.append( *TEST_FOAF_TRIPLES )
 		end
+		
+		after( :each ) do
+			reset_logging()
+		end
+		
+		
+		it "is not equivalent to another graph with no nodes" do
+			other_graph = Redleaf::Graph.new
+			@graph.should_not === other_graph
+		end
+		
+		it "is equivalent to another graph with the same nodes" do
+			other_graph = Redleaf::Graph.new
+			other_graph.append( *TEST_FOAF_TRIPLES )
+			
+			@graph.should === other_graph
+			
+			# Make sure testing for equivalence doesn't alter either graph
+			@graph.statements.should have(12).members
+			other_graph.statements.should have(12).members
+		end
+		
+		it "is not equivalent to another graph with all the same nodes but one" do
+			other_graph = Redleaf::Graph.new
+			other_graph.append( *TEST_FOAF_TRIPLES[0..-2] )
+			
+			@graph.should_not === other_graph
+		end
+		
+		it "has a default store" do
+			@graph.store.should be_an_instance_of( Redleaf::DEFAULT_STORE_CLASS )
+		end
+	
 		
 		it "provides a way to remove statements by passing a triple" do
 			triple = [ ME, FOAF[:phone], URI.parse('tel:303.555.1212') ]
@@ -177,6 +251,12 @@ describe Redleaf::Graph do
 			
 			stmts.should have(9).members
 			stmts.all? {|stmt| stmt.subject == ME }.should be_true()
+		end
+		
+		it "can iterate over its statements" do
+			subjects = @graph.collect {|stmt| stmt.subject }
+			subjects.should have( TEST_FOAF_TRIPLES.length ).members
+			subjects.uniq.should have(2).members
 		end
 		
 	end

@@ -113,7 +113,7 @@ rleaf_statement_gc_free( librdf_statement *ptr ) {
  */
 static librdf_statement *
 check_statement( VALUE self ) {
-	rleaf_log_with_context( self, "debug", "checking a Redleaf::Statement object (%d).", self );
+	// rleaf_log_with_context( self, "debug", "checking a Redleaf::Statement object (%d).", self );
 	Check_Type( self, T_DATA );
 
     if ( !IsStatement(self) ) {
@@ -132,7 +132,7 @@ librdf_statement *
 rleaf_get_statement( VALUE self ) {
 	librdf_statement *stmt = check_statement( self );
 
-	rleaf_log_with_context( self, "debug", "fetching a Statement <%p>.", stmt );
+	// rleaf_log_with_context( self, "debug", "fetching a Statement <%p>.", stmt );
 	if ( !stmt )
 		rb_raise( rb_eRuntimeError, "uninitialized Statement" );
 
@@ -213,7 +213,6 @@ rleaf_value_to_librdf_statement( VALUE object ) {
  */
 static VALUE
 rleaf_redleaf_statement_s_allocate( VALUE klass ) {
-	rleaf_log( "debug", "wrapping an uninitialized Redleaf::Statement pointer." );
 	return Data_Wrap_Struct( klass, rleaf_statement_gc_mark, rleaf_statement_gc_free, 0 );
 }
 
@@ -436,17 +435,25 @@ rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_statement *other_stmt;
 
+	rleaf_log_with_context( self, "info", "Comparing %s with %s for equality.",
+		RSTRING(rb_inspect(self))->ptr, RSTRING(rb_inspect(other))->ptr );
+
 	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
 
 	other_stmt = rleaf_get_statement( other );
 
 	/* Statements with incomplete nodes can't be equal to any other statement */
-	if ( !librdf_statement_is_complete(stmt) || !librdf_statement_is_complete(other_stmt) )
+	if ( !librdf_statement_is_complete(stmt) || !librdf_statement_is_complete(other_stmt) ) {
+		rleaf_log_with_context( self, "debug", 
+			"one of the statements is incomplete: returning false" );
 		return Qfalse;
+	}
 
 	if ( librdf_statement_equals(stmt, other_stmt) ) {
+		rleaf_log_with_context( self, "debug", "statements are equal: returning true" );
 		return Qtrue;
 	} else {
+		rleaf_log_with_context( self, "debug", "statements are not equal: returning false" );
 		return Qfalse;
 	}
 }

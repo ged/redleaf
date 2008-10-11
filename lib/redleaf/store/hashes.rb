@@ -63,6 +63,11 @@ class Redleaf::HashesStore < Redleaf::Store
 
 	### Create a new Redleaf::HashesStore, optionally enabling contexts.
 	def initialize( name=nil, options={} )
+		if name.is_a?( Hash )
+			options = name
+			name = nil
+		end
+		
 		if name.nil?
 			@hash_type = :memory
 		else

@@ -86,7 +86,7 @@ rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 	/* Typed literal */
 	else {
 		uristring = rb_str_new2( (char *)librdf_uri_to_string(uri) );
-		node_object = rb_funcall( rleaf_mRedleafNodeConversion, 
+		node_object = rb_funcall( rleaf_mRedleafNodeUtils, 
 			rb_intern("make_typed_literal_object"), 2, uristring, literalstring );
 	}
 	
@@ -203,7 +203,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* Delegate anything else to Redleaf::object_to_node */
 		default:
-		converted_pair = rb_funcall( rleaf_mRedleafNodeConversion, rb_intern("object_to_node"), 1, object );
+		converted_pair = rb_funcall( rleaf_mRedleafNodeUtils, rb_intern("object_to_node"), 1, object );
 		str = rb_ary_entry( converted_pair, 0 );
 		typeuristr = rb_obj_as_string( rb_ary_entry(converted_pair, 1) );
 		typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char*)RSTRING(typeuristr)->ptr );

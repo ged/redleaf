@@ -27,7 +27,7 @@ require 'redleaf/utils'
 class Redleaf::Statement
 	include Redleaf::Loggable,
 	        Redleaf::Constants::CommonNamespaces,
-	        Redleaf::NodeConversion
+	        Redleaf::NodeUtils
 
 	# SVN Revision
 	SVNRev = %q$Rev$

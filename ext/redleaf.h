@@ -61,7 +61,7 @@ extern VALUE rleaf_cRedleafStatement;
 extern VALUE rleaf_cRedleafParser;
 extern VALUE rleaf_cRedleafStore;
 extern VALUE rleaf_cRedleafHashesStore;
-extern VALUE rleaf_mRedleafNodeConversion;
+extern VALUE rleaf_mRedleafNodeUtils;
 
 extern VALUE rb_cURI;
 

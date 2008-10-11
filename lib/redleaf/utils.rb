@@ -12,8 +12,8 @@ require 'redleaf/mixins'
 
 module Redleaf # :nodoc:
 
-	# A collection of node-conversion functions
-	module NodeConversion
+	# A collection of node-utility functions
+	module NodeUtils
 
 		###############
 		module_function
@@ -31,7 +31,8 @@ module Redleaf # :nodoc:
 		### in +typeduri+.
 		def make_typed_literal_object( typeuri, string_value )
 			typeuri = URI.parse( typeuri ) unless typeuri.is_a?( URI )
-			Redleaf.logger.debug "Making typed literal from %p<%s>" % [ string_value, typeuri ]
+			Redleaf.logger.debug "Making Ruby object from typed literal %p<%s>" %
+				[ string_value, typeuri ]
 
 			case typeuri
 			when XSD[:string]
@@ -107,7 +108,7 @@ module Redleaf # :nodoc:
 			raise NotImplementedError, "Not implemented yet"
 		end
 
-	end # module NodeConversion
+	end # module NodeUtils
 	
 	
 	# 

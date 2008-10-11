@@ -83,6 +83,14 @@ task :build => EXT_RAKEFILE.to_s do
 end
 
 
+desc "Rebuild the C extension"
+task :rebuild => EXT_RAKEFILE.to_s do
+	Dir.chdir( EXTDIR ) do
+		sh 'rake clobber default'
+	end
+end
+
+
 desc "Build the W3C conformance test suite"
 task :build_specs => SPEC_RAKEFILE.to_s do
 	Dir.chdir( SPECDIR ) do

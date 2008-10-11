@@ -43,6 +43,7 @@
 #include "redleaf.h"
 
 VALUE rleaf_cRedleafGraph;
+librdf_uri *rleaf_contexts_feature;
 
 
 /* --------------------------------------------------
@@ -60,7 +61,7 @@ rleaf_graph_alloc( VALUE storeobj ) {
 	/* :TODO: Figure out what the options argument of librdf_new_model does and support it. */
 	if ( !store->storage )
 		rb_raise( rb_eArgError, "Ack! Tried to create a graph with an uninitialized %s 0x%x", 
-		rb_class2name(CLASS_OF(storeobj)), storeobj );
+		          rb_class2name(CLASS_OF(storeobj)), storeobj );
 
 	ptr->store = storeobj;
 	ptr->model = librdf_new_model( rleaf_rdf_world, store->storage, NULL );
@@ -118,7 +119,7 @@ rleaf_graph_gc_free( rleaf_GRAPH *ptr ) {
  */
 static rleaf_GRAPH *
 check_graph( VALUE self ) {
-	rleaf_log_with_context( self, "debug", "checking a Redleaf::Graph object (%d).", self );
+	// rleaf_log_with_context( self, "debug", "checking a Redleaf::Graph object (%d).", self );
 	Check_Type( self, T_DATA );
 
     if ( !IsGraph(self) ) {
@@ -137,7 +138,7 @@ rleaf_GRAPH *
 rleaf_get_graph( VALUE self ) {
 	rleaf_GRAPH *graph = check_graph( self );
 
-	rleaf_log_with_context( self, "debug", "fetching a Graph <%p>.", graph );
+	// rleaf_log_with_context( self, "debug", "fetching a Graph <%p>.", graph );
 	if ( !graph )
 		rb_raise( rb_eRuntimeError, "uninitialized Graph" );
 
@@ -160,6 +161,32 @@ rleaf_get_graph( VALUE self ) {
 static VALUE 
 rleaf_redleaf_graph_s_allocate( VALUE klass ) {
 	return Data_Wrap_Struct( klass, rleaf_graph_gc_mark, rleaf_graph_gc_free, 0 );
+}
+
+
+/*
+ *  call-seq:
+ *     Redleaf::Graph.model_types   -> hash
+ *
+ *  Return a hash describing all model types supported by the underlying Redland 
+ *  library (I think?). :TODO: Figure out what this is returning.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_s_model_types( VALUE klass ) {
+	const char *name, *label;
+	unsigned int counter = 0;
+	VALUE rhash = rb_hash_new();
+	
+	rleaf_log( "debug", "Enumerating graphs." );
+	while( (librdf_model_enumerate(rleaf_rdf_world, counter, &name, &label)) == 0 ) {
+		rleaf_log( "debug", "  graph [%d]: name = '%s', label = '%s'", counter, name, label );
+		rb_hash_aset( rhash, rb_str_new2(name), rb_str_new2(label) );
+		counter++;
+	}
+	rleaf_log( "debug", "  got stuff for %d graphs.", counter );
+	
+	return rhash;
 }
 
 
@@ -199,6 +226,31 @@ rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
 	}
 
 	return self;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.dup   -> graph
+ *
+ *  Duplicate the receiver and return the copy.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_dup( VALUE self ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	VALUE dup = rleaf_redleaf_graph_s_allocate( CLASS_OF(self) );
+	rleaf_GRAPH *dup_ptr = ALLOC( rleaf_GRAPH );
+	
+	rleaf_log_with_context( self, "debug", "Duping %s 0x%x", rb_class2name(CLASS_OF(self)), self );
+	
+	dup_ptr->store = ptr->store;
+	dup_ptr->model = librdf_new_model_from_model( ptr->model );
+
+	DATA_PTR( dup ) = dup_ptr;
+	OBJ_INFECT( dup, self );
+
+	return dup;
 }
 
 
@@ -339,7 +391,7 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 			if ( RARRAY_LEN(statement) != 3 )
 				rb_raise( rb_eArgError, "Statement must have three elements." );
 			statement = rb_class_new_instance( 3, RARRAY_PTR(statement), rleaf_cRedleafStatement );
-			// fallthrough
+			/* fallthrough */
 		
 			case T_DATA:
 			if ( CLASS_OF(statement) != rleaf_cRedleafStatement )
@@ -553,6 +605,68 @@ rleaf_redleaf_graph_load( VALUE self, VALUE uri ) {
 }
 
 
+/*
+ *  call-seq:
+ *     graph.supports_contexts?   -> true or false
+ *
+ *  Returns +true+ if the receiving model supports contexts.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_supports_contexts_p( VALUE self ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *rval;
+	const char *literal_rval;
+	
+	rval = librdf_model_get_feature( ptr->model, rleaf_contexts_feature );
+	if ( rval == NULL ) return Qfalse;
+
+	literal_rval = (const char *)librdf_node_get_literal_value( rval );
+	if ( strncmp(literal_rval, "1", 1) == 0 )
+		return Qtrue;
+	else
+		return Qfalse;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.contexts   -> array
+ *
+ *  Returns an Array of URIs describing the contexts in the receiving graph.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_contexts( VALUE self ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_iterator *iter;
+	librdf_node *context_node;
+	VALUE context = Qnil;
+	VALUE rval = rb_ary_new();
+	int count = 0;
+	
+	if ( (iter = librdf_model_get_contexts(ptr->model)) == NULL ) {
+		rleaf_log_with_context( self, "info", "couldn't fetch a context iterator; "
+			"contexts not supported?" );
+		return rval;
+	}
+
+	rleaf_log_with_context( self, "debug", "iterating over contexts for graph 0x%x", self );
+
+	while ( ! librdf_iterator_end(iter) ) {
+		context_node = librdf_iterator_get_context( iter );
+		context = rleaf_librdf_uri_node_to_object( context_node );
+		rleaf_log_with_context( self, "debug", "  context %d: %s",
+			count, RSTRING(rb_inspect(context))->ptr );
+		
+		rb_ary_push( rval, context );
+		librdf_iterator_next( iter );
+	}
+	librdf_free_iterator( iter );
+
+	return rval;
+}
+
 
 /*
  * Redleaf Graph class
@@ -565,10 +679,19 @@ rleaf_init_redleaf_graph( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 #endif
 
+	rleaf_contexts_feature = librdf_new_uri( rleaf_rdf_world, 
+		(unsigned char *)LIBRDF_MODEL_FEATURE_CONTEXTS );
+
+	/* Class methods */
 	rleaf_cRedleafGraph = rb_define_class_under( rleaf_mRedleaf, "Graph", rb_cObject );
 	rb_define_alloc_func( rleaf_cRedleafGraph, rleaf_redleaf_graph_s_allocate );
 	
+	rb_define_singleton_method( rleaf_cRedleafGraph, "model_types", 
+		rleaf_redleaf_graph_s_model_types, 0 );
+
+	/* Instance methods */
 	rb_define_method( rleaf_cRedleafGraph, "initialize", rleaf_redleaf_graph_initialize, -1 );
+	rb_define_method( rleaf_cRedleafGraph, "dup", rleaf_redleaf_graph_dup, 0 );
 
 	rb_define_method( rleaf_cRedleafGraph, "store", rleaf_redleaf_graph_store, 0 );
 	rb_define_method( rleaf_cRedleafGraph, "store=", rleaf_redleaf_graph_store_eq, 1 );
@@ -588,5 +711,97 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_alias ( rleaf_cRedleafGraph, "each", "each_statement" );
 	
 	rb_define_method( rleaf_cRedleafGraph, "load", rleaf_redleaf_graph_load, 1 );
+
+	rb_define_method( rleaf_cRedleafGraph, "supports_contexts?", 
+		rleaf_redleaf_graph_supports_contexts_p, 0 );
+	rb_define_alias ( rleaf_cRedleafGraph, "contexts_enabled?", "supports_contexts?" );
+
+	rb_define_method( rleaf_cRedleafGraph, "contexts", rleaf_redleaf_graph_contexts, 0 );
+
+		
+	/*
+
+	-- #include?/#contains?
+	int librdf_model_contains_statement(librdf_model *model, librdf_statement *statement);
+	
+	-- #has_predicate_in?( object, url )/#has_arc_in?( object, url )
+	int librdf_model_has_arc_in(librdf_model *model, librdf_node *node, librdf_node *property);
+
+	-- #has_predicate_out?( subject, url )/#has_arc_out?( subject, url )
+	int librdf_model_has_arc_out(librdf_model *model, librdf_node *node, librdf_node *property);
+
+	-- #subjects( predicate, object )/#sources( predicate, object )
+	librdf_iterator* librdf_model_get_sources(librdf_model* model, librdf_node* arc, librdf_node* target)
+
+	-- #predicates( subject, object )/#arcs( subject, object )
+	librdf_iterator* librdf_model_get_arcs(librdf_model* model, librdf_node* source, librdf_node* target)
+
+	-- #objects( subject, predicate )/#targets( subject, predicate )
+	librdf_iterator* librdf_model_get_targets(librdf_model* model, librdf_node* source, librdf_node* arc)
+
+	-- #subject( predicate, object )/#source( predicate, object )
+	librdf_node* librdf_model_get_source(librdf_model* model, librdf_node* arc, librdf_node* target)
+
+	-- #predicate( subject, object )/#arc( subject, object )
+	librdf_node* librdf_model_get_arc(librdf_model* model, librdf_node* source, librdf_node* target)
+
+	-- #object( subject, predicate )/#target( subject, predicate )
+	librdf_node* librdf_model_get_target(librdf_model* model, librdf_node* source, librdf_node* arc)
+
+	-- #marshal_dump
+	-- #marshal_load
+	librdf_stream* librdf_model_as_stream(librdf_model* model)
+
+	-- #arcs_in( object )
+	librdf_iterator* librdf_model_get_arcs_in(librdf_model* model, librdf_node* node)
+
+	-- #arcs_out( subject )
+	librdf_iterator* librdf_model_get_arcs_out(librdf_model* model, librdf_node* node)
+
+	-- Not tested?
+	-- int librdf_model_add_submodel(librdf_model* model, librdf_model* sub_model)
+	//int librdf_model_remove_submodel(librdf_model* model, librdf_model* sub_model)
+
+	-- #query( string, ... )
+	librdf_query_results* librdf_model_query_execute( librdf_model *model, librdf_query *query );
+
+	-- #sync
+	void librdf_model_sync(librdf_model* model)
+
+	-- #supports_contexts?
+	//librdf_node* librdf_model_get_feature(librdf_model* model, librdf_uri* feature) 
+	//int librdf_model_set_feature(librdf_model* model, librdf_uri* feature, librdf_node* value)
+
+	-- #to_s
+	-- Maybe methods like: #as_ntriples, #as_rdfxml, etc? that use the mime_type parameter.
+	unsigned char* librdf_model_to_counted_string( librdf_model *model, librdf_uri *uri, const char *name, const char *mime_type, librdf_uri *type_uri, size_t *string_length_p );
+	unsigned char* librdf_model_to_string( librdf_model *model, librdf_uri *uri, const char *name, const char *mime_type, librdf_uri *type_uri );
+	
+	
+	--------------------------------------------------------------
+	Transactions                                                  
+	--------------------------------------------------------------
+	-- #transaction { block }
+	int librdf_model_transaction_commit( librdf_model *model );
+	void* librdf_model_transaction_get_handle( librdf_model *model );
+	int librdf_model_transaction_rollback( librdf_model *model );
+	int librdf_model_transaction_start( librdf_model *model );
+	int librdf_model_transaction_start_with_handle( librdf_model *model, void *handle );
+	
+
+	--------------------------------------------------------------
+	Contexts                                                      
+	--------------------------------------------------------------
+
+	-- 
+	int librdf_model_context_add_statement(librdf_model* model, librdf_node* context, librdf_statement* statement)
+	int librdf_model_context_add_statements(librdf_model* model, librdf_node* context, librdf_stream* stream)
+	int librdf_model_context_remove_statement(librdf_model* model, librdf_node* context, librdf_statement* statement)
+	int librdf_model_context_remove_statements(librdf_model* model, librdf_node* context)
+	librdf_stream* librdf_model_context_as_stream(librdf_model* model, librdf_node* context)
+	int librdf_model_contains_context( librdf_model *model, librdf_node *context );
+	librdf_stream* librdf_model_find_statements_in_context( librdf_model *model, librdf_statement *statement, librdf_node *context_node );
+
+	*/
 }
 
