@@ -53,8 +53,8 @@ VALUE rleaf_cRedleafParser;
  * Allocation function
  */
 static librdf_parser *
-rleaf_parser_alloc() {
-	librdf_parser *ptr = librdf_new_parser( rleaf_rdf_world, NULL, NULL, NULL );
+rleaf_parser_alloc( const char *name ) {
+	librdf_parser *ptr = librdf_new_parser( rleaf_rdf_world, name, NULL, NULL );
 	rleaf_log( "debug", "initialized a librdf_parser <%p>", ptr );
 	return ptr;
 }
@@ -138,11 +138,15 @@ rleaf_get_parser( VALUE self ) {
  *  call-seq:
  *     Redleaf::Parser.allocate   -> parser
  *
- *  Allocate a new Redleaf::Parser object.
+ *  Virtual method: Allocate a new instance of a subclass of Redleaf::Parser.
  *
  */
 static VALUE 
 rleaf_redleaf_parser_s_allocate( VALUE klass ) {
+	if ( klass == rleaf_cRedleafParser ) {
+		rb_raise( rb_eRuntimeError, "cannot allocate a Redleaf::Parser, as it is an abstract class" );
+	}
+
 	return Data_Wrap_Struct( klass, rleaf_parser_gc_mark, rleaf_parser_gc_free, 0 );
 }
 
@@ -182,28 +186,74 @@ rleaf_redleaf_parser_s_features( VALUE klass ) {
 }
 
 
+/*
+	-- Redleaf::Parser.guess_type( mimetype=nil, buffer=nil, uri=nil )
+	-- Redleaf::Parser.guess_type_from_buffer( buffer )
+	-- Redleaf::Parser.guess_type_from_mimetype( mimetype )
+	-- Redleaf::Parser.guess_type_from_uri( uri )
+	const char* librdf_parser_guess_name( const char *mime_type, unsigned char *buffer,
+										  unsigned char *identifier );
+ */
+
+/*
+ *  call-seq:
+ *     Redleaf::Parser.guess_type( mimetype=nil, buffer=nil, uri=nil )   -> string
+ *
+ *  Guess the type of parser required given one or more of a +mimetype+, a +buffer+ containing
+ *  RDF content, and/or an RDF +uri+.
+ *
+ */
+static VALUE
+rleaf_redleaf_parser_s_guess_type( int argc, VALUE *argv, VALUE self ) {
+	VALUE mimeobj = Qnil, bufobj = Qnil, uriobj = Qnil;
+	unsigned char *buffer = NULL, *uri = NULL;
+	const char  *mimetype = NULL, *guess;
+	
+	rb_scan_args( argc, argv, "03", &mimeobj, &bufobj, &uriobj );
+	
+	if ( mimeobj ) {
+		mimetype = (const char *)RSTRING(rb_obj_as_string(mimeobj))->ptr;
+	}
+	if ( bufobj ) {
+		buffer = (unsigned char *)RSTRING(rb_obj_as_string(bufobj))->ptr;
+	}
+	if ( uriobj ) {
+		uri = (unsigned char *)RSTRING(rb_obj_as_string(uriobj))->ptr;
+	}
+	
+	guess = librdf_parser_guess_name( mimetype, buffer, uri );
+
+	if ( guess == NULL ) return Qnil;
+	
+	return rb_str_new2( guess );
+}
+
+
 /* --------------------------------------------------------------
  * Instance methods
  * -------------------------------------------------------------- */
 
 /*
  *  call-seq:
- *     Redleaf::Parser.new()          -> parser
- *     Redleaf::Parser.new( store )   -> parser
+ *     Redleaf::Parser.new()         -> parser
  *
- *  Create a new Redleaf::Parser object. If the optional +store+ object is
- *  given, it is used as the backing store for the parser. If none is specified
- *  a new Redleaf::MemoryHashStore is used.
+ *  Initialize an instance of a subclass of Redleaf::Parser.
  *
  */
 static VALUE 
-rleaf_redleaf_parser_initialize( int argc, VALUE *argv, VALUE self ) {
+rleaf_redleaf_parser_initialize( VALUE self ) {
 	rleaf_log_with_context( self, "debug", "Initializing %s 0x%x", rb_class2name(CLASS_OF(self)), self );
 
 	if ( !check_parser(self) ) {
 		librdf_parser *parser;
+		VALUE type = Qnil;
+		const char *typename;
 
-		DATA_PTR( self ) = parser = rleaf_parser_alloc();
+		/* Get the backend name */
+		type = rb_funcall( CLASS_OF(self), rb_intern("validated_parser_type"), 0 );
+		typename = StringValuePtr( type );
+		
+		DATA_PTR( self ) = parser = rleaf_parser_alloc( typename );
 		
 	} else {
 		rb_raise( rb_eRuntimeError,
@@ -254,11 +304,46 @@ void rleaf_init_redleaf_parser( void ) {
 	rb_define_singleton_method( rleaf_cRedleafParser, "features", 
 		rleaf_redleaf_parser_s_features, 0 );
 
+	/* Class methods */
 	rb_define_alloc_func( rleaf_cRedleafParser, rleaf_redleaf_parser_s_allocate );
 	
-	rb_define_method( rleaf_cRedleafParser, "initialize", rleaf_redleaf_parser_initialize, -1 );
+	rb_define_singleton_method( rleaf_cRedleafParser, "guess_type", 
+		rleaf_redleaf_parser_s_guess_type, -1 );
+
+	/* Instance methods */
+	rb_define_method( rleaf_cRedleafParser, "initialize", rleaf_redleaf_parser_initialize, 0 );
 	rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
 
-	
+	/*
+
+	-- Redleaf::Parser.guess_type( mimetype=nil, buffer=nil, uri=nil )
+	-- Redleaf::Parser.guess_type_from_buffer( buffer )
+	-- Redleaf::Parser.guess_type_from_mimetype( mimetype )
+	-- Redleaf::Parser.guess_type_from_uri( uri )
+	const char* librdf_parser_guess_name( const char *mime_type, unsigned char *buffer, unsigned char *identifier );
+
+	librdf_stream* librdf_parser_parse_as_stream( librdf_parser *parser, librdf_uri *uri, librdf_uri *base_uri );
+	int librdf_parser_parse_into_model( librdf_parser *parser, librdf_uri *uri, librdf_uri *base_uri, librdf_model *model );
+	librdf_stream* librdf_parser_parse_string_as_stream( librdf_parser *parser, unsigned char *string, librdf_uri *base_uri );
+	int librdf_parser_parse_string_into_model( librdf_parser *parser, unsigned char *string, librdf_uri *base_uri, librdf_model *model );
+
+	void librdf_parser_set_error( librdf_parser *parser, void *user_data, void (error_fnvoid *user_data, const char *msg, ...) ());
+	void librdf_parser_set_warning( librdf_parser *parser, void *user_data, void (warning_fnvoid *user_data, const char *msg, ...) ());
+	librdf_stream* librdf_parser_parse_counted_string_as_stream( librdf_parser *parser, unsigned char *string, size_t length, librdf_uri *base_uri );
+	int librdf_parser_parse_counted_string_into_model( librdf_parser *parser, unsigned char *string, size_t length, librdf_uri *base_uri, librdf_model *model );
+
+	#define             LIBRDF_PARSER_FEATURE_ERROR_COUNT
+	#define             LIBRDF_PARSER_FEATURE_WARNING_COUNT
+	librdf_node* librdf_parser_get_feature( librdf_parser *parser, librdf_uri *feature );
+	int librdf_parser_set_feature( librdf_parser *parser, librdf_uri *feature, librdf_node *value );
+
+	char* librdf_parser_get_accept_header( librdf_parser *parser );
+	int librdf_parser_get_namespaces_seen_count( librdf_parser *parser );
+	const char* librdf_parser_get_namespaces_seen_prefix( librdf_parser *parser, int offset );
+	librdf_uri* librdf_parser_get_namespaces_seen_uri( librdf_parser *parser, int offset );
+	librdf_uri_filter_func librdf_parser_get_uri_filter( librdf_parser *parser, void **user_data_p );
+	void librdf_parser_set_uri_filter( librdf_parser *parser, librdf_uri_filter_funcfilter, void *user_data );
+
+	*/
 }
 

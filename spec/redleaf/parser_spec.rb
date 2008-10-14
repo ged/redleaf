@@ -47,6 +47,25 @@ describe Redleaf::Parser do
 	end
 
 
+	it "is an abtract class" do
+		lambda {
+			Redleaf::Parser.new
+		}.should raise_error( RuntimeError, /cannot allocate/ )
+	end
+
+
+	it "raises an appropriate exception if you try to create a parser type that isn't present in " +
+	   "the local machine's Redland library" do
+		unimpl_storeclass = Class.new( Redleaf::Parser ) do
+			parser_type :gazelles
+		end
+		
+		lambda {
+			unimpl_storeclass.new
+		}.should raise_error( Redleaf::FeatureError, /unsupported/ )
+	end
+	
+
 	it "knows what features the local installation has" do
 		features = Redleaf::Parser.features
 		
@@ -55,20 +74,15 @@ describe Redleaf::Parser do
 	end
 
 
-	describe "instance (with defaults)" do
-		before( :each ) do
-			@parser = Redleaf::Parser.new
-		end
+	describe "concrete subclass" do
 		
-		
-		it "can build an accept header for the kinds of content it accepts" do
-			@parser.accept_header.should =~ %r{application/rdf\+xml}i
-		end
-
-		it "description" do
+		it "can set which Redland parser type to use declaratively" do
+			parserclass = Class.new( Redleaf::Parser ) do
+				parser_type :ntriples
+			end
 			
+			parserclass.parser_type.should == :ntriples
 		end
-		
 		
 	end
 

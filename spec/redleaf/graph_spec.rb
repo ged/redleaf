@@ -254,9 +254,23 @@ describe Redleaf::Graph do
 		end
 		
 		it "can iterate over its statements" do
-			subjects = @graph.collect {|stmt| stmt.subject }
+			subjects = @graph.collect {|stmt| stmt.subject.to_s }
 			subjects.should have( TEST_FOAF_TRIPLES.length ).members
 			subjects.uniq.should have(2).members
+		end
+		
+		it "knows it includes a statement which has been added to it" do
+			stmt = Redleaf::Statement.new( *TEST_FOAF_TRIPLES.first )
+			@graph.should include( stmt )
+		end
+		
+		it "knows it includes a valid triple which has been added to it" do
+			@graph.should include( TEST_FOAF_TRIPLES.first )
+		end
+		
+		it "knows it doesn't include a statement which hasn't been added to it" do
+			stmt = Redleaf::Statement.new( :grimlok, FOAF[:knows], :skeletor )
+			@graph.should_not include( stmt )
 		end
 		
 	end

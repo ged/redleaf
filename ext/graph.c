@@ -540,6 +540,38 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
 
 /*
  *  call-seq:
+ *     graph.include?( statement )    -> true or false
+ *     graph.contains?( statement )   -> true or false
+ *
+ *  Return +true+ if the receiver contains the specified +statement+, which can be either a
+ *  Redleaf::Statement object or a valid triple in an Array.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_include_p( VALUE self, VALUE statement ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_statement *stmt;
+	librdf_stream *stream;
+	VALUE rval = Qfalse;
+
+	rleaf_log_with_context( self, "debug", "checking for statement matching %s",
+		RSTRING(rb_inspect(statement))->ptr );
+	stmt = rleaf_value_to_librdf_statement( statement );
+
+	/* According to the Redland docs, this is a better way to test this than 
+	   librdf_model_contains_statement if the model has contexts. */
+	stream = librdf_model_find_statements( ptr->model, stmt );
+	if ( stream != NULL && !librdf_stream_end(stream) ) rval = Qtrue;
+
+	librdf_free_stream( stream );
+	librdf_free_statement( stmt );
+
+	return rval;
+}
+
+
+/*
+ *  call-seq:
  *     graph.each_statement {|statement| block }   -> graph
  *     graph.each {|statement| block }             	-> graph
  *
@@ -706,6 +738,8 @@ rleaf_init_redleaf_graph( void ) {
 	
 	rb_define_method( rleaf_cRedleafGraph, "search", rleaf_redleaf_graph_search, 3 );
 	rb_define_alias ( rleaf_cRedleafGraph, "[]", "search" );
+	rb_define_method( rleaf_cRedleafGraph, "include?", rleaf_redleaf_graph_include_p, 1 );
+	rb_define_alias ( rleaf_cRedleafGraph, "contains?", "include?" );
 	
 	rb_define_method( rleaf_cRedleafGraph, "each_statement", rleaf_redleaf_graph_each_statement, 0 );
 	rb_define_alias ( rleaf_cRedleafGraph, "each", "each_statement" );
@@ -718,12 +752,9 @@ rleaf_init_redleaf_graph( void ) {
 
 	rb_define_method( rleaf_cRedleafGraph, "contexts", rleaf_redleaf_graph_contexts, 0 );
 
-		
+	
 	/*
 
-	-- #include?/#contains?
-	int librdf_model_contains_statement(librdf_model *model, librdf_statement *statement);
-	
 	-- #has_predicate_in?( object, url )/#has_arc_in?( object, url )
 	int librdf_model_has_arc_in(librdf_model *model, librdf_node *node, librdf_node *property);
 
@@ -758,19 +789,11 @@ rleaf_init_redleaf_graph( void ) {
 	-- #arcs_out( subject )
 	librdf_iterator* librdf_model_get_arcs_out(librdf_model* model, librdf_node* node)
 
-	-- Not tested?
-	-- int librdf_model_add_submodel(librdf_model* model, librdf_model* sub_model)
-	//int librdf_model_remove_submodel(librdf_model* model, librdf_model* sub_model)
-
 	-- #query( string, ... )
 	librdf_query_results* librdf_model_query_execute( librdf_model *model, librdf_query *query );
 
 	-- #sync
 	void librdf_model_sync(librdf_model* model)
-
-	-- #supports_contexts?
-	//librdf_node* librdf_model_get_feature(librdf_model* model, librdf_uri* feature) 
-	//int librdf_model_set_feature(librdf_model* model, librdf_uri* feature, librdf_node* value)
 
 	-- #to_s
 	-- Maybe methods like: #as_ntriples, #as_rdfxml, etc? that use the mime_type parameter.
