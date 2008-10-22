@@ -63,7 +63,7 @@ extern VALUE rleaf_cRedleafStore;
 extern VALUE rleaf_cRedleafHashesStore;
 extern VALUE rleaf_mRedleafNodeUtils;
 
-extern VALUE rb_cURI;
+extern VALUE rleaf_rb_cURI;
 
 extern librdf_world *rleaf_rdf_world;
 
@@ -101,7 +101,7 @@ typedef struct rleaf_graph_object {
 #define IsGraph( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafGraph )
 #define IsStore( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStore )
 #define IsParser( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafParser )
-
+#define IsQueryResult( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafQueryResult )
 
 #define XSD_URI_BASE "http://www.w3.org/TR/xmlschema-2/#"
 #define XSD_URI(s) XSD_URI_BASE s
@@ -163,6 +163,7 @@ void rleaf_init_redleaf_store( void );
 void rleaf_init_redleaf_graph( void );
 void rleaf_init_redleaf_parser( void );
 void rleaf_init_redleaf_statement( void );
+void rleaf_init_redleaf_queryresult( void );
 
 #endif
 

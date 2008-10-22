@@ -3,7 +3,7 @@
 require 'redleaf'
 require 'redleaf/parser'
 
-# A parser for the NTriples RDF syntax.
+# A parser for the RDF+XML syntax.
 # 
 # == Subversion Id
 #
@@ -20,7 +20,7 @@ require 'redleaf/parser'
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
-class Redleaf::NTriplesParser < Redleaf::Parser
+class Redleaf::RDFXMLParser < Redleaf::Parser
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -29,11 +29,11 @@ class Redleaf::NTriplesParser < Redleaf::Parser
 	SVNId = %q$Id$
 
 
-	# Use the 'ntriples' Redland parser
-	parser_type :ntriples
+	# Use the 'rdfxml' Redland parser
+	parser_type :rdfxml
 	
 
-end # class Redleaf::NTriplesParser
+end # class Redleaf::RDFXMLParser
 
 # vim: set nosta noet ts=4 sw=4:
 

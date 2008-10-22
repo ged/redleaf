@@ -58,7 +58,7 @@ rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 	uristring = librdf_uri_as_string( uri );
 
 	rleaf_log( "debug", "converting %s to a URI object", uristring );
-	node_object = rb_funcall( rb_cURI, rb_intern("parse"), 1,
+	node_object = rb_funcall( rleaf_rb_cURI, rb_intern("parse"), 1,
 		rb_str_new2((const char *)uristring) );
 	
 	return node_object;
@@ -194,7 +194,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* URI -> librdf_uri */
 		case T_OBJECT:
-		if ( rb_obj_is_kind_of(object, rb_cURI) ) {
+		if ( rb_obj_is_kind_of(object, rleaf_rb_cURI) ) {
 			rleaf_log( "debug", "Converting URI object to librdf_uri node" );
 			str = rb_obj_as_string( object );
 			return librdf_new_node_from_uri_string( rleaf_rdf_world, (unsigned char*)RSTRING(str)->ptr );
@@ -228,7 +228,7 @@ librdf_node *
 rleaf_value_to_subject_node( VALUE subject ) {
 	librdf_node *node = NULL;
 	
-	if ( subject == Qnil || TYPE(subject) == T_SYMBOL || rb_obj_is_kind_of(subject, rb_cURI) ) {
+	if ( subject == Qnil || TYPE(subject) == T_SYMBOL || rb_obj_is_kind_of(subject, rleaf_rb_cURI) ) {
 		node = rleaf_value_to_librdf_node( subject );
 	} else {
 		rb_raise( rb_eArgError, "Subject must be blank or a URI" );
@@ -247,7 +247,7 @@ librdf_node *
 rleaf_value_to_predicate_node( VALUE predicate ) {
 	librdf_node *node = NULL;
 
-	if ( predicate == Qnil || rb_obj_is_kind_of(predicate, rb_cURI) ) {
+	if ( predicate == Qnil || rb_obj_is_kind_of(predicate, rleaf_rb_cURI) ) {
 		node = rleaf_value_to_librdf_node( predicate );
 	} else {
 		rb_raise( rb_eArgError, "Predicate must be a URI" );

@@ -59,7 +59,7 @@ describe Redleaf::Parser do
 		input_model.parse( @datadir + '<%= example.input_doc %>' )
 		expected_model.parse( @datadir + '<%= example.output_doc %>' )
 
-		input_model.should == expected_model
+		input_model.should === expected_model
 	end
 <% end %>
 

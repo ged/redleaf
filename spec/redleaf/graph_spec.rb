@@ -272,7 +272,33 @@ describe Redleaf::Graph do
 			stmt = Redleaf::Statement.new( :grimlok, FOAF[:knows], :skeletor )
 			@graph.should_not include( stmt )
 		end
-		
+	end
+
+	describe "query interface" do
+		before( :each ) do
+			@graph = Redleaf::Graph.new
+		end
+
+		it "can be queried with SPARQL" do
+			@graph <<
+				[ :_a, RDF[:type], FOAF[:Person] ] <<
+				[ :_a, FOAF[:name], "Alice" ]
+			
+			sparql = %{
+				PREFIX :rdf <#{RDF}> 
+				PREFIX :foaf <#{FOAF}>
+				SELECT ?name
+				WHERE
+				{
+					?person rdf:type foaf:Person;
+					?person foaf:name ?name
+				}
+			}
+			
+			res = @graph.query( sparql )
+			res.should be_an_instance_of( Redleaf::QueryResult )
+			res.bindings.should == [:name]
+		end
 	end
 end
 

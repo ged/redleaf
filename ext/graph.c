@@ -444,6 +444,7 @@ rleaf_redleaf_graph_remove( VALUE self, VALUE statement ) {
 	search_statement = rleaf_value_to_librdf_statement( statement );
  	stream = librdf_model_find_statements( ptr->model, search_statement );
 
+	/* FIXME: protect from exceptions so we don't leak search_statement and stream  */
 	if ( !stream ) {
 		librdf_free_statement( search_statement );
 		rb_raise( rb_eRuntimeError, "could not create a stream when removing %s from %s",
@@ -514,6 +515,7 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
 			RSTRING(rb_inspect(predicate))->ptr,
 			RSTRING(rb_inspect(object))->ptr );
 
+	/* FIXME: protect from exceptions so we don't leak search_statement and stream  */
  	stream = librdf_model_find_statements( ptr->model, search_statement );
 	if ( !stream ) {
 		librdf_free_statement( search_statement );
@@ -559,7 +561,9 @@ rleaf_redleaf_graph_include_p( VALUE self, VALUE statement ) {
 	stmt = rleaf_value_to_librdf_statement( statement );
 
 	/* According to the Redland docs, this is a better way to test this than 
-	   librdf_model_contains_statement if the model has contexts. */
+	   librdf_model_contains_statement if the model has contexts. Since we want
+	   to support contexts, it's easier just to assume that they're always enabled.
+	 */
 	stream = librdf_model_find_statements( ptr->model, stmt );
 	if ( stream != NULL && !librdf_stream_end(stream) ) rval = Qtrue;
 
@@ -701,6 +705,104 @@ rleaf_redleaf_graph_contexts( VALUE self ) {
 
 
 /*
+ *  call-seq:
+ *     graph.execute_query( qstring, language=:sparql, limit=nil, offset=nil ) -> queryresult
+ *
+ *  Run the query in the given query string (+qstring+) against the graph. The query +language+ 
+ *  specifies the query language, and +limit+, and +offset+ can be used to limit the results. The
+ *  #query method is the public interface to this method.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_execute_query( VALUE self, VALUE qstring, VALUE language, VALUE limit, 
+	VALUE offset, VALUE base )
+{
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	VALUE langstring = rb_obj_as_string( language );
+	const char *qlang_name = NULL;
+	librdf_uri *qlang_uri = NULL, *base_uri = NULL;
+	librdf_query *query;
+	librdf_query_results *res;
+	VALUE result = Qnil;
+
+	/* Set the query language, either from a URI or a language name string */
+	if ( CLASS_OF(language) == rleaf_rb_cURI ) {
+		qlang_uri = librdf_new_uri( rleaf_rdf_world, 
+			(const unsigned char *)(RSTRING(langstring)->ptr) );
+		if ( !qlang_uri )
+			rb_raise( rb_eRuntimeError, "Couldn't make a librdf_uri out of %s", 
+				RSTRING(langstring)->ptr );
+	}
+
+	qlang_name = (const char *)(RSTRING(langstring)->ptr);
+
+	/* Set the baseuri if one is specified */
+	if ( RTEST(base) ) {
+		VALUE basestr = rb_obj_as_string( base );
+		base_uri = librdf_new_uri( rleaf_rdf_world, (const unsigned char *)(RSTRING(basestr)->ptr) );
+		if ( !base_uri ) {
+			if ( qlang_uri ) librdf_free_uri( qlang_uri );
+			rb_raise( rb_eRuntimeError, "Couldn't make a librdf_uri out of %s",
+				RSTRING(basestr)->ptr );
+		}
+	}
+	
+	/* Make the query object */
+	query = librdf_new_query( rleaf_rdf_world, qlang_name, qlang_uri, 
+		(unsigned char *)(StringValuePtr(qstring)), base_uri );
+	if ( !query ) {
+		if ( qlang_uri ) librdf_free_uri( qlang_uri );
+		if ( base_uri ) librdf_free_uri( base_uri );
+		rb_raise( rb_eRuntimeError, "Failed to create query %s", RSTRING(qstring)->ptr );
+	}
+	
+	/* Check for a non-nil limit and offset, setting them in the query object if they exist. */
+	if ( RTEST(limit) ) {
+		rleaf_log_with_context( self, "debug", "Setting limit to %d", FIX2INT(limit) );
+		librdf_query_set_limit( query, FIX2INT(limit) );
+	}
+	if ( RTEST(offset) ) {
+		rleaf_log_with_context( self, "debug", "Setting offset to %d", FIX2INT(offset) );
+		librdf_query_set_offset( query, FIX2INT(offset) );
+	}
+
+	/* Run the query against the model */
+	res = librdf_model_query_execute( ptr->model, query );
+	
+	if ( qlang_uri ) librdf_free_uri( qlang_uri );
+	if ( base_uri ) librdf_free_uri( base_uri );
+
+	if ( !res )
+		rb_raise( rb_eRuntimeError, "Execution of query failed." );
+	
+	/* Check the result type, create the appropriate result object based on the
+	   type of response (is_bindings(), is_graph(), is_boolean(), etc.) */
+	if ( librdf_query_results_is_bindings(res) ) {
+		
+	}
+	
+	else if ( librdf_query_results_is_graph(res) ) {
+		
+	}
+	
+	else if ( librdf_query_results_is_boolean(res) ) {
+		
+	}
+	
+	else if ( librdf_query_results_is_syntax(res) ) {
+		
+	}
+	
+	else {
+		rb_fatal( "Unhandled query result %p", res );
+	}
+
+	return result;
+}
+
+
+
+/*
  * Redleaf Graph class
  */
 void 
@@ -721,7 +823,7 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_singleton_method( rleaf_cRedleafGraph, "model_types", 
 		rleaf_redleaf_graph_s_model_types, 0 );
 
-	/* Instance methods */
+	/* Public instance methods */
 	rb_define_method( rleaf_cRedleafGraph, "initialize", rleaf_redleaf_graph_initialize, -1 );
 	rb_define_method( rleaf_cRedleafGraph, "dup", rleaf_redleaf_graph_dup, 0 );
 
@@ -752,6 +854,9 @@ rleaf_init_redleaf_graph( void ) {
 
 	rb_define_method( rleaf_cRedleafGraph, "contexts", rleaf_redleaf_graph_contexts, 0 );
 
+
+	/* Protected instance methods */
+	rb_define_protected_method( rleaf_cRedleafGraph, "execute_query", rleaf_redleaf_graph_execute_query, 5 );
 	
 	/*
 
@@ -788,9 +893,6 @@ rleaf_init_redleaf_graph( void ) {
 
 	-- #arcs_out( subject )
 	librdf_iterator* librdf_model_get_arcs_out(librdf_model* model, librdf_node* node)
-
-	-- #query( string, ... )
-	librdf_query_results* librdf_model_query_execute( librdf_model *model, librdf_query *query );
 
 	-- #sync
 	void librdf_model_sync(librdf_model* model)

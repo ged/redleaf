@@ -44,7 +44,7 @@
 
 VALUE rleaf_mRedleaf;
 VALUE rleaf_mRedleafNodeUtils;
-VALUE rb_cURI = Qnil;
+VALUE rleaf_rb_cURI = Qnil;
 
 librdf_world *rleaf_rdf_world = NULL;
 
@@ -188,7 +188,7 @@ void Init_redleaf_ext( void ) {
 
 	/* Get references to class objects we'll use a lot */
 	rb_require( "uri" );
-	rb_cURI = rb_const_get( rb_cObject, rb_intern("URI") );
+	rleaf_rb_cURI = rb_const_get( rb_cObject, rb_intern("URI") );
 
 	/* Set the ID of the placeholder for anonymous bnodes */
 	rleaf_anon_bnodeid = rb_intern( "_" );
@@ -218,6 +218,7 @@ void Init_redleaf_ext( void ) {
 	rleaf_init_redleaf_graph();
 	rleaf_init_redleaf_parser();
 	rleaf_init_redleaf_statement();
+	rleaf_init_redleaf_queryresult();
 	
 	/* Define some constants */
 	rb_define_const( rleaf_mRedleaf, "DEFAULT_STORE_CLASS", DEFAULT_STORE_CLASS );

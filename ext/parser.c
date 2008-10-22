@@ -161,7 +161,7 @@ rleaf_redleaf_parser_s_allocate( VALUE klass ) {
  *     # => {"raptor"=>"", 
  *           "grddl"=>"Gleaning Resource Descriptions from Dialects of Languages", 
  *           "rdfxml"=>"RDF/XML",
- *           "guess"=>"Pick the parser to use using content type and URI", 
+ *           "guies"=>"Pick the parser to use using content type and URI", 
  *           "rdfa"=>"RDF/A via librdfa",
  *           "trig"=>"TriG - Turtle with Named Graphs", 
  *           "turtle"=>"Turtle Terse RDF Triple Language",
@@ -301,12 +301,12 @@ void rleaf_init_redleaf_parser( void ) {
 
 	rleaf_cRedleafParser = rb_define_class_under( rleaf_mRedleaf, "Parser", rb_cObject );
 
-	rb_define_singleton_method( rleaf_cRedleafParser, "features", 
-		rleaf_redleaf_parser_s_features, 0 );
 
 	/* Class methods */
 	rb_define_alloc_func( rleaf_cRedleafParser, rleaf_redleaf_parser_s_allocate );
 	
+	rb_define_singleton_method( rleaf_cRedleafParser, "features", 
+		rleaf_redleaf_parser_s_features, 0 );
 	rb_define_singleton_method( rleaf_cRedleafParser, "guess_type", 
 		rleaf_redleaf_parser_s_guess_type, -1 );
 
@@ -314,21 +314,14 @@ void rleaf_init_redleaf_parser( void ) {
 	rb_define_method( rleaf_cRedleafParser, "initialize", rleaf_redleaf_parser_initialize, 0 );
 	rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
 
+	
 	/*
-
-	-- Redleaf::Parser.guess_type( mimetype=nil, buffer=nil, uri=nil )
-	-- Redleaf::Parser.guess_type_from_buffer( buffer )
-	-- Redleaf::Parser.guess_type_from_mimetype( mimetype )
-	-- Redleaf::Parser.guess_type_from_uri( uri )
-	const char* librdf_parser_guess_name( const char *mime_type, unsigned char *buffer, unsigned char *identifier );
 
 	librdf_stream* librdf_parser_parse_as_stream( librdf_parser *parser, librdf_uri *uri, librdf_uri *base_uri );
 	int librdf_parser_parse_into_model( librdf_parser *parser, librdf_uri *uri, librdf_uri *base_uri, librdf_model *model );
 	librdf_stream* librdf_parser_parse_string_as_stream( librdf_parser *parser, unsigned char *string, librdf_uri *base_uri );
 	int librdf_parser_parse_string_into_model( librdf_parser *parser, unsigned char *string, librdf_uri *base_uri, librdf_model *model );
 
-	void librdf_parser_set_error( librdf_parser *parser, void *user_data, void (error_fnvoid *user_data, const char *msg, ...) ());
-	void librdf_parser_set_warning( librdf_parser *parser, void *user_data, void (warning_fnvoid *user_data, const char *msg, ...) ());
 	librdf_stream* librdf_parser_parse_counted_string_as_stream( librdf_parser *parser, unsigned char *string, size_t length, librdf_uri *base_uri );
 	int librdf_parser_parse_counted_string_into_model( librdf_parser *parser, unsigned char *string, size_t length, librdf_uri *base_uri, librdf_model *model );
 

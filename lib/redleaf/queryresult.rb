@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
  
 require 'redleaf'
-require 'redleaf/parser'
+require 'redleaf/mixins'
 
-# A parser for the NTriples RDF syntax.
+# An abstract base class for encapsulating various kinds of query results.
 # 
 # == Subversion Id
 #
@@ -20,7 +20,8 @@ require 'redleaf/parser'
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
-class Redleaf::NTriplesParser < Redleaf::Parser
+class Redleaf::QueryResult
+	include Redleaf::Loggable
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -28,12 +29,10 @@ class Redleaf::NTriplesParser < Redleaf::Parser
 	# SVN Id
 	SVNId = %q$Id$
 
+	# Disallow direct instantiation
+	private_class_method :new
 
-	# Use the 'ntriples' Redland parser
-	parser_type :ntriples
-	
-
-end # class Redleaf::NTriplesParser
+end # class Redleaf::QueryResult
 
 # vim: set nosta noet ts=4 sw=4:
 

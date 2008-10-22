@@ -34,6 +34,25 @@ class Redleaf::Parser
 	###	C L A S S   M E T H O D S
 	#################################################################
 
+	@subclasses = []
+	class << self; attr_reader :subclasses ; end
+
+	### Inheritance callback -- keep track of all subclasses so we can search for them
+	### by name later.
+	def self::inherited( subclass )
+		if self == Redleaf::Parser
+			@subclasses << subclass
+		end
+		super
+	end
+
+
+	### Find a parser class by +name+.
+	def self::find_by_name( name )
+		return self.subclasses.find {|klass| klass.parser_type.to_s == name }
+	end
+	
+
 	### Set the class's Redland parser type to +new_setting+ if given, and return the current
 	### (new) setting.
 	def self::parser_type( new_setting=nil )

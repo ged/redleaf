@@ -81,6 +81,37 @@ class Redleaf::Graph
 	######
 
 	### call-seq:
+	###    graph.query( query, optionshash={} )   -> queryresult
+	###
+	### Run the query in the given +query+ string against the graph. The +optionshash+ can be
+	### used to set various aspects of the query like query language, limit, offset, and namespace
+	### prefixes.
+	###
+	###    require 'redleaf/constants'
+	###    include Redleaf::Constants::CommonNamespaces
+	###    
+	###    # Declare a custom namespace and create a graph with a node about its title
+	###    book = Redleaf::Namespace.new( 'http://example.org/book' )
+	###    graph = Redleaf::Graph.new
+	###    graph << [ book[:book1], DC[:title], "SPARQL Tutorial" ]
+	###    
+	###    qstring = 'SELECT ?title WHERE { book:book1 dc:title ?title }'
+	###    res = graph.query( qstring, :book => book, :dc => DC )
+	###    # => #<Redleaf::BindingsQueryResult:0x07466b3>
+	###    
+	###    res.each do |row|
+	###    		puts row.title
+	###    end
+	###
+	def query( querystring, language=:sparql, offset=nil, limit=nil, baseuri=nil, prefixes={} )
+		prelude = prefixes.collect {|prefix, uri| "PREFIX %s: <%s>\n" % [ prefix, uri ] }.join
+		querystring = prelude + querystring
+		
+		return self.execute_query( querystring, language, offset, limit, baseuri )
+	end
+	
+
+	### call-seq:
 	###    graph.is_equivalent_to?( other_graph )   -> true or false
 	###    graph === other_graph                    -> true or false
 	### 
