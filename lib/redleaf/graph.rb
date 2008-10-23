@@ -81,11 +81,10 @@ class Redleaf::Graph
 	######
 
 	### call-seq:
-	###    graph.query( query, optionshash={} )   -> queryresult
+	###    graph.query( query, prefixes={} )   -> queryresult
 	###
-	### Run the query in the given +query+ string against the graph. The +optionshash+ can be
-	### used to set various aspects of the query like query language, limit, offset, and namespace
-	### prefixes.
+	### Run a SPARQL +query+ against the graph. The optional +prefixes+ hash can be
+	### used to set up prefixes in the query.
 	###
 	###    require 'redleaf/constants'
 	###    include Redleaf::Constants::CommonNamespaces
@@ -103,12 +102,15 @@ class Redleaf::Graph
 	###    		puts row.title
 	###    end
 	###
-	def query( querystring, language=:sparql, offset=nil, limit=nil, baseuri=nil, prefixes={} )
+	def query( querystring, *args )
+		prefixes = args.last.is_a?( Hash ) ? args.last : {}
+		
+		
 		prelude = prefixes.collect {|prefix, uri| "PREFIX %s: <%s>\n" % [ prefix, uri ] }.join
 		querystring = prelude + querystring
 		self.log.debug "Querystring is: %p" % [ querystring ]
 		
-		return self.execute_query( querystring, language, offset, limit, baseuri )
+		return self.execute_query( querystring )
 	end
 	
 

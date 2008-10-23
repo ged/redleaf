@@ -714,26 +714,42 @@ rleaf_redleaf_graph_contexts( VALUE self ) {
  *
  */
 static VALUE
-rleaf_redleaf_graph_execute_query( VALUE self, VALUE qstring, VALUE language, VALUE limit, 
-	VALUE offset, VALUE base )
-{
+rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
+	rleaf_log_with_context( self, "debug", "Called eq with %d args.", argc );
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
-	VALUE langstring = rb_obj_as_string( language );
+
+	VALUE qstring, language, limit, offset, base;
 	const char *qlang_name = NULL;
 	librdf_uri *qlang_uri = NULL, *base_uri = NULL;
 	librdf_query *query;
 	librdf_query_results *res;
 
-	/* Set the query language, either from a URI or a language name string */
-	if ( CLASS_OF(language) == rleaf_rb_cURI ) {
+	rb_scan_args( argc, argv, "14", &qstring, &language, &limit, &offset, &base );
+	rleaf_log_with_context(
+		self,
+		"debug",
+		"Executing query: %s (%s) with offset: %s, limit %s, and base %s",
+		rb_inspect(qstring),
+		rb_inspect(language),
+		rb_inspect(limit),
+		rb_inspect(offset),
+		rb_inspect(base)
+	  );
+
+	/* Set the query language, from a URI or a language name string */
+	if ( RTEST(language) && CLASS_OF(language) == rleaf_rb_cURI ) {
+		VALUE langstring = rb_obj_as_string( language );
 		qlang_uri = librdf_new_uri( rleaf_rdf_world, 
 			(const unsigned char *)(RSTRING(langstring)->ptr) );
 		if ( !qlang_uri )
 			rb_raise( rb_eRuntimeError, "Couldn't make a librdf_uri out of %s", 
 				RSTRING(langstring)->ptr );
 	}
-
-	qlang_name = (const char *)(RSTRING(langstring)->ptr);
+	
+	else if ( language != Qnil ) {
+		VALUE langstring = rb_obj_as_string( language );
+		qlang_name = (const char *)(RSTRING(langstring)->ptr);
+	}
 
 	/* Set the baseuri if one is specified */
 	if ( RTEST(base) ) {
@@ -836,7 +852,8 @@ rleaf_init_redleaf_graph( void ) {
 
 
 	/* Protected instance methods */
-	rb_define_protected_method( rleaf_cRedleafGraph, "execute_query", rleaf_redleaf_graph_execute_query, 5 );
+	rb_define_protected_method( rleaf_cRedleafGraph, "execute_query", 
+		rleaf_redleaf_graph_execute_query, -1 );
 	
 	/*
 

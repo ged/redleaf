@@ -54,15 +54,6 @@ VALUE rleaf_cRedleafSyntaxQueryResult;
 
 
 /*
- * Allocation function
- */
-static librdf_query_results *
-rleaf_queryresult_alloc() {
-	return NULL;
-}
-
-
-/*
  * GC Mark function
  */
 static void 
@@ -288,18 +279,74 @@ rleaf_redleaf_queryresult_each( VALUE self ) {
  */
 static VALUE
 rleaf_redleaf_bindingsqueryresult_bindings( VALUE self ) {
-	librdf_query_results *ptr = rleaf_get_queryresult( self );
-	int i, bindcount = librdf_query_results_get_bindings_count( ptr );
+	librdf_query_results *res = rleaf_get_queryresult( self );
+	int i, bindcount = librdf_query_results_get_bindings_count( res );
 	VALUE rval = rb_ary_new();
 	
 	rleaf_log_with_context( self, "debug", "Fetching %d bindings.", bindcount );
 	
 	for ( i = 0; i < bindcount; i++ ) {
-		const char *name = librdf_query_results_get_binding_name( ptr, i );
+		const char *name = librdf_query_results_get_binding_name( res, i );
 		rb_ary_push( rval, ID2SYM(rb_intern(name)) );
 	}
 	
 	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     result.each {|row| }
+ *
+ *  Iterate over each row of the results, yielding a Hash of the bindings from the
+ *  query.
+ *
+ *     DC = Redleaf::Constants::CommonNamespaces::DC
+ *     
+ *     graph.load( )
+ *     result = graph.query( 'SELECT ?s ?o WHERE { ?s dc:author ?o }, :dc => DC )
+ *     result.each {|row| p row }
+ */
+static VALUE
+rleaf_redleaf_bindingsqueryresult_each( VALUE self ) {
+	librdf_query_results *res = rleaf_get_queryresult( self );
+	VALUE rows = rb_ivar_get( self, rb_intern("@rows") );
+
+	if ( !rb_block_given_p() )
+		rb_raise( rb_eLocalJumpError, "no block given" );
+
+	/* If @rows is nil and there are results to fetch, fetch each row from 
+	   Redland, yield it, and cache it for later. */
+	if ( rows == Qnil && !librdf_query_results_finished(res) ) {
+		rleaf_log_with_context( self, "debug", "Building result rows." );
+		rows = rb_ary_new();
+		
+		int i, j, count = librdf_query_results_get_count( res );
+		int bindcount = librdf_query_results_get_bindings_count( res );
+	
+		for ( i = 0; i < count; i++ ) {
+			VALUE row = rb_hash_new();
+			rleaf_log_with_context( self, "debug", "Fetching result %d/%d:", i + 1, count );
+		
+			for ( j = 0; j < bindcount; j++ ) {
+				const char *name = librdf_query_results_get_binding_name( res, j );
+				librdf_node *value = librdf_query_results_get_binding_value( res, j );
+
+				rleaf_log_with_context( self, "debug", "  binding :%s => %s",
+					name, librdf_node_to_string(value) );
+				rb_hash_aset( row, ID2SYM(rb_intern(name)), rleaf_librdf_node_to_value(value) );
+				
+				xfree( value );
+			}
+			
+			rb_ary_push( rows, row );
+			librdf_query_results_next( res );
+		}
+	} else {
+		rleaf_log_with_context( self, "debug", "Reusing previously-fetched rows." );
+	}
+
+	return Qnil;
 }
 
 
@@ -388,7 +435,8 @@ rleaf_init_redleaf_queryresult( void ) {
 	 */
 	rb_define_method( rleaf_cRedleafBindingQueryResult, "bindings", 
 		rleaf_redleaf_bindingsqueryresult_bindings, 0 );
-
+	rb_define_method( rleaf_cRedleafBindingQueryResult, "each", 
+		rleaf_redleaf_bindingsqueryresult_each, 0 );
 
 	/*
 
