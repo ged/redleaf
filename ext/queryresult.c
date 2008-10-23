@@ -277,6 +277,33 @@ rleaf_redleaf_queryresult_each( VALUE self ) {
  */
 
 /*
+ *  call-seq:
+ *     result.bindings   -> array
+ *
+ *  Return an Array of the bindings (columns) that are in the rows of the result set.
+ *
+ *     result = graph.query( 'SELECT ?s ?p ?o WHERE { ?s ?p ?o }' )
+ *     result.bindings
+ *     # => [ :s, :p, :o ]
+ */
+static VALUE
+rleaf_redleaf_bindingsqueryresult_bindings( VALUE self ) {
+	librdf_query_results *ptr = rleaf_get_queryresult( self );
+	int i, bindcount = librdf_query_results_get_bindings_count( ptr );
+	VALUE rval = rb_ary_new();
+	
+	rleaf_log_with_context( self, "debug", "Fetching %d bindings.", bindcount );
+	
+	for ( i = 0; i < bindcount; i++ ) {
+		const char *name = librdf_query_results_get_binding_name( ptr, i );
+		rb_ary_push( rval, ID2SYM(rb_intern(name)) );
+	}
+	
+	return rval;
+}
+
+
+/*
  * Redleaf::GraphQueryResult
  */
 
@@ -359,6 +386,9 @@ rleaf_init_redleaf_queryresult( void ) {
 	/*
 	 * Redleaf::BindingQueryResult
 	 */
+	rb_define_method( rleaf_cRedleafBindingQueryResult, "bindings", 
+		rleaf_redleaf_bindingsqueryresult_bindings, 0 );
+
 
 	/*
 

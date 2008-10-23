@@ -276,6 +276,7 @@ describe Redleaf::Graph do
 
 	describe "query interface" do
 		before( :each ) do
+			setup_logging( :fatal )
 			@graph = Redleaf::Graph.new
 		end
 

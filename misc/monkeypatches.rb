@@ -15,6 +15,9 @@ RAKEFILE_TEMPLATE = %q{
 	require 'rbconfig'
 	require '../rake/helpers'
 
+	$trace = Rake.application.options.trace ? true : false
+	$dryrun = Rake.application.options.dryrun ? true : false
+
 	include Config
 
 	SRC = FileList[#{sources.join(',')}]
