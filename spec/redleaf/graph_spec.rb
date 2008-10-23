@@ -285,18 +285,18 @@ describe Redleaf::Graph do
 				[ :_a, FOAF[:name], "Alice" ]
 			
 			sparql = %{
-				PREFIX :rdf <#{RDF}> 
-				PREFIX :foaf <#{FOAF}>
+				PREFIX rdf: <#{RDF}> 
+				PREFIX foaf: <#{FOAF}>
 				SELECT ?name
 				WHERE
 				{
-					?person rdf:type foaf:Person;
+					?person rdf:type foaf:Person .
 					?person foaf:name ?name
 				}
 			}
 			
 			res = @graph.query( sparql )
-			res.should be_an_instance_of( Redleaf::QueryResult )
+			res.should be_an_instance_of( Redleaf::BindingQueryResult )
 			res.bindings.should == [:name]
 		end
 	end

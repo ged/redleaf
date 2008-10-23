@@ -106,6 +106,7 @@ class Redleaf::Graph
 	def query( querystring, language=:sparql, offset=nil, limit=nil, baseuri=nil, prefixes={} )
 		prelude = prefixes.collect {|prefix, uri| "PREFIX %s: <%s>\n" % [ prefix, uri ] }.join
 		querystring = prelude + querystring
+		self.log.debug "Querystring is: %p" % [ querystring ]
 		
 		return self.execute_query( querystring, language, offset, limit, baseuri )
 	end

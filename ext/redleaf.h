@@ -63,6 +63,12 @@ extern VALUE rleaf_cRedleafStore;
 extern VALUE rleaf_cRedleafHashesStore;
 extern VALUE rleaf_mRedleafNodeUtils;
 
+extern VALUE rleaf_cRedleafQueryResult;
+extern VALUE rleaf_cRedleafBindingQueryResult;
+extern VALUE rleaf_cRedleafBooleanQueryResult;
+extern VALUE rleaf_cRedleafGraphQueryResult;
+extern VALUE rleaf_cRedleafSyntaxQueryResult;
+
 extern VALUE rleaf_rb_cURI;
 
 extern librdf_world *rleaf_rdf_world;
@@ -152,6 +158,9 @@ rleaf_STORE *rleaf_get_store( VALUE );
 rleaf_GRAPH *rleaf_get_graph( VALUE );
 librdf_statement *rleaf_get_statement( VALUE );
 librdf_parser *rleaf_get_parser( VALUE );
+
+/* QueryResult special constructor */
+VALUE rleaf_new_queryresult( VALUE, librdf_query_results * );
 
 /* --------------------------------------------------------------
  * Initializers

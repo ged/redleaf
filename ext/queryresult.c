@@ -47,11 +47,11 @@
  * Declarations
  * -------------------------------------------------------------- */
 VALUE rleaf_cRedleafQueryResult;
+VALUE rleaf_cRedleafBindingQueryResult;
+VALUE rleaf_cRedleafBooleanQueryResult;
+VALUE rleaf_cRedleafGraphQueryResult;
+VALUE rleaf_cRedleafSyntaxQueryResult;
 
-
-/* --------------------------------------------------
- *	Memory-management functions
- * -------------------------------------------------- */
 
 /*
  * Allocation function
@@ -88,7 +88,7 @@ rleaf_queryresult_gc_free( librdf_query_results *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
 		rleaf_log( "debug", "in free function of Redleaf::QueryResult <%p>", ptr );
 
-		xfree( ptr );
+		librdf_free_query_results( ptr );
 		ptr = NULL;
 	}
 
@@ -103,7 +103,6 @@ rleaf_queryresult_gc_free( librdf_query_results *ptr ) {
  */
 static librdf_query_results *
 check_queryresult( VALUE self ) {
-	rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_class2name(CLASS_OF(self)), self );
 	Check_Type( self, T_DATA );
 
     if ( !IsQueryResult(self) ) {
@@ -122,11 +121,50 @@ librdf_query_results *
 rleaf_get_queryresult( VALUE self ) {
 	librdf_query_results *res = check_queryresult( self );
 
-	rleaf_log_with_context( self, "debug", "fetched a QueryResult <0x%x>.", self );
-	if ( !res )
-		rb_raise( rb_eRuntimeError, "uninitialized QueryResult" );
+	if ( !res ) rb_raise( rb_eRuntimeError, "uninitialized QueryResult" );
 
 	return res;
+}
+
+
+/*
+ * Constructor for Redleaf::Graph#execute_query
+ */
+VALUE
+rleaf_new_queryresult( VALUE graph, librdf_query_results *res ) {
+	VALUE result_class = Qnil, result = Qnil;
+	
+	/* Check the result type, create the appropriate result object based on the
+	   type of response (is_bindings(), is_graph(), is_boolean(), etc.) */
+	if ( librdf_query_results_is_bindings(res) ) {
+		rleaf_log( "debug", "  result is a `bindings` result." );
+		result_class = rleaf_cRedleafBindingQueryResult;
+	}
+	
+	else if ( librdf_query_results_is_graph(res) ) {
+		rleaf_log( "debug", "  result is a `graph` result." );
+		result_class = rleaf_cRedleafGraphQueryResult;
+	}
+	
+	else if ( librdf_query_results_is_boolean(res) ) {
+		rleaf_log( "debug", "  result is a `boolean` result." );
+		result_class = rleaf_cRedleafBooleanQueryResult;
+	}
+	
+	else if ( librdf_query_results_is_syntax(res) ) {
+		rleaf_log( "debug", "  result is a `syntax` result." );
+		result_class = rleaf_cRedleafSyntaxQueryResult;
+	}
+	
+	else {
+		rb_fatal( "Unhandled query result %p", res );
+	}
+
+	result = Data_Wrap_Struct( result_class, 
+		rleaf_queryresult_gc_mark, rleaf_queryresult_gc_free, res );
+	rb_obj_call_init( result, 1, &graph );
+
+	return result;
 }
 
 
@@ -136,38 +174,53 @@ rleaf_get_queryresult( VALUE self ) {
 
 /*
  *  call-seq:
- *     Redleaf::QueryResult.allocate   -> queryresult
+ *     Redleaf::QueryResult.allocate( librdf_query_results* )   -> queryresult
  *
- *  Allocate a new Redleaf::QueryResult object.
+ *  Allocate a new Redleaf::QueryResult object that will wrap the given query 
+ *  results pointer.
  *
  */
 static VALUE 
 rleaf_redleaf_queryresult_s_allocate( VALUE klass ) {
-	if ( klass == rleaf_cRedleafQueryResult ) {
-		rb_raise( rb_eRuntimeError, "cannot allocate a Redleaf::QueryResult, as it is an abstract class" );
-	}
-
-	return Data_Wrap_Struct( klass, rleaf_queryresult_gc_mark, rleaf_queryresult_gc_free, 0 );
+	rb_raise( rb_eRuntimeError, "cannot allocate a %s directly.", rb_class2name(klass) );
+	return Qnil;
 }
 
 
 /*
  *  call-seq:
- *     Redleaf::QueryResult.formats   -> hash
+ *     Redleaf::QueryResult.formatters   -> hash
  *
- *  Return a Hash of possible query result types.
+ *  Return a Hash of supported QueryResult formatters (the keys of which are valid)
+ *  arguments to #format.
  *
- *     Redleaf::QueryResult.formats
- *     # => {}
+ *     Redleaf::QueryResult.formatters
+ *     # => {
+ *       "xml" => {
+ *         :uri => #<URI::HTTP:0x197648 URL:http://www.w3.org/2005/sparql-results#>,
+ *         :label => "SPARQL Query Results Format 2007-06-14",
+ *         :mimetype => "application/sparql-results+xml"
+ *       },
+ *       "json" => {
+ *         :uri => #<URI::HTTP:0x1973fa URL:http://www.w3.org/2001/sw/DataAccess/json-sparql/>,
+ *         :label => "JSON",
+ *         :mimetype => "text/json"
+ *       }
+ *     }
  */
 static VALUE
-rleaf_redleaf_queryresult_s_formats( VALUE klass ) {
-	VALUE formats = rb_hash_new();
+rleaf_redleaf_queryresult_s_formatters( VALUE klass ) {
+	VALUE formatters = rb_hash_new();
 	int i = 0;
 	const char *name, *label, *mime_string;
 	const unsigned char *uri_string;
 
-	while ( (librdf_query_results_formats_enumerate(rleaf_rdf_world, i, &name, &label, &uri_string, &mime_string)) == 0 ) {
+	rleaf_log( "debug", "Finding result formatters." );
+	while ( (librdf_query_results_formats_enumerate(rleaf_rdf_world, i, 
+		&name, &label, &uri_string, &mime_string)) == 0 )
+	{
+		rleaf_log( "debug", "  adding format #%d '%s' => ( '%s', '%s', '%s' )", 
+			i, name, label, uri_string, mime_string );
 		VALUE subhash  = rb_hash_new();
 		VALUE namestr  = name ? rb_str_new2( name ) : Qnil;
 		VALUE labelstr = label ? rb_str_new2( label ) : Qnil;
@@ -175,38 +228,66 @@ rleaf_redleaf_queryresult_s_formats( VALUE klass ) {
 		VALUE uri = Qnil;
 
 		if ( uri_string ) {
-			VALUE argv[1] = { rb_str_new2(label) };
-			uri = rb_funcall( rleaf_rb_cURI, rb_intern("parse"), 1, &argv );
+			rleaf_log( "debug", "  got a non-null uri_string, converting it to a URI." );
+			uri = rb_funcall( rleaf_rb_cURI, rb_intern("parse"), 1, 
+				rb_str_new2((const char *)uri_string) );
 		}
 
+		rleaf_log( "debug", "  setting up the subhash." );
 		rb_hash_aset( subhash, ID2SYM(rb_intern("label")), labelstr );
 		rb_hash_aset( subhash, ID2SYM(rb_intern("uri")), uri );
 		rb_hash_aset( subhash, ID2SYM(rb_intern("mimetype")), mimetype );
 		
-		rb_hash_aset( formats, namestr, subhash );
+		rleaf_log( "debug", "  adding the subhash to the rval." );
+		rb_hash_aset( formatters, namestr, subhash );
 		i++;
 	}
+	rleaf_log( "debug", "Done. Found %d result formatters.", i );
 
-	return formats;
+	return formatters;
 }
 
 
 /* --------------------------------------------------------------
  * Instance methods
- * -------------------------------------------------------------- */
+ * -------------------------------------------------------------- 
+ */
+
+/*
+ * Redleaf::QueryResult
+ */
 
 /*
  *  call-seq:
- *     Redleaf::QueryResult.new                -> queryresult
- *     Redleaf::QueryResult.new( config={} )   -> queryresult
+ *     queryresult.each { block }
  *
- *  Create a new Redleaf::QueryResult object. .
+ *  Virtual method -- this should be overridden in all concrete subclasses.
  *
  */
-static VALUE 
-rleaf_redleaf_queryresult_initialize( int argc, VALUE *argv, VALUE self ) {
-	return self;
+static VALUE
+rleaf_redleaf_queryresult_each( VALUE self ) {
+	rb_raise( rb_eNotImpError, "no implementation of #each defined for %s", 
+		rb_class2name(CLASS_OF(self)) );
+	return Qnil;
 }
+
+
+/*
+ * Redleaf::BindingQueryResult
+ */
+
+/*
+ * Redleaf::GraphQueryResult
+ */
+
+/*
+ * Redleaf::BooleanQueryResult
+ */
+
+/*
+ * Redleaf::SyntaxQueryResult
+ */
+
 
 
 
@@ -225,14 +306,113 @@ rleaf_init_redleaf_queryresult( void ) {
 
 	/* Redleaf::QueryResult */
 	rleaf_cRedleafQueryResult = rb_define_class_under( rleaf_mRedleaf, "QueryResult", rb_cObject );
+	rleaf_cRedleafBindingQueryResult = rb_define_class_under( rleaf_mRedleaf, 
+		"BindingQueryResult", rleaf_cRedleafQueryResult );
+	rleaf_cRedleafBooleanQueryResult = rb_define_class_under( rleaf_mRedleaf, 
+		"BooleanQueryResult", rleaf_cRedleafQueryResult );
+	rleaf_cRedleafGraphQueryResult = rb_define_class_under( rleaf_mRedleaf, 
+		"GraphQueryResult", rleaf_cRedleafQueryResult );
+	rleaf_cRedleafSyntaxQueryResult = rb_define_class_under( rleaf_mRedleaf, 
+		"SyntaxQueryResult", rleaf_cRedleafQueryResult );
+
+	/* include Enumerable */
+	rb_include_module( rleaf_cRedleafQueryResult, rb_mEnumerable );
+	
+	/*
+	 * Redleaf::QueryResult
+	 */
 	rb_define_alloc_func( rleaf_cRedleafQueryResult, rleaf_redleaf_queryresult_s_allocate );
 
 	/* Class methods */
-	rb_define_singleton_method( rleaf_cRedleafQueryResult, "formats", rleaf_redleaf_queryresult_s_formats, 0 );
+	rb_define_singleton_method( rleaf_cRedleafQueryResult, "formatters", 
+		rleaf_redleaf_queryresult_s_formatters, 0 );
 
 	/* Instance methods */
-	rb_define_method( rleaf_cRedleafQueryResult, "initialize", rleaf_redleaf_queryresult_initialize, -1 );
+	rb_define_method( rleaf_cRedleafQueryResult, "each", rleaf_redleaf_queryresult_each, 0 );
 
 
+	/*
+
+	-- #write( io )/#write( filename ) -- Blocking?
+	int librdf_query_results_to_file_handle( librdf_query_results *query_results, FILE *handle, librdf_uri *format_uri, librdf_uri *base_uri );
+	int librdf_query_results_to_file( librdf_query_results *query_results, const char *name, librdf_uri *format_uri, librdf_uri *base_uri );
+
+	void librdf_free_query_results( librdf_query_results *query_results );
+
+	int librdf_query_results_is_bindings( librdf_query_results *query_results );
+	int librdf_query_results_is_boolean( librdf_query_results *query_results );
+	int librdf_query_results_is_graph( librdf_query_results *query_results );
+	int librdf_query_results_is_syntax( librdf_query_results *query_results );
+
+	-- #to_json/#to_xml/#to_mimetype
+	unsigned char* librdf_query_results_to_string( librdf_query_results *query_results, librdf_uri *format_uri, librdf_uri *base_uri);
+	librdf_query_results_formatter* librdf_new_query_results_formatter( librdf_query_results *query_results, const char *name, librdf_uri *uri );
+	librdf_query_results_formatter* librdf_new_query_results_formatter_by_mime_type( librdf_query_results *query_results,const char *mime_type );
+	void librdf_free_query_results_formatter( librdf_query_results_formatter *formatter );
+	int librdf_query_results_formats_check( librdf_world *world, const char *name, librdf_uri *uri, const char *mime_type );
+	int librdf_query_results_formats_enumerate( librdf_world *world, unsigned int counter, const char **name, const char **label, unsigned char **uri_string, const char **mime_type );
+	int librdf_query_results_formatter_write( raptor_iostream *iostr, librdf_query_results_formatter *formatter, librdf_query_results *results, librdf_uri *base_uri );
+
+	*/
+
+
+	/*
+	 * Redleaf::BindingQueryResult
+	 */
+
+	/*
+
+	-- #bindings
+	int librdf_query_results_get_bindings( librdf_query_results *query_results, const char ***names, librdf_node **values );
+
+	-- #each {|row| }
+	librdf_node* librdf_query_results_get_binding_value( librdf_query_results *query_results, int offset );
+	const char* librdf_query_results_get_binding_name( librdf_query_results *query_results, int offset );
+
+	-- #method_missing( binding )
+	librdf_node* librdf_query_results_get_binding_value_by_name( librdf_query_results *query_results, const char *name );
+
+	-- #bindings_count (?)
+	int librdf_query_results_get_bindings_count( librdf_query_results *query_results );
+
+	*/
+	
+
+	/*
+	 * Redleaf::GraphQueryResult
+	 */
+
+	/*
+	-- Redleaf::GraphQueryResult#each {|stmt| }
+	librdf_stream* librdf_query_results_as_stream( librdf_query_results *query_results );
+	int librdf_query_results_get_count( librdf_query_results *query_results );
+	int librdf_query_results_next( librdf_query_results *query_results );
+	int librdf_query_results_finished( librdf_query_results *query_results );
+	*/
+
+
+	/*
+	 * Redleaf::BooleanQueryResult
+	 */
+
+	/*
+	
+	-- #true?/false?
+	-- #to_bool
+	int librdf_query_results_get_boolean( librdf_query_results *query_results );
+
+	*/
+	
+
+	/*
+	 * Redleaf::SyntaxQueryResult
+	 */
+
+	/*
+	-- #true?/false?
+	-- #to_bool
+	int librdf_query_results_get_boolean( librdf_query_results *query_results );
+	*/
+	
 }
 

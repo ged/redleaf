@@ -76,10 +76,10 @@ rleaf_graph_alloc( VALUE storeobj ) {
  */
 static void 
 rleaf_graph_gc_mark( rleaf_GRAPH *ptr ) {
-	rleaf_log( "debug", "in mark function for RedLeaf::Graph %p", ptr );
+	// rleaf_log( "debug", "in mark function for RedLeaf::Graph %p", ptr );
 	
 	if ( ptr ) {
-		rleaf_log( "debug", "marking a rleaf_GRAPH <%p>", ptr );
+		// rleaf_log( "debug", "marking a rleaf_GRAPH <%p>", ptr );
 		rb_gc_mark( ptr->store );
 	}
 	
@@ -95,7 +95,7 @@ rleaf_graph_gc_mark( rleaf_GRAPH *ptr ) {
  */
 static void 
 rleaf_graph_gc_free( rleaf_GRAPH *ptr ) {
-	rleaf_log( "debug", "in free function of Redleaf::Graph <%p>", ptr );
+	// rleaf_log( "debug", "in free function of Redleaf::Graph <%p>", ptr );
 
 	if ( ptr->model && rleaf_rdf_world ) {
 		librdf_free_model( ptr->model );
@@ -103,7 +103,7 @@ rleaf_graph_gc_free( rleaf_GRAPH *ptr ) {
 		ptr->model = NULL;
 		ptr->store = Qnil;
 
-		rleaf_log( "debug", "Freeing rleaf_GRAPH <%p>", ptr );
+		// rleaf_log( "debug", "Freeing rleaf_GRAPH <%p>", ptr );
 		xfree( ptr );
 		ptr = NULL;
 	}
@@ -723,7 +723,6 @@ rleaf_redleaf_graph_execute_query( VALUE self, VALUE qstring, VALUE language, VA
 	librdf_uri *qlang_uri = NULL, *base_uri = NULL;
 	librdf_query *query;
 	librdf_query_results *res;
-	VALUE result = Qnil;
 
 	/* Set the query language, either from a URI or a language name string */
 	if ( CLASS_OF(language) == rleaf_rb_cURI ) {
@@ -748,6 +747,8 @@ rleaf_redleaf_graph_execute_query( VALUE self, VALUE qstring, VALUE language, VA
 	}
 	
 	/* Make the query object */
+	rleaf_log_with_context( self, "debug", "  creating a new '%s' query: %s", 
+		qlang_name, StringValuePtr(qstring) );
 	query = librdf_new_query( rleaf_rdf_world, qlang_name, qlang_uri, 
 		(unsigned char *)(StringValuePtr(qstring)), base_uri );
 	if ( !query ) {
@@ -758,15 +759,16 @@ rleaf_redleaf_graph_execute_query( VALUE self, VALUE qstring, VALUE language, VA
 	
 	/* Check for a non-nil limit and offset, setting them in the query object if they exist. */
 	if ( RTEST(limit) ) {
-		rleaf_log_with_context( self, "debug", "Setting limit to %d", FIX2INT(limit) );
+		rleaf_log_with_context( self, "debug", "  setting limit to %d", FIX2INT(limit) );
 		librdf_query_set_limit( query, FIX2INT(limit) );
 	}
 	if ( RTEST(offset) ) {
-		rleaf_log_with_context( self, "debug", "Setting offset to %d", FIX2INT(offset) );
+		rleaf_log_with_context( self, "debug", "  setting offset to %d", FIX2INT(offset) );
 		librdf_query_set_offset( query, FIX2INT(offset) );
 	}
 
 	/* Run the query against the model */
+	rleaf_log_with_context( self, "debug", "  executing query <%p> against model <%p>", query, ptr->model );
 	res = librdf_model_query_execute( ptr->model, query );
 	
 	if ( qlang_uri ) librdf_free_uri( qlang_uri );
@@ -775,29 +777,7 @@ rleaf_redleaf_graph_execute_query( VALUE self, VALUE qstring, VALUE language, VA
 	if ( !res )
 		rb_raise( rb_eRuntimeError, "Execution of query failed." );
 	
-	/* Check the result type, create the appropriate result object based on the
-	   type of response (is_bindings(), is_graph(), is_boolean(), etc.) */
-	if ( librdf_query_results_is_bindings(res) ) {
-		
-	}
-	
-	else if ( librdf_query_results_is_graph(res) ) {
-		
-	}
-	
-	else if ( librdf_query_results_is_boolean(res) ) {
-		
-	}
-	
-	else if ( librdf_query_results_is_syntax(res) ) {
-		
-	}
-	
-	else {
-		rb_fatal( "Unhandled query result %p", res );
-	}
-
-	return result;
+	return rleaf_new_queryresult( self, res );
 }
 
 

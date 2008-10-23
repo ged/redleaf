@@ -32,6 +32,21 @@ class Redleaf::QueryResult
 	# Disallow direct instantiation
 	private_class_method :new
 
+
+	### Set the graph that the result belongs to
+	def initialize( graph )
+		@graph = graph
+	end
+	
+	
+	######
+	public
+	######
+
+	# The Redleaf::Graph the result is from
+	attr_reader :graph
+	
+
 end # class Redleaf::QueryResult
 
 # vim: set nosta noet ts=4 sw=4:

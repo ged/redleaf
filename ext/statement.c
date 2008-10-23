@@ -66,7 +66,7 @@ static VALUE rleaf_redleaf_statement_object_eq( VALUE, VALUE );
 static librdf_statement *
 rleaf_statement_alloc() {
 	librdf_statement *ptr = librdf_new_statement( rleaf_rdf_world );
-	rleaf_log( "debug", "initialized a librdf_statement <%p>", ptr );
+	// rleaf_log( "debug", "initialized a librdf_statement <%p>", ptr );
 	return ptr;
 }
 
@@ -76,10 +76,10 @@ rleaf_statement_alloc() {
  */
 static void 
 rleaf_statement_gc_mark( librdf_statement *ptr ) {
-	rleaf_log( "debug", "in mark function for RedLeaf::Statement %p", ptr );
+	// rleaf_log( "debug", "in mark function for RedLeaf::Statement %p", ptr );
 	
 	if ( ptr ) {
-		rleaf_log( "debug", "marked" );
+		// rleaf_log( "debug", "marked" );
 	}
 	
 	else {
@@ -95,10 +95,8 @@ rleaf_statement_gc_mark( librdf_statement *ptr ) {
 static void 
 rleaf_statement_gc_free( librdf_statement *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
-		rleaf_log( "debug", "in free function of Redleaf::Statement <%p>", ptr );
-		
+		// rleaf_log( "debug", "in free function of Redleaf::Statement <%p>", ptr );
 		librdf_free_statement( ptr );
-		
 		ptr = NULL;
 	}
 

@@ -78,7 +78,7 @@ CLOBBER.include( EXTDIR + 'mkrf.log' )
 desc "Build the C extension"
 task :build => EXT_RAKEFILE.to_s do
 	Dir.chdir( EXTDIR ) do
-		sh 'rake'
+		rake
 	end
 end
 
@@ -86,7 +86,7 @@ end
 desc "Rebuild the C extension"
 task :rebuild => EXT_RAKEFILE.to_s do
 	Dir.chdir( EXTDIR ) do
-		sh 'rake clobber default'
+		rake :clobber, :default
 	end
 end
 
@@ -94,7 +94,7 @@ end
 desc "Build the W3C conformance test suite"
 task :build_specs => SPEC_RAKEFILE.to_s do
 	Dir.chdir( SPECDIR ) do
-		sh 'rake', '-t'
+		rake
 	end
 end
 
@@ -102,22 +102,22 @@ end
 task :clean do
 	if EXT_RAKEFILE.exist?
 		Dir.chdir( EXTDIR ) do
-			sh 'rake', 'clean'
+			rake :clean
 		end
 	end
 	Dir.chdir( SPECDIR ) do
-		sh 'rake', 'clean'
+		rake :clean
 	end
 end	
 
 task :clobber do
 	if EXT_RAKEFILE.exist?
 		Dir.chdir( EXTDIR ) do
-			sh 'rake', 'clobber'
+			rake :clobber
 		end
 	end
 	Dir.chdir( SPECDIR ) do
-		sh 'rake', 'clobber'
+		rake :clobber
 	end
 end	
 CLOBBER.include( EXT_RAKEFILE )

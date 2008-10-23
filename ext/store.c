@@ -72,7 +72,7 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
 	ptr->storage = storage;
 	ptr->graph   = Qnil;
 
-	rleaf_log( "debug", "alloc'ed a rleaf_STORE <%p> with storage <%p>", ptr, ptr->storage );
+	// rleaf_log( "debug", "alloc'ed a rleaf_STORE <%p> with storage <%p>", ptr, ptr->storage );
 	return ptr;
 }
 
@@ -82,10 +82,10 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
  */
 static void 
 rleaf_store_gc_mark( rleaf_STORE *ptr ) {
-	rleaf_log( "debug", "in mark function for RedLeaf::Store %p", ptr );
+	// rleaf_log( "debug", "in mark function for RedLeaf::Store %p", ptr );
 	
 	if ( ptr ) {
-		rleaf_log( "debug", "marking graph of rleaf_STORE <%p>", ptr );
+		// rleaf_log( "debug", "marking graph of rleaf_STORE <%p>", ptr );
 		rb_gc_mark( ptr->graph );
 	}
 	
@@ -102,7 +102,7 @@ rleaf_store_gc_mark( rleaf_STORE *ptr ) {
 static void
 rleaf_store_gc_free( rleaf_STORE *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
-		rleaf_log( "debug", "in free function of Redleaf::Store <%p>", ptr );
+		// rleaf_log( "debug", "in free function of Redleaf::Store <%p>", ptr );
 
 		if ( ptr->graph )
 			librdf_storage_close( ptr->storage );
@@ -127,7 +127,7 @@ rleaf_store_gc_free( rleaf_STORE *ptr ) {
  */
 static rleaf_STORE *
 check_store( VALUE self ) {
-	rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_class2name(CLASS_OF(self)), self );
+	// rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_class2name(CLASS_OF(self)), self );
 	Check_Type( self, T_DATA );
 
     if ( !IsStore(self) ) {
@@ -146,7 +146,7 @@ rleaf_STORE *
 rleaf_get_store( VALUE self ) {
 	rleaf_STORE *stmt = check_store( self );
 
-	rleaf_log_with_context( self, "debug", "fetched a Store <0x%x>.", self );
+	// rleaf_log_with_context( self, "debug", "fetched a Store <0x%x>.", self );
 	if ( !stmt )
 		rb_raise( rb_eRuntimeError, "uninitialized Store" );
 
