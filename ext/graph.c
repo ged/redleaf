@@ -241,11 +241,24 @@ rleaf_redleaf_graph_dup( VALUE self ) {
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
 	VALUE dup = rleaf_redleaf_graph_s_allocate( CLASS_OF(self) );
 	rleaf_GRAPH *dup_ptr = ALLOC( rleaf_GRAPH );
+	librdf_stream *statements = librdf_model_as_stream( ptr->model );
 	
 	rleaf_log_with_context( self, "debug", "Duping %s 0x%x", rb_class2name(CLASS_OF(self)), self );
 	
 	dup_ptr->store = ptr->store;
 	dup_ptr->model = librdf_new_model_from_model( ptr->model );
+	if ( ! dup_ptr->model ) {
+		librdf_free_stream( statements );
+		xfree( dup_ptr );
+		rb_raise( rb_eRuntimeError, "couldn't create new model from model <%p>", ptr->model );
+	}
+	
+	if ( (librdf_model_add_statements(dup_ptr->model, statements)) != 0 ) {
+		librdf_free_stream( statements );
+		librdf_free_model( dup_ptr->model );
+		xfree( dup_ptr );
+		rb_raise( rb_eRuntimeError, "couldn't add statements from the original model" );
+	}
 
 	DATA_PTR( dup ) = dup_ptr;
 	OBJ_INFECT( dup, self );

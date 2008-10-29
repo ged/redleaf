@@ -157,11 +157,8 @@ describe Redleaf::Graph do
 
 
 	describe "with some nodes" do
-		before( :all ) do
-			setup_logging( :fatal )
-		end
-
 		before( :each ) do
+			setup_logging( :fatal )
 			@graph = Redleaf::Graph.new
 			@graph.append( *TEST_FOAF_TRIPLES )
 		end
@@ -192,6 +189,15 @@ describe Redleaf::Graph do
 			other_graph.append( *TEST_FOAF_TRIPLES[0..-2] )
 			
 			@graph.should_not === other_graph
+		end
+		
+		it "is not equivalent to another graph with the same number of nodes but one different one" do
+			other_graph = Redleaf::Graph.new
+			other_graph.append( *TEST_FOAF_TRIPLES )
+			other_graph.remove([ :mahlon,  FOAF[:name], "Mahlon E Smith" ])
+			other_graph.append([ :clumpy,  FOAF[:knows], :throaty ])
+			
+			@graph.should_not be_equivalent_to( other_graph )
 		end
 		
 		it "has a default store" do

@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
  
 require 'uri'
+require 'pp'
 require 'redleaf'
 require 'redleaf/mixins'
 
@@ -128,7 +129,6 @@ class Redleaf::Graph
 		end
 		
 		other = other_graph.dup
-		other.append( *self.statements )
 		bnode_map = BnodeMap.new
 		difference = nil
 		
@@ -144,6 +144,10 @@ class Redleaf::Graph
 			end
 		end
 
+		buf = ''
+		PP.pp( bnode_map, buf )
+		self.log.debug "Bnode map after comparison:\n%s" % [ buf ]
+
 		if difference
 			self.log.debug "%p is not equivalent to %p because it does not contain %p" %
 				[ self, other_graph, difference ]
@@ -152,6 +156,7 @@ class Redleaf::Graph
 			return true
 		end
 	end
+	alias_method :equivalent_to?, :is_equivalent_to?
 	alias_method :===, :is_equivalent_to?
 	
 	
@@ -215,6 +220,8 @@ class Redleaf::Graph
 		# If both the subject and object are unmapped bnodes, select the first
 		# triple with the same predicate and unmapped bnode subject and objects
 		if subject_is_floating && object_is_floating
+			self.log.debug "Anchoring a subject (%p) and an object (%p)" %
+				[ subject, object ]
 			equivalent = self[ nil, predicate, nil ].find do |stmt|
 				if stmt.subject.is_a?( Symbol ) &&
 				   stmt.object.is_a?( Symbol ) &&
@@ -231,6 +238,7 @@ class Redleaf::Graph
 		# If the subject is an unanchored bnode, select the first
 		# triple with the same predicate and object and an unmapped subject
 		elsif subject_is_floating
+			self.log.debug "Anchoring a subject (%p)" % [ subject ]
 			equivalent = self[ nil, predicate, object ].find do |stmt|
 				if stmt.subject.is_a?( Symbol ) &&
 				   bnode_map.valid?( subject, stmt.subject )
@@ -242,7 +250,7 @@ class Redleaf::Graph
 
 		# Do the same for an unanchored object
 		elsif object_is_floating
-			self.log.debug "Searching for an anchored statement matching %p" % [ statement ]
+			self.log.debug "Anchoring an object (%p)" % [ object ]
 			equivalent = self[ subject, predicate, nil ].find do |stmt|
 				if stmt.object.is_a?( Symbol ) &&
 				   bnode_map.valid?( object, stmt.object )
@@ -259,6 +267,8 @@ class Redleaf::Graph
 				[ subject, predicate, object ]
 			equivalent = self[ subject, predicate, object ].first
 		end
+
+		self.log.debug "Equivalent is: %p" % [ equivalent ]
 		
 		return self.remove( equivalent ).first if equivalent
 		return nil
