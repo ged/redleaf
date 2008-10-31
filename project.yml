@@ -17,6 +17,8 @@ additional_pkgfiles:
 - misc/monkeypatches.rb
 - spec/templates
 - spec/spec_generator.rb
+- spec/Rakefile
+- examples/*.rb
 dev_dependencies: {}
 
 author_email: ged@FaerieMUD.org

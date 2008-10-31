@@ -11,6 +11,11 @@ rescue LoadError => err
 	fail "You need to have the mkrf library installed to build this."
 end
 
+W3CTEST_TASKLIB = SPECDIR + 'w3ctest-tasks.rb'
+
+# Load the W3C test rake tasks
+trace "Adding tasks from #{W3CTEST_TASKLIB}"
+load W3CTEST_TASKLIB
 
 # C extension constants
 EXT_RAKEFILE  = EXTDIR + 'Rakefile'
@@ -27,6 +32,21 @@ SPEC_RAKEFILE = SPECDIR + 'Rakefile'
 
 
 #####################################################################
+###	H E L P E R S
+#####################################################################
+
+### Log a subdirectory change, execute a block, and exit the subdirectory
+def in_subdirectory( subdir )
+	block = Proc.new
+	
+	log "Entering #{subdir}"
+	Dir.chdir( subdir, &block )
+	log "Leaving #{subdir}"
+end
+	
+
+
+#####################################################################
 ###	T A S K S
 #####################################################################
 
@@ -34,11 +54,12 @@ SPEC_RAKEFILE = SPECDIR + 'Rakefile'
 task :local => [ :build ]
 task :spec => [ :build ]
 namespace :spec do
+	task :doc   => [ :build ]
 	task :quiet => [ :build ]
-	task :html => [ :build ]
-	task :text => [ :build ]
+	task :html  => [ :build ]
+	task :text  => [ :build ]
 end
-	
+
 
 task :debug do
 	$DEBUG = true
@@ -77,7 +98,7 @@ CLOBBER.include( EXTDIR + 'mkrf.log' )
 
 desc "Build the C extension"
 task :build => EXT_RAKEFILE.to_s do
-	Dir.chdir( EXTDIR ) do
+	in_subdirectory( EXTDIR ) do
 		rake
 	end
 end
@@ -85,39 +106,29 @@ end
 
 desc "Rebuild the C extension"
 task :rebuild => EXT_RAKEFILE.to_s do
-	Dir.chdir( EXTDIR ) do
+	in_subdirectory( EXTDIR ) do
 		rake :clobber, :default
 	end
 end
 
 
 desc "Build the W3C conformance test suite"
-task :build_specs => SPEC_RAKEFILE.to_s do
-	Dir.chdir( SPECDIR ) do
-		rake
-	end
-end
+task :build_specs => 'w3ctests:generate'
 
 
 task :clean do
 	if EXT_RAKEFILE.exist?
-		Dir.chdir( EXTDIR ) do
+		in_subdirectory( EXTDIR ) do
 			rake :clean
 		end
-	end
-	Dir.chdir( SPECDIR ) do
-		rake :clean
 	end
 end	
 
 task :clobber do
 	if EXT_RAKEFILE.exist?
-		Dir.chdir( EXTDIR ) do
+		in_subdirectory( EXTDIR ) do
 			rake :clobber
 		end
-	end
-	Dir.chdir( SPECDIR ) do
-		rake :clobber
 	end
 end	
 CLOBBER.include( EXT_RAKEFILE )

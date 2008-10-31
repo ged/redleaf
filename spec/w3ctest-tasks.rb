@@ -1,6 +1,6 @@
 #!rake
 #
-# Rakefile for the Redleaf W3C Test Suite
+# Rake tasks for the Redleaf W3C Test Suite
 #
 # Copyright (c) 2008 The FaerieMUD Consortium
 #
@@ -14,15 +14,13 @@ require 'rake/clean'
 require 'uri'
 require 'pathname'
 
-SPECDIR = Pathname.new( __FILE__ ).dirname.relative_path_from( Pathname.getwd )
-BASEDIR = SPECDIR.parent
-
-TESTCASE_URL = URI.parse( 'http://www.w3.org/2000/10/rdf-tests/rdfcore/latest_All.zip' )
-TESTCASE_ARCHIVE = SPECDIR + File.basename( TESTCASE_URL.path )
-
 SPEC_GENERATOR = SPECDIR + 'spec_generator.rb'
 SPEC_DATADIR = SPECDIR + 'data'
-W3C_TEST_MANIFEST = SPEC_DATADIR + 'Manifest.rdf'
+W3C_TEST_DIR = SPEC_DATADIR + 'w3ctests'
+W3C_TEST_MANIFEST = W3C_TEST_DIR + 'Manifest.rdf'
+
+TESTCASE_URL = URI.parse( 'http://www.w3.org/2000/10/rdf-tests/rdfcore/latest_All.zip' )
+TESTCASE_ARCHIVE = SPEC_DATADIR + File.basename( TESTCASE_URL.path )
 
 PARSER_SPECFILE = SPECDIR + "w3c_parser_spec.rb"
 ENTAILMENT_SPECFILE = SPECDIR + "w3c_entailment_spec.rb"
@@ -34,73 +32,49 @@ ENTAILMENT_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_entailment_spec.template'
 MISCELLANEOUS_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_miscellaneous_spec.template'
 
 
-# Load task plugins
-RAKE_TASKDIR = BASEDIR + 'rake'
-begin
-	require RAKE_TASKDIR + 'helpers.rb'
-rescue => err
-	fail "Tasklib #{tasklib}: #{err.message}"
-end
-
-if Rake.application.options.trace
-	$trace = true
-	log "$trace is enabled"
-else
-	$trace = false
-end
-
-if Rake.application.options.dryrun
-	$dryrun = true
-	log "$dryrun is enabled"
-else
-	$dryrun = false
-end
-
-
 #####################################################################
 ###	T A S K S
 #####################################################################
 
-task :default => [ 'w3ctests:run' ]
-
+task :w3ctests => [ 'w3ctests:generate' ]
 
 begin
 	namespace :w3ctests do
 		require SPEC_GENERATOR
 		require 'zip/zip'
-	
-		file W3C_TEST_MANIFEST.to_s => SPEC_DATADIR
 
-		# Directory of W3C testcases -- unzip from the downloaded archive
-		file SPEC_DATADIR.to_s => TESTCASE_ARCHIVE.to_s do
+		task :default => :generate
+	
+		# Generate the three spec files
+		task :generate => [ PARSER_SPECFILE, ENTAILMENT_SPECFILE, MISCELLANEOUS_SPECFILE ]
+
+		# Need the data files from the W3C test suite -- download it and unpack it
+		# if necessary
+		file W3C_TEST_MANIFEST.to_s => [ W3C_TEST_DIR, TESTCASE_ARCHIVE ] do
 			log "Extracting #{TESTCASE_ARCHIVE}"
 			Zip::ZipFile.open( TESTCASE_ARCHIVE ) do |zipfile|
 				zipfile.each do |file|
-					target = SPEC_DATADIR + file.to_s
+					target = W3C_TEST_DIR + file.to_s
 					trace "  #{file} -> #{target}"
 					target.dirname.mkpath
 					file.extract( target.to_s )
 				end
 			end
+			touch( W3C_TEST_MANIFEST, :verbose => $trace )
 		end
-		CLOBBER.include( SPEC_DATADIR, TESTCASE_ARCHIVE )
 
+		# The spec/data directory
+		directory W3C_TEST_DIR.to_s
 
 		# Download the latest testcase zipfile
 		file TESTCASE_ARCHIVE.to_s do
 			download TESTCASE_URL, TESTCASE_ARCHIVE
 		end
+		CLOBBER.include( TESTCASE_ARCHIVE )
 
 
-		task :generate => [ PARSER_SPECFILE, ENTAILMENT_SPECFILE, MISCELLANEOUS_SPECFILE ]
-
-		
-		task :run => :generate do
-			log "would eventually run the generated tests here"
-		end
-
-
-		file PARSER_SPECFILE => [ PARSER_SPEC_TEMPLATE, W3C_TEST_MANIFEST ] do
+		# The specfile that runs examples built from the 'parser' W3C testcases
+		file PARSER_SPECFILE => [ PARSER_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ] do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
 			gen.write_specfile( PARSER_SPEC_TEMPLATE, PARSER_SPECFILE ) do |examples|
@@ -111,19 +85,20 @@ begin
 		CLOBBER.include( PARSER_SPECFILE )
 
 
-		file ENTAILMENT_SPECFILE => [ ENTAILMENT_SPEC_TEMPLATE, W3C_TEST_MANIFEST ] do
+		# The specfile that runs examples built from the 'entailment' W3C testcases
+		file ENTAILMENT_SPECFILE => [ ENTAILMENT_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ] do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
 			gen.write_specfile( ENTAILMENT_SPEC_TEMPLATE, ENTAILMENT_SPECFILE ) do |examples|
 				examples << gen.find_positive_entailment_tests
 				examples << gen.find_negative_entailment_tests
-				examples << gen.find_datatypeaware_entailment_tests
 			end
 		end
 		CLOBBER.include( ENTAILMENT_SPECFILE )
 
 
-		file MISCELLANEOUS_SPECFILE => [ MISCELLANEOUS_SPEC_TEMPLATE, W3C_TEST_MANIFEST ]do
+		# The specfile that runs examples built from the 'miscellaneous' W3C testcases
+		file MISCELLANEOUS_SPECFILE => [ MISCELLANEOUS_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ]do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
 			gen.write_specfile( MISCELLANEOUS_SPEC_TEMPLATE, MISCELLANEOUS_SPECFILE ) do |examples|
@@ -131,7 +106,6 @@ begin
 			end
 		end
 		CLOBBER.include( MISCELLANEOUS_SPECFILE )
-
 
 	end
 	

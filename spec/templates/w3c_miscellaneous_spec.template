@@ -36,7 +36,7 @@ describe Redleaf::Parser do
 
 	before( :all ) do
 		@specdir = Pathname.new( __FILE__ ).expand_path.dirname.relative_path_from( Pathname.getwd )
-		@datadir = @specdir + 'data'
+		@datadir = @specdir + 'data/w3ctests'
 	end
 	
 	before( :each ) do
@@ -47,6 +47,7 @@ describe Redleaf::Parser do
 
 <% examples.flatten.each do |example| %>
 <% example.description.each_line do |descline| %>
+<% next if descline =~ /^\s*$/ %>
 	# <%= descline.strip.chomp %>
 <% end %>
 	it "passes the W3C miscellaneous test '<%= example.id %>'"

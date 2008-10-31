@@ -75,6 +75,8 @@ EXTRA_PKGFILES = []
 EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'misc/monkeypatches.rb' ).delete_if {|item| item =~ /\.svn/ } 
 EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/templates' ).delete_if {|item| item =~ /\.svn/ } 
 EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/spec_generator.rb' ).delete_if {|item| item =~ /\.svn/ } 
+EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/Rakefile' ).delete_if {|item| item =~ /\.svn/ } 
+EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'examples/*.rb' ).delete_if {|item| item =~ /\.svn/ } 
 
 RELEASE_FILES = TEXT_FILES + 
 	SPEC_FILES + 
@@ -240,7 +242,10 @@ RAKE_TASKLIBS.each do |tasklib|
 end
 
 # Load any project-specific rules defined in 'Rakefile.local' if it exists
-import LOCAL_RAKEFILE if LOCAL_RAKEFILE.exist?
+if LOCAL_RAKEFILE.exist?
+	trace "Adding tasks from #{LOCAL_RAKEFILE}"
+	load LOCAL_RAKEFILE
+end
 
 
 #####################################################################

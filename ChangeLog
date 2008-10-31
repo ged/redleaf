@@ -1,3 +1,185 @@
+-- Wed, 29 Oct 2008 12:28:20 -0000 by deveiant (r47) -----
+   Changed: /trunk
+            ext/graph.c
+            spec/redleaf/graph_spec.rb
+            lib/redleaf/graph.rb
+
+    * Redleaf::Graph
+    - #dup now copies statements, too. This diverges from Redland, but I keep expecting it
+    in Ruby-land, and I expect others will, too.
+    - Fixed node-equivalency specs, and then fixed node-equivalency implementation, which
+    always thought graphs with the same number of statements were equivalent.
+
+
+-- Thu, 23 Oct 2008 17:28:19 -0000 by deveiant (r46) -----
+   Changed: ext/graph.c
+            ext/queryresult.c
+            lib/redleaf/graph.rb
+
+   Checkpoint commit.
+
+
+-- Thu, 23 Oct 2008 13:28:19 -0000 by deveiant (r45) -----
+   Changed: LICENSE
+            ext/queryresult.c
+            misc/monkeypatches.rb
+            spec/redleaf/graph_spec.rb
+
+    * Implemented Redleaf::Graph#query and started work on Redleaf::QueryResults.
+    * Updated build system
+
+
+-- Thu, 23 Oct 2008 01:50:35 -0000 by deveiant (r44) -----
+   Added:   experiments/segfault2.rb (new)
+            spec/redleaf/queryresult_spec.rb (new)
+
+   Checkpoint commit -- broken build
+
+
+-- Thu, 23 Oct 2008 01:50:19 -0000 by deveiant (r43) -----
+   Changed: ext/store.c
+            lib/redleaf/queryresult.rb
+            LICENSE
+            ext/graph.c
+            ext/queryresult.c
+            ext/statement.c (and 7 other/s)
+
+   Checkpoint commit -- broken build
+
+
+-- Wed, 22 Oct 2008 16:00:32 -0000 by deveiant (r42) -----
+   Added:   lib/redleaf/queryresult.rb (new)
+            spec/redleaf/parser/rdfxml_spec.rb (new)
+            lib/redleaf/parser/rdfxml.rb (new)
+            ext/queryresult.c (new)
+   Changed: ext/parser.c
+            ext/graph.c
+            ext/redleaf.c
+            spec/templates/w3c_parser_spec.template
+            ext/node.c
+            lib/redleaf/parser/ntriples.rb (and 5 other/s)
+
+   Checkpoint commit: Broken build
+
+
+-- Tue, 14 Oct 2008 03:45:29 -0000 by deveiant (r41) -----
+   Added:   spec/lib/parser_behavior.rb (new)
+            lib/redleaf/parser (new)
+            spec/redleaf/parser/ntriples_spec.rb (new)
+            lib/redleaf/parser/ntriples.rb (new)
+            spec/redleaf/parser (new)
+   Changed: ext/parser.c
+            ext/graph.c
+            spec/redleaf/parser_spec.rb
+            lib/redleaf/parser.rb
+            spec/redleaf/graph_spec.rb
+
+    * Redleaf::Graph
+    - Added a faster #include?/#contains?
+    - Added a workaround to the spec for a bug in URI::Generic#eql?
+    * Redleaf::Parser
+    - Made it extensible the same way as Redleaf::Store
+    - Added .guess_type class method
+    - Added comment block for readmap of future work.
+
+
+-- Sat, 11 Oct 2008 03:19:48 -0000 by deveiant (r40) -----
+   Changed: spec/lib/helpers.rb
+            ext/node.c
+            misc/monkeypatches.rb
+            spec/redleaf/utils_spec.rb
+            spec/redleaf/graph_spec.rb
+            lib/redleaf/utils.rb (and 11 other/s)
+
+    * Redleaf::Graph
+    - A bunch of work on graph-equivalency
+    - Added a comment block for planned functionality and how it maps onto Redland
+    - Commented out some of the memory-check debugging to reduce the logging spam
+    - Fixed #inspect output
+    - Added #supports_contexts?, #contexts, and #dup
+    * Renamed Redleaf::NodeConversion to Redleaf::NodeUtils to better convey
+    what its purpose is
+    * Fixed a bug in Redleaf::HashesStore's constructor -- it now handles an optionhash-only
+    call properly.
+    * Added a 'rebuild' task to the local Rakefile to facilitate easy clobber + build
+    * Added some progress message to the monkeypatched Mkrf-generated Rakefile
+
+
+-- Wed, 08 Oct 2008 18:47:25 -0000 by deveiant (r39) -----
+   Added:   ext/node.c (new)
+            spec/redleaf/utils_spec.rb (new)
+   Changed: lib/redleaf/statement.rb
+            Rakefile
+            ext/graph.c
+            ext/redleaf.c
+            spec/lib/helpers.rb
+            ext/statement.c (and 7 other/s)
+
+    * Updated build system.
+    * Factored out a bunch of the common tasks into global node functions into a
+    node utility function collection.
+    * Redleaf::Graph:
+    - Added #search and #each_statement (with #[] and #each aliases,
+    respectively), and added a #delete alias for #remove.
+    - Mixes in Enumerable
+    * Factored node-conversion functions out into the Redleaf::NodeConversions
+    module.
+
+
+-- Tue, 30 Sep 2008 15:01:59 -0000 by deveiant (r38) -----
+   Added:   spec/data/mgranger-foaf.xml (new)
+            examples (new)
+            spec/data (new)
+            examples/foaf1.rb (new)
+   Changed: ext/graph.c
+            spec/redleaf/parser_spec.rb
+            ext/statement.c
+            lib/redleaf/constants.rb
+            spec/redleaf/graph_spec.rb
+            lib/redleaf.rb (and 1 other/s)
+
+    * Checkpoint of work on Graph and Parser.
+    * Started adding a few examples to help drive what gets worked on next.
+
+
+-- Tue, 30 Sep 2008 14:55:27 -0000 by deveiant (r37) -----
+   Changed: Rakefile
+
+   Updated build system.
+
+
+-- Tue, 30 Sep 2008 14:52:11 -0000 by deveiant (r36) -----
+   Changed: docs/Redleaf Design Diagrams.graffle
+            Rakefile
+            spec/lib/helpers.rb
+            spec/spec_generator.rb
+
+    * Updated build system.
+    * Added 'rubygems' to the requires in the W3C test suite spec generator.
+
+
+-- Mon, 22 Sep 2008 16:34:15 -0000 by deveiant (r35) -----
+   Added:   docs/manual/src/design.page (new)
+            docs/manual/src/about.page (new)
+            lib/redleaf/exceptions.rb (new)
+   Changed: docs/Redleaf Design Diagrams.graffle
+            spec/redleaf/store_spec.rb
+            spec/redleaf/store/sqlite_spec.rb
+            lib/redleaf/store.rb
+            lib/redleaf.rb
+            ext/store.c (and 8 other/s)
+
+    * Fixed require order between the extension and the libraries to avoid things not being 
+    defined in the right order for requires other than 'redleaf'
+    * Added valid backend detection to Redleaf::Store -- now installations that don't have one of
+    Redland's backends will generate sensible errors if that backend is used.
+    * Updated the build system
+    * Added an exceptions.rb file to contain Redleaf-specific exception classes.
+    * A little more work on the diagrams and manual
+    * Added a 'pending' to the sqlite spec for installations whose Redland doesn't support it
+    (like the CruiseControl box)
+
+
 -- Tue, 16 Sep 2008 14:19:31 -0000 by deveiant (r34) -----
    Changed: ext/parser.c
             ext/graph.c
