@@ -23,9 +23,11 @@ require 'redleaf'
 module Redleaf
 	extend Exception2MessageMapper
 	
-	def_exception :Error, "Redleaf error", RuntimeError
+	class Error < RuntimeError; end
+	def_e2message Redleaf::Error, "Redleaf error"
 	
-	def_exception :FeatureError, "unimplemented feature", Redleaf::Error
+	class FeatureError < Redleaf::Error; end
+	def_e2message Redleaf::FeatureError, "unimplemented feature"
 	
 end # module Redleaf
 

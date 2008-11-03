@@ -66,6 +66,24 @@ rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 
 
 /*
+ * Convert the given Ruby URI object to a librdf_uri and return it. The caller must
+ * free the returned pointer.
+ */
+librdf_uri *
+rleaf_object_to_librdf_uri( VALUE uriobj ) {
+	librdf_uri *uri;
+	VALUE uristring = rb_obj_as_string( uriobj );
+	
+	uri = librdf_new_uri( rleaf_rdf_world, (const unsigned char *)StringValuePtr(uristring) );
+	if ( !uri )
+		rb_raise( rb_eRuntimeError, "Couldn't make a librdf_uri out of %s", 
+			RSTRING(rb_inspect( uriobj ))->ptr );
+
+	return uri;
+}
+
+
+/*
  * Convert the given literal librdf_node to a Ruby object and return it.
  */
 VALUE 
@@ -163,8 +181,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* String -> plain literal */
 		case T_STRING:
-		str = object;
-		typeuri = XSD_STRING_TYPE;
+		return librdf_new_node_from_literal( rleaf_rdf_world, (unsigned char *)RSTRING(object)->ptr, NULL, 0 );
 		break;
 		
 		/* Float -> xsd:float */
@@ -194,7 +211,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* URI -> librdf_uri */
 		case T_OBJECT:
-		if ( rb_obj_is_kind_of(object, rleaf_rb_cURI) ) {
+		if ( IsURI(object) ) {
 			rleaf_log( "debug", "Converting URI object to librdf_uri node" );
 			str = rb_obj_as_string( object );
 			return librdf_new_node_from_uri_string( rleaf_rdf_world, (unsigned char*)RSTRING(str)->ptr );

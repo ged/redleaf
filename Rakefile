@@ -149,6 +149,7 @@ RUBYFORGE_PROJECT = 'redleaf'
 # Gem dependencies: gemname => version
 DEPENDENCIES = {
 	'rubyzip' => '>= 0.9.1',
+	'mkrf' => '>= 0.2.3',
 }
 
 # Developer Gem dependencies: gemname => version
@@ -242,10 +243,7 @@ RAKE_TASKLIBS.each do |tasklib|
 end
 
 # Load any project-specific rules defined in 'Rakefile.local' if it exists
-if LOCAL_RAKEFILE.exist?
-	trace "Adding tasks from #{LOCAL_RAKEFILE}"
-	load LOCAL_RAKEFILE
-end
+import LOCAL_RAKEFILE if LOCAL_RAKEFILE.exist?
 
 
 #####################################################################

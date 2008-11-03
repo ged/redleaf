@@ -190,6 +190,44 @@ rleaf_redleaf_graph_s_model_types( VALUE klass ) {
 }
 
 
+/*
+ *  call-seq:
+ *     Redleaf::Graph.serializers   -> hash
+ *
+ *  Return a Hash of supported serializers from the underlying Redland library.
+ *
+ *     Redleaf::Parser.serializers
+ *     # => { "rss-1.0"       => "RSS 1.0",
+ *     #      "rdfxml"        => "RDF/XML",
+ *     #      "json-triples"  => "RDF/JSON Triples",
+ *     #      "rdfxml-abbrev" => "RDF/XML (Abbreviated)",
+ *     #      "rdfxml-xmp"    => "RDF/XML (XMP Profile)",
+ *     #      "turtle"        => "Turtle",
+ *     #      "ntriples"      => "N-Triples",
+ *     #      "json"          => "RDF/JSON Resource-Centric",
+ *     #      "dot"           => "GraphViz DOT format",
+ *     #      "atom"          => "Atom 1.0" }
+ */
+static VALUE
+rleaf_redleaf_graph_s_serializers( VALUE klass ) {
+	const char *name, *desc;
+	unsigned int counter = 0;
+	VALUE rhash = rb_hash_new();
+	
+	rleaf_log( "debug", "Enumerating serializers." );
+	while( (librdf_serializer_enumerate(rleaf_rdf_world, counter, &name, &desc)) == 0 ) {
+		// rleaf_log( "debug", "  serializer [%d]: name = '%s', desc = '%s'", counter, name, desc );
+		rb_hash_aset( rhash, rb_str_new2(name), rb_str_new2(desc) );
+		counter++;
+	}
+	rleaf_log( "debug", "  got %d serializers.", counter );
+	
+	return rhash;
+}
+
+
+
+
 /* --------------------------------------------------------------
  * Instance methods
  * -------------------------------------------------------------- */
@@ -642,9 +680,8 @@ rleaf_redleaf_graph_load( VALUE self, VALUE uri ) {
 	
 	if ( (parser = librdf_new_parser( rleaf_rdf_world, NULL, NULL, NULL )) == NULL )
 		rb_raise( rb_eRuntimeError, "failed to create a parser." );
-	if ( (rdfuri = librdf_new_uri( rleaf_rdf_world, (unsigned char *)StringValuePtr(uri) )) == NULL )
-		rb_raise( rb_eRuntimeError, "failed to create a uri object from %s", 
-			RSTRING(rb_inspect(uri))->ptr );
+
+	rdfuri = rleaf_object_to_librdf_uri( uri );
 	
 	if ( librdf_parser_parse_into_model(parser, rdfuri, NULL, ptr->model) != 0 )
 		rb_raise( rb_eRuntimeError, "failed to load %s into Model <0x%x>",
@@ -719,6 +756,45 @@ rleaf_redleaf_graph_contexts( VALUE self ) {
 
 /*
  *  call-seq:
+ *     graph.serialized_as( format )   -> string
+ *
+ *  Return the graph serialized to a String in the specified +format+. Valid +format+s are keys
+ *  of the Hash returned by ::serializers.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_serialized_as( VALUE self, VALUE format ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_serializer *serializer;
+	size_t length = 0;
+	const char *formatname;
+	unsigned char *serialized;
+	
+	formatname = StringValuePtr( format );
+	rleaf_log_with_context( self, "debug", "trying to serialize as '%s'", formatname );
+	
+	if ( !RTEST(rb_funcall(CLASS_OF(self), rb_intern("valid_format?"), 1, format)) )
+		rb_raise( rleaf_eRedleafFeatureError, "unsupported serialization format '%s'", formatname );
+	
+	rleaf_log_with_context( self, "debug", "valid format '%s' specified.", formatname );
+	serializer = librdf_new_serializer( rleaf_rdf_world, formatname, NULL, NULL );
+	if ( !serializer )
+		rb_raise( rb_eRuntimeError, "could not create a '%s' serializer", formatname );
+
+	/* :TODO: Support for the 'baseuri' argument? */
+	serialized = librdf_serializer_serialize_model_to_counted_string( serializer, NULL, ptr->model, &length );
+	librdf_free_serializer( serializer );
+	
+	if ( !serialized )
+		rb_raise( rb_eRuntimeError, "could not serialize model as '%s'", formatname );
+
+	rleaf_log_with_context( self, "debug", "got %d bytes of '%s'", length, formatname );
+	return rb_str_new( (char *)serialized, length );
+}
+
+
+/*
+ *  call-seq:
  *     graph.execute_query( qstring, language=:sparql, limit=nil, offset=nil ) -> queryresult
  *
  *  Run the query in the given query string (+qstring+) against the graph. The query +language+ 
@@ -750,14 +826,8 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	  );
 
 	/* Set the query language, from a URI or a language name string */
-	if ( RTEST(language) && CLASS_OF(language) == rleaf_rb_cURI ) {
-		VALUE langstring = rb_obj_as_string( language );
-		qlang_uri = librdf_new_uri( rleaf_rdf_world, 
-			(const unsigned char *)(RSTRING(langstring)->ptr) );
-		if ( !qlang_uri )
-			rb_raise( rb_eRuntimeError, "Couldn't make a librdf_uri out of %s", 
-				RSTRING(langstring)->ptr );
-	}
+	if ( RTEST(language) && IsURI(language) )
+		qlang_uri = rleaf_object_to_librdf_uri( language );
 	
 	else if ( language != Qnil ) {
 		VALUE langstring = rb_obj_as_string( language );
@@ -811,6 +881,8 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 
 
 
+
+
 /*
  * Redleaf Graph class
  */
@@ -831,6 +903,8 @@ rleaf_init_redleaf_graph( void ) {
 	
 	rb_define_singleton_method( rleaf_cRedleafGraph, "model_types", 
 		rleaf_redleaf_graph_s_model_types, 0 );
+	rb_define_singleton_method( rleaf_cRedleafGraph, "serializers", 
+		rleaf_redleaf_graph_s_serializers, 0 );
 
 	/* Public instance methods */
 	rb_define_method( rleaf_cRedleafGraph, "initialize", rleaf_redleaf_graph_initialize, -1 );
@@ -863,9 +937,9 @@ rleaf_init_redleaf_graph( void ) {
 
 	rb_define_method( rleaf_cRedleafGraph, "contexts", rleaf_redleaf_graph_contexts, 0 );
 
+	rb_define_method( rleaf_cRedleafGraph, "serialized_as", rleaf_redleaf_graph_serialized_as, 1 );
 
-	/* Protected instance methods */
-	rb_define_protected_method( rleaf_cRedleafGraph, "execute_query", 
+	rb_define_method( rleaf_cRedleafGraph, "execute_query", 
 		rleaf_redleaf_graph_execute_query, -1 );
 	
 	/*

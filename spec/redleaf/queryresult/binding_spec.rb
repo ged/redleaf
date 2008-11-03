@@ -2,7 +2,7 @@
 
 BEGIN {
 	require 'pathname'
-	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
+	basedir = Pathname.new( __FILE__ ).dirname.parent.parent.parent
 	
 	libdir = basedir + "lib"
 	extdir = basedir + "ext"
@@ -15,9 +15,10 @@ begin
 	require 'spec/runner'
 	require 'spec/lib/constants'
 	require 'spec/lib/helpers'
+	require 'spec/lib/queryresult_behavior'
 
 	require 'redleaf'
-	require 'redleaf/queryresult'
+	require 'redleaf/queryresult/binding'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -34,32 +35,45 @@ include Redleaf::Constants
 ###	C O N T E X T S
 #####################################################################
 
-describe Redleaf::QueryResult do
+describe Redleaf::BindingQueryResult do
 	include Redleaf::SpecHelpers
 
+	SELECT_SPARQL_QUERY = %{
+		SELECT ?s ?p ?o
+		WHERE
+		{
+			?s ?p ?o
+		}
+	}
+	
 
-	before( :all ) do
+	before( :each ) do
 		setup_logging( :fatal )
-	end
+		@graph = Redleaf::Graph.new
+		@graph.append( *TEST_FOAF_TRIPLES )
 
-	after( :all ) do
-		reset_logging()
-	end
-
-
-	it "is an abtract class" do
-		lambda {
-			Redleaf::QueryResult.new
-		}.should raise_error( NoMethodError, /new/ )
+		@result = @graph.query( SELECT_SPARQL_QUERY )
 	end
 
 
-	it "knows what result formatters the local installation supports" do
-		res = Redleaf::QueryResult.formatters
+	it_should_behave_like "A QueryResult"
+
+
+
+	it "knows which graph it's from" do
+		@result.source_graph.should == @graph
+	end
+
+	it "knows how many result rows it contains" do
+		@result.length.should == 12
+	end
+
+	it "can iterate over its rows" do
+		@result.rows.should have(12).members
 		
-		res.should be_an_instance_of( Hash )
-		res.keys.should include( 'xml' )
+		@result.rows.each do |row|
+			row.keys.should include( :s, :p, :o )
+		end
 	end
 
 end
-

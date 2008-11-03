@@ -41,24 +41,6 @@ describe Redleaf::Graph do
 	include Redleaf::SpecHelpers,
 	        Redleaf::Constants::CommonNamespaces
 
-	MY_FOAF = Redleaf::Namespace.new( 'http://deveiate.org/foaf.xml#' )
-	ME = MY_FOAF[:me]
-
-	TEST_FOAF_TRIPLES = [
-        [ ME,       RDF[:type],                 FOAF[:Person] ],
-        [ ME,       FOAF[:name],                "Michael Granger" ],
-        [ ME,       FOAF[:givenname],           "Michael" ],
-        [ ME,       FOAF[:family_name],         "Granger" ],
-        [ ME,       FOAF[:homepage],            URI.parse('http://deveiate.org/') ],
-        [ ME,       FOAF[:workplaceHomepage],   URI.parse('http://laika.com/') ],
-        [ ME,       FOAF[:phone],               URI.parse('tel:303.555.1212') ],
-        [ ME,       FOAF[:mbox_sha1sum],        "8680b054d586d747a6fcb7046e9ce7cb39554404"],
-        [ ME,       FOAF[:knows],               :mahlon ],
-        [ :mahlon,  RDF[:type],                 FOAF[:Person] ],
-        [ :mahlon,  FOAF[:mbox_sha1sum],        "fd2b68f1f42cf523276824cb93261b0de58621b6" ],
-        [ :mahlon,  FOAF[:name],                "Mahlon E Smith" ],
-	]
-
 	before( :all ) do
 		setup_logging( :fatal )
 
@@ -82,6 +64,11 @@ describe Redleaf::Graph do
 			@graph = Redleaf::Graph.new
 		end
 
+
+		it "knows that it is empty" do
+			@graph.should be_empty()
+		end
+		
 
 		it "has the same store as duplicates of itself" do
 			@graph.dup.store.should equal( @graph.store )
@@ -165,6 +152,11 @@ describe Redleaf::Graph do
 		
 		after( :each ) do
 			reset_logging()
+		end
+		
+		
+		it "knows that it is not empty" do
+			@graph.should_not be_empty()
 		end
 		
 		
@@ -278,7 +270,25 @@ describe Redleaf::Graph do
 			stmt = Redleaf::Statement.new( :grimlok, FOAF[:knows], :skeletor )
 			@graph.should_not include( stmt )
 		end
+		
+		it "raises a FeatureError if asked to serialize to a format that isn't supported" do
+			lambda {
+				@graph.serialized_as( 'zebras' )
+			}.should raise_error( Redleaf::FeatureError, /unsupported/i )
+		end
+		
+		it "can be serialized as RDF/XML" do
+			@graph.serialized_as( 'rdfxml' ).should =~
+				%r{<\?xml version=\"1.0\" encoding=\"utf-8\"\?>\n<rdf:RDF}
+		end
+		
+		it "can be serialized via a #to_<format> method" do
+			@graph.to_rdfxml.should =~
+				%r{<\?xml version=\"1.0\" encoding=\"utf-8\"\?>\n<rdf:RDF}
+		end
+		
 	end
+
 
 	describe "query interface" do
 		before( :each ) do
@@ -307,6 +317,7 @@ describe Redleaf::Graph do
 			res.bindings.should == [:name]
 		end
 	end
+	
 end
 
 # vim: set nosta noet ts=4 sw=4:

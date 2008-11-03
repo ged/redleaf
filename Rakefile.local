@@ -8,7 +8,7 @@ rescue LoadError => err
 		retry
 	end
 	
-	fail "You need to have the mkrf library installed to build this."
+	warn "You need to have the mkrf library installed to build this."
 end
 
 W3CTEST_TASKLIB = SPECDIR + 'w3ctest-tasks.rb'

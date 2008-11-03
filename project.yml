@@ -10,6 +10,7 @@ author_name: Michael Granger and Mahlon E. Smith
 project_homepage: http://deveiate.org/projects/Redleaf
 project_dependencies: 
   rubyzip: ">= 0.9.1"
+  mkrf: ">= 0.2.3"
 project_summary: An RDF library for Ruby
 project_name: Redleaf
 version_file: redleaf.rb

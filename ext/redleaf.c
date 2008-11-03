@@ -44,7 +44,11 @@
 
 VALUE rleaf_mRedleaf;
 VALUE rleaf_mRedleafNodeUtils;
-VALUE rleaf_rb_cURI = Qnil;
+
+VALUE rleaf_eRedleafError;
+VALUE rleaf_eRedleafFeatureError;
+
+VALUE rleaf_rb_cURI;
 
 librdf_world *rleaf_rdf_world = NULL;
 
@@ -186,6 +190,11 @@ void Init_redleaf_ext( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 	rleaf_mRedleafNodeUtils = rb_define_module_under( rleaf_mRedleaf, "NodeUtils" );
 
+	rleaf_eRedleafError = 
+		rb_define_class_under( rleaf_mRedleaf, "Error", rb_eRuntimeError );
+	rleaf_eRedleafFeatureError = 
+		rb_define_class_under( rleaf_mRedleaf, "FeatureError", rleaf_eRedleafError );
+
 	/* Get references to class objects we'll use a lot */
 	rb_require( "uri" );
 	rleaf_rb_cURI = rb_const_get( rb_cObject, rb_intern("URI") );
@@ -224,5 +233,6 @@ void Init_redleaf_ext( void ) {
 	rb_define_const( rleaf_mRedleaf, "DEFAULT_STORE_CLASS", DEFAULT_STORE_CLASS );
 
 	rb_require( "redleaf" );
+	rb_require( "redleaf/exceptions" );
 }
 

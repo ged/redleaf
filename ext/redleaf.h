@@ -69,6 +69,9 @@ extern VALUE rleaf_cRedleafBooleanQueryResult;
 extern VALUE rleaf_cRedleafGraphQueryResult;
 extern VALUE rleaf_cRedleafSyntaxQueryResult;
 
+extern VALUE rleaf_eRedleafError;
+extern VALUE rleaf_eRedleafFeatureError;
+
 extern VALUE rleaf_rb_cURI;
 
 extern librdf_world *rleaf_rdf_world;
@@ -109,6 +112,8 @@ typedef struct rleaf_graph_object {
 #define IsParser( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafParser )
 #define IsQueryResult( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafQueryResult )
 
+#define IsURI( obj ) rb_obj_is_kind_of( (obj), rleaf_rb_cURI )
+
 #define XSD_URI_BASE "http://www.w3.org/TR/xmlschema-2/#"
 #define XSD_URI(s) XSD_URI_BASE s
 
@@ -141,6 +146,7 @@ void rleaf_log( const char *, const char *, va_dcl );
 
 /* Node conversion utility functions from node.c */
 VALUE rleaf_librdf_uri_node_to_object( librdf_node * );
+librdf_uri * rleaf_object_to_librdf_uri( VALUE );
 VALUE rleaf_librdf_literal_node_to_object( librdf_node * );
 VALUE rleaf_librdf_node_to_value( librdf_node * );
 

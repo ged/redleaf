@@ -17,7 +17,7 @@ begin
 	require 'spec/lib/helpers'
 
 	require 'redleaf'
-	require 'redleaf/queryresult'
+	require 'redleaf/store'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -34,32 +34,29 @@ include Redleaf::Constants
 ###	C O N T E X T S
 #####################################################################
 
-describe Redleaf::QueryResult do
+describe "A QueryResult", :shared => true do
 	include Redleaf::SpecHelpers
 
 
-	before( :all ) do
-		setup_logging( :fatal )
+	it "supports Enumerable" do
+		@result.should respond_to( :each )
 	end
-
-	after( :all ) do
-		reset_logging()
+	
+	it "can return an XML representation of itself" do
+		@result.to_xml.should =~ %r{<\?xml.version=\"1.0\".*}mx
 	end
-
-
-	it "is an abtract class" do
-		lambda {
-			Redleaf::QueryResult.new
-		}.should raise_error( NoMethodError, /new/ )
+	
+	it "can return a JSON representation of itself" do
+		begin
+			require 'json'
+		rescue LoadError
+			pending "local installation of the 'ruby-json' library"
+		else
+			JSON.parse( @result.to_json ).should be_an_instance_of( Hash )
+		end
 	end
-
-
-	it "knows what result formatters the local installation supports" do
-		res = Redleaf::QueryResult.formatters
-		
-		res.should be_an_instance_of( Hash )
-		res.keys.should include( 'xml' )
-	end
-
+	
 end
 
+
+# vim: set nosta noet ts=4 sw=4:
