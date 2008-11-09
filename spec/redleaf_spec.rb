@@ -36,7 +36,12 @@ include Redleaf::Constants
 describe Redleaf do
 	include Redleaf::SpecHelpers
 
+	before( :all ) do
+		reset_logging()
+	end
+
 	it "should know if its default logger is replaced" do
+		Redleaf.reset_logger
 		Redleaf.should be_using_default_logger
 		Redleaf.logger = Logger.new( $stderr )
 		Redleaf.should_not be_using_default_logger
