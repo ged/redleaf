@@ -14,6 +14,8 @@ BEGIN {
 begin
 	require 'redleaf'
 	require 'redleaf/graph'
+	require 'redleaf/parser/ntriples'
+	require 'redleaf/parser/rdfxml'
 
 	require 'spec'
 	require 'spec/lib/helpers'
@@ -43,6 +45,8 @@ describe Redleaf::Parser do
 
 	before( :each ) do
 		setup_logging( :debug )
+		@nt_parser = Redleaf::NTriplesParser.new
+		@rdfxml_parser = Redleaf::RDFXMLParser.new
 	end
 	
 	after( :each ) do
@@ -57,20 +61,22 @@ describe Redleaf::Parser do
 <% end %>
 <% if example.is_negative_test? %>
 	it "correctly holds the document '<%= example.input_doc %>' to be in error" do
- 		model = Redleaf::Graph.new
+ 		inputfile = @datadir + '<%= example.input_doc %>'
+		inputuri = "file:#{inputfile}"
 		lambda {
-			model.load( 'file:' + @datadir + '/<%= example.input_doc %>' )
-		}.should raise_error( Redleaf::ParseError, /incorrect/ )
+			@rdfxml_parser.parse( inputfile.read, inputuri )
+		}.should raise_error( Redleaf::ParseError, /failed to parse/ )
 	end
 <% else %>
 	it "correctly parses the document '<%= example.input_doc %>'" do
- 		input_model = Redleaf::Graph.new
-		expected_model = Redleaf::Graph.new
-		
-		input_model.load( 'file:' + @datadir + '/<%= example.input_doc %>' )
-		expected_model.load( 'file:' + @datadir + '/<%= example.output_doc %>' )
+		inputfile = @datadir + '<%= example.input_doc %>'
+		inputuri = "file:#{inputfile}"
+ 		input_model = @rdfxml_parser.parse( inputfile.read, inputuri )
 
-		input_model.should === expected_model
+		outputfile = @datadir + '<%= example.output_doc %>'
+		output_model = @nt_parser.parse( outputfile.read )
+
+		input_model.should === output_model
 	end
 <% end %>
 

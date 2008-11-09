@@ -14,7 +14,8 @@ module Redleaf # :nodoc:
 
 	# A collection of node-utility functions
 	module NodeUtils
-
+		include Redleaf::Constants::CommonNamespaces
+		
 		###############
 		module_function
 		###############
@@ -35,25 +36,25 @@ module Redleaf # :nodoc:
 				[ string_value, typeuri ]
 
 			case typeuri
-			when XSD[:string]
+			when XSD[:string], XSD_2001[:string]
 				return string_value
 
-			when XSD[:boolean]
+			when XSD[:boolean], XSD_2001[:boolean]
 				return string_value == 'true'
 
-			when XSD[:float]
+			when XSD[:float], XSD_2001[:float]
 				return Float( string_value )
 
-			when XSD[:decimal]
+			when XSD[:decimal], XSD_2001[:decimal]
 				return BigDecimal( string_value )
 
-			when XSD[:integer]
+			when XSD[:integer], XSD_2001[:integer]
 				return Integer( string_value )
 
-			when XSD[:dateTime]
+			when XSD[:dateTime], XSD_2001[:dateTime]
 				return DateTime.parse( string_value )
 
-			when XSD[:duration]
+			when XSD[:duration], XSD_2001[:duration]
 				duration = parse_iso8601_duration( string_value ) or
 					raise TypeError, "Invalid ISO8601 date %p" % [ string_value ]
 				return duration

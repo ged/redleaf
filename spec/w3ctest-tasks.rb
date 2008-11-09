@@ -46,6 +46,7 @@ begin
 		task :default => :generate
 	
 		# Generate the three spec files
+		desc "Generate W3C specs"
 		task :generate => [ PARSER_SPECFILE, ENTAILMENT_SPECFILE, MISCELLANEOUS_SPECFILE ]
 
 		# Need the data files from the W3C test suite -- download it and unpack it
