@@ -143,10 +143,6 @@ rleaf_get_parser( VALUE self ) {
  */
 static VALUE 
 rleaf_redleaf_parser_s_allocate( VALUE klass ) {
-	if ( klass == rleaf_cRedleafParser ) {
-		rb_raise( rb_eRuntimeError, "cannot allocate a Redleaf::Parser, as it is an abstract class" );
-	}
-
 	return Data_Wrap_Struct( klass, rleaf_parser_gc_mark, rleaf_parser_gc_free, 0 );
 }
 
@@ -158,15 +154,15 @@ rleaf_redleaf_parser_s_allocate( VALUE klass ) {
  *  Return a Hash of supported features from the underlying Redland library.
  *
  *     Redleaf::Parser.features
- *     # => {"raptor"=>"", 
- *           "grddl"=>"Gleaning Resource Descriptions from Dialects of Languages", 
- *           "rdfxml"=>"RDF/XML",
- *           "guies"=>"Pick the parser to use using content type and URI", 
- *           "rdfa"=>"RDF/A via librdfa",
- *           "trig"=>"TriG - Turtle with Named Graphs", 
- *           "turtle"=>"Turtle Terse RDF Triple Language",
- *           "ntriples"=>"N-Triples", 
- *           "rss-tag-soup"=>"RSS Tag Soup"}
+ *     # => {"raptor"       => "", 
+ *           "grddl"        => "Gleaning Resource Descriptions from Dialects of Languages", 
+ *           "rdfxml"       => "RDF/XML",
+ *           "guess"        => "Pick the parser to use using content type and URI", 
+ *           "rdfa"         => "RDF/A via librdfa",
+ *           "trig"         => "TriG - Turtle with Named Graphs", 
+ *           "turtle"       => "Turtle Terse RDF Triple Language",
+ *           "ntriples"     => "N-Triples", 
+ *           "rss-tag-soup" => "RSS Tag Soup"}
  */
 static VALUE
 rleaf_redleaf_parser_s_features( VALUE klass ) {
@@ -287,6 +283,61 @@ rleaf_redleaf_parser_accept_header( VALUE self ) {
 }
 
 
+/*
+ *  call-seq:
+ *     parser.parse( string )   -> graph
+ *
+ *  Parse the content in the specified +string+ and return a Redleaf::Graph containing any
+ *  resulting statements.
+ *
+ */
+static VALUE
+rleaf_redleaf_parser_parse( int argc, VALUE *argv, VALUE self ) {
+	librdf_parser *parser = rleaf_get_parser( self );
+	VALUE graphobj;
+	rleaf_GRAPH *graph;
+	unsigned char *string, *error_count_string;
+	VALUE content = Qnil, baseuriobj = Qnil;
+	VALUE parser_type = rb_funcall( CLASS_OF(self), rb_intern("parser_type"), 0, NULL );
+	librdf_uri  *baseuri, *error_count_feature;
+	librdf_node *error_count_node;
+	long error_count = 0;
+
+	if ( rb_scan_args(argc, argv, "11", &content, &baseuriobj) > 1 ) {
+		baseuri = rleaf_object_to_librdf_uri( baseuriobj );
+	} else {
+		baseuri = NULL;
+	}
+
+	string = (unsigned char *)RSTRING_PTR( content );
+	graphobj = rb_class_new_instance( 0, NULL, rleaf_cRedleafGraph );
+	graph = rleaf_get_graph( graphobj );
+
+	rleaf_log_with_context( self, "debug", "parsing %d bytes as %s",
+		RSTRING_LEN(content), RSTRING_PTR(rb_obj_as_string(parser_type)) );
+	if ( (librdf_parser_parse_string_into_model(parser, string, baseuri, graph->model)) != 0 )
+		rb_raise( rleaf_eRedleafParseError, "failed to parse" );
+
+	error_count_feature = librdf_new_uri( rleaf_rdf_world, 
+		(unsigned char *)LIBRDF_PARSER_FEATURE_ERROR_COUNT );
+	error_count_node = librdf_parser_get_feature( parser, error_count_feature );
+
+	/* FIXME: I feel like there has to be a better way to do this, but I can't see what it 
+	   is currently. Need to ask dajobe for advice. */
+	error_count_string = librdf_node_to_string( error_count_node );
+	error_count = strtol( (char *)error_count_string, NULL, 0 );
+
+	librdf_free_node( error_count_node );
+	librdf_free_uri( error_count_feature );
+	if ( baseuri ) librdf_free_uri( baseuri );
+
+	if ( error_count ) {
+		rb_raise( rleaf_eRedleafParseError, "%d errors", error_count );
+	} else {
+		return graphobj;
+	}
+}
+
 
 
 /*
@@ -313,7 +364,11 @@ void rleaf_init_redleaf_parser( void ) {
 	/* Instance methods */
 	rb_define_method( rleaf_cRedleafParser, "initialize", rleaf_redleaf_parser_initialize, 0 );
 	rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
+	rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
 
+	/* TODO: two-arg form to support baseuri? */
+	/* TODO: support IOs as well as Strings? */
+	rb_define_method( rleaf_cRedleafParser, "parse", rleaf_redleaf_parser_parse, -1 );
 	
 	/*
 

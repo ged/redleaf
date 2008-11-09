@@ -18,7 +18,7 @@ begin
 	require 'spec/lib/store_behavior'
 
 	require 'redleaf'
-	require 'redleaf/store/sqlite'
+	require 'redleaf/store/mysql'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -35,7 +35,7 @@ include Redleaf::Constants
 ###	C O N T E X T S
 #####################################################################
 
-describe Redleaf::SQLiteStore do
+describe Redleaf::MySQLStore do
 	include Redleaf::SpecHelpers
 
 	TESTING_STORE_NAME = 'splornk'
@@ -46,7 +46,7 @@ describe Redleaf::SQLiteStore do
 
 
 	before( :each ) do
-		pending "no sqlite backend; will not test" unless Redleaf::SQLiteStore.is_supported?
+		pending "no mysql backend; will not test" unless Redleaf::MySQLStore.is_supported?
 	end
 	
 
@@ -57,14 +57,14 @@ describe Redleaf::SQLiteStore do
 
 
 	it "can be created with a name" do
-		Redleaf::SQLiteStore.new( TESTING_STORE_NAME )
+		Redleaf::MySQLStore.new( TESTING_STORE_NAME )
 	end
 
 
 	describe "instance" do
 		
 		before( :each ) do
-			@store = Redleaf::SQLiteStore.new( TESTING_STORE_NAME )
+			@store = Redleaf::MySQLStore.new( TESTING_STORE_NAME )
 		end
 		
 		

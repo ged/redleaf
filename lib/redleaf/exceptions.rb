@@ -29,6 +29,9 @@ module Redleaf
 	class FeatureError < Redleaf::Error; end
 	def_e2message Redleaf::FeatureError, "unimplemented feature"
 	
+	class ParseError < Redleaf::Error; end
+	def_e2message Redleaf::ParseError, "parse error"
+	
 end # module Redleaf
 
 

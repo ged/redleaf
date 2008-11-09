@@ -15,7 +15,7 @@ BEGIN {
 }
 
 begin
-	require 'spec/runner'
+	require 'spec'
 	require 'redleaf'
 rescue LoadError
 	unless Object.const_defined?( :Gem )

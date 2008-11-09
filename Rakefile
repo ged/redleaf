@@ -195,7 +195,6 @@ GEMSPEC   = Gem::Specification.new do |gem|
 
 	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
 	
-
 	gem.files             = RELEASE_FILES.
 		collect {|f| f.relative_path_from(BASEDIR).to_s }
 	gem.test_files        = SPEC_FILES.

@@ -56,6 +56,9 @@ module Redleaf::Constants
 		# The XML Schema namespace
 		XSD        = Redleaf::Namespace.new( 'http://www.w3.org/TR/xmlschema-2/#' )
 		
+		# The Creative Commons licensing vocabulary
+		CC         = Redleaf::Namespace.new( 'http://creativecommons.org/ns#' )
+		
 		# The "Friend-Of-A-Friend" namespace
 		FOAF       = Redleaf::Namespace.new( 'http://xmlns.com/foaf/0.1/' )
 

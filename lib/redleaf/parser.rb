@@ -37,6 +37,7 @@ class Redleaf::Parser
 	@subclasses = []
 	class << self; attr_reader :subclasses ; end
 
+
 	### Inheritance callback -- keep track of all subclasses so we can search for them
 	### by name later.
 	def self::inherited( subclass )
@@ -58,14 +59,13 @@ class Redleaf::Parser
 	def self::parser_type( new_setting=nil )
 		if new_setting
 			Redleaf.logger.debug "Setting backend for %p to %p" % [ self, new_setting ]
-			@parser_type = new_setting
+			@parser_type = new_setting.to_sym
 
-			unless self.features.key?( @parser_type.to_s )
+			unless self.is_supported?
 				Redleaf.logger.warn "local Redland library doesn't have %p parser; valid values are: %p" %
 					[ @parser_type.to_s, self.features ]
 			end
 		end
-
 		
 		return @parser_type
 	end
@@ -74,19 +74,27 @@ class Redleaf::Parser
 	### Get the parser_type for the class after making sure it's valid and supported by
 	### the local installation. Raises a Redleaf::FeatureError if there is a problem.
 	def self::validated_parser_type
-		raise Redleaf::FeatureError, "unsupported parser type %p" % [ self.parser_type ] unless
-		 	self.is_supported?
-		
 		return self.parser_type.to_s.gsub( /_/, '-' )
 	end
 	
 
-
 	### Returns +true+ if the Redland parser type required by the receiving store class is
 	### supported by the local installation.
 	def self::is_supported?
-		return self.features.include?( self.parser_type.to_s )
+		return self.features.include?( self.validated_parser_type )
 	end
+
+
+	### Check to be sure the parser type is supported before instantiating it
+	def self::new( *args )
+		raise Redleaf::FeatureError, "unsupported parser type %p" % [ self.parser_type ] unless
+		 	self.is_supported?
+		super
+	end
+	
+	
+	# Default to the 'guess' parser
+	parser_type :guess
 	
 
 end # class Redleaf::Parser

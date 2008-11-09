@@ -914,6 +914,7 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_method( rleaf_cRedleafGraph, "store=", rleaf_redleaf_graph_store_eq, 1 );
 
 	rb_define_method( rleaf_cRedleafGraph, "size", rleaf_redleaf_graph_size, 0 );
+	rb_define_alias ( rleaf_cRedleafGraph, "length", "size" );
 	rb_define_method( rleaf_cRedleafGraph, "statements", rleaf_redleaf_graph_statements, 0 );
 
 	rb_define_method( rleaf_cRedleafGraph, "append", rleaf_redleaf_graph_append, -1 );

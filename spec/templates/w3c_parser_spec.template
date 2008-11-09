@@ -15,7 +15,7 @@ begin
 	require 'redleaf'
 	require 'redleaf/graph'
 
-	require 'spec/runner'
+	require 'spec'
 	require 'spec/lib/helpers'
 	require 'spec/lib/constants'
 rescue LoadError

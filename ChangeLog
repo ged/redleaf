@@ -1,3 +1,38 @@
+-- Mon, 03 Nov 2008 06:40:51 -0000 by deveiant (r49) -----
+   Added:   lib/redleaf/queryresult/boolean.rb (new)
+            experiments/json_qr.c (new)
+            spec/redleaf/queryresult (new)
+            lib/redleaf/queryresult (new)
+            spec/redleaf/queryresult/graph_spec.rb (new)
+            lib/redleaf/queryresult/graph.rb (new) (and 6 other/s)
+   Changed: README
+            spec/lib/helpers.rb
+            project.yml
+            ext/node.c
+            spec/redleaf/graph_spec.rb
+            Rakefile.local (and 12 other/s)
+
+    * Factored out conversions of URI objects to librdf_uris.
+    * Added Redleaf::Graph serialization
+    * Added two constants for the exception classes to C-land.
+    * Added formatters to and finished up Redleaf::QueryResult
+
+
+-- Fri, 31 Oct 2008 03:14:21 -0000 by deveiant (r48) -----
+   Added:   spec/w3ctest-tasks.rb
+            -> renamed from /trunk/spec/Rakefile@r47
+   Changed: Rakefile
+            spec/data
+            spec/templates/w3c_parser_spec.template
+            project.yml
+            ChangeLog
+            spec/templates/w3c_entailment_spec.template (and 4 other/s)
+   Deleted: spec/Rakefile
+
+    * Updated the build system.
+    * More work on the W3C tests
+
+
 -- Wed, 29 Oct 2008 12:28:20 -0000 by deveiant (r47) -----
    Changed: /trunk
             ext/graph.c

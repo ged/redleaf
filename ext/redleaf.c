@@ -47,6 +47,7 @@ VALUE rleaf_mRedleafNodeUtils;
 
 VALUE rleaf_eRedleafError;
 VALUE rleaf_eRedleafFeatureError;
+VALUE rleaf_eRedleafParseError;
 
 VALUE rleaf_rb_cURI;
 
@@ -194,6 +195,8 @@ void Init_redleaf_ext( void ) {
 		rb_define_class_under( rleaf_mRedleaf, "Error", rb_eRuntimeError );
 	rleaf_eRedleafFeatureError = 
 		rb_define_class_under( rleaf_mRedleaf, "FeatureError", rleaf_eRedleafError );
+	rleaf_eRedleafParseError = 
+		rb_define_class_under( rleaf_mRedleaf, "ParseError", rleaf_eRedleafError );
 
 	/* Get references to class objects we'll use a lot */
 	rb_require( "uri" );

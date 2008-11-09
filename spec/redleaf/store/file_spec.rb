@@ -18,7 +18,7 @@ begin
 	require 'spec/lib/store_behavior'
 
 	require 'redleaf'
-	require 'redleaf/store/sqlite'
+	require 'redleaf/store/file'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -35,7 +35,7 @@ include Redleaf::Constants
 ###	C O N T E X T S
 #####################################################################
 
-describe Redleaf::SQLiteStore do
+describe Redleaf::FileStore do
 	include Redleaf::SpecHelpers
 
 	TESTING_STORE_NAME = 'splornk'
@@ -46,7 +46,7 @@ describe Redleaf::SQLiteStore do
 
 
 	before( :each ) do
-		pending "no sqlite backend; will not test" unless Redleaf::SQLiteStore.is_supported?
+		pending "no file backend; will not test" unless Redleaf::FileStore.is_supported?
 	end
 	
 
@@ -57,14 +57,14 @@ describe Redleaf::SQLiteStore do
 
 
 	it "can be created with a name" do
-		Redleaf::SQLiteStore.new( TESTING_STORE_NAME )
+		Redleaf::FileStore.new( TESTING_STORE_NAME )
 	end
 
 
 	describe "instance" do
 		
 		before( :each ) do
-			@store = Redleaf::SQLiteStore.new( TESTING_STORE_NAME )
+			@store = Redleaf::FileStore.new( TESTING_STORE_NAME )
 		end
 		
 		
@@ -88,11 +88,6 @@ describe Redleaf::SQLiteStore do
 
 			it_should_behave_like "A Store with an associated Graph"
 		
-
-			it "has contexts enabled by default" do
-				@store.should have_contexts()
-			end
-	
 		end
 	end
 

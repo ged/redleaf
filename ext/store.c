@@ -266,6 +266,8 @@ rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 				rleaf_log_with_context( self, "debug", "Argument was a opthash; swapping it." );
 				opthash = name;
 				name = Qnil;
+			} else {
+				opthash = rb_hash_new();
 			}
 			break;
 			

@@ -5,24 +5,26 @@ require 'pathname'
 require 'redleaf'
 require 'redleaf/store'
 
-# A Redleaf::Store that uses SQLite. 
+# A Redleaf::Store that uses PostgreSQL. This module is based on the MySQL
+# store and is compiled in when PostgreSQL is available. This store provides
+# storage using the PostgreSQL open source database including contexts.
 #
 # == Subversion Id
 #
-#  $Id$
-# 
+#	$Id$
+#	 
 # == Authors
-# 
+#	 
 # * Michael Granger <ged@FaerieMUD.org>
 # * Mahlon Smith <mahlon@martini.nu>
-# 
+#	 
 # :include: LICENSE
 #
 #---
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
-class Redleaf::SQLiteStore < Redleaf::Store
+class Redleaf::PostgreSQLStore < Redleaf::Store
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -30,23 +32,25 @@ class Redleaf::SQLiteStore < Redleaf::Store
 	# SVN Id
 	SVNId = %q$Id$
 
-	# Default store options
+	# Default options
 	DEFAULT_OPTIONS = {
-		:new => true,
+		:new      => true,
+		:database => 'test',
+		:username => '', 
+		:password => '',
 	}
 
-
-	# Use the 'sqlite' Redland backend
-	backend :sqlite
+	# Use the 'postgresql' Redland backend
+	backend :postgresql
 
 
 	#################################################################
 	###	C L A S S   M E T H O D S
 	#################################################################
 
-	### Load the SQLite-backed Redleaf::HashesStore from the specified +path+.
-	def self::load( path )
-		return new( path, :new => 'no' )
+	### Load the PostgreSQL-backed Redleaf::HashesStore from the specified +database+.
+	def self::load( database )
+		return new( database, :new => false )
 	end
 	
 	
@@ -54,8 +58,7 @@ class Redleaf::SQLiteStore < Redleaf::Store
 	###	I N S T A N C E   M E T H O D S
 	#################################################################
 
-	### Create a new Redleaf::SQLiteStore. If the optional +new_db+ flag is true, any existing
-	### database is destroyed.
+	### Create a new Redleaf::PostgreSQLStore. 
 	def initialize( name, opthash={} )
 		options = DEFAULT_OPTIONS.merge( opthash )
 		return super( name, options )

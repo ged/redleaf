@@ -12,7 +12,7 @@ BEGIN {
 }
 
 begin
-	require 'spec/runner'
+	require 'spec'
 	require 'spec/lib/constants'
 	require 'spec/lib/helpers'
 
@@ -47,12 +47,10 @@ describe Redleaf::Parser do
 	end
 
 
-	it "is an abtract class" do
-		lambda {
-			Redleaf::Parser.new
-		}.should raise_error( RuntimeError, /cannot allocate/ )
+	it "uses the 'guess' parser" do
+		Redleaf::Parser.parser_type == :guess
 	end
-
+	
 
 	it "raises an appropriate exception if you try to create a parser type that isn't present in " +
 	   "the local machine's Redland library" do
