@@ -115,7 +115,7 @@ module Mkrf
 			if RUBY_PLATFORM =~ /mswin/
 				@library_paths.collect {|l| "/libpath:#{l}"}.join(' ')
 			else
-				Config::CONFIG['LIBRUBYARG_SHARED'] + @library_paths.collect {|l| "-L#{l}"}.join(' ')
+				Config::CONFIG['LIBRUBYARG_SHARED'] + ' ' + @library_paths.collect {|l| "-L#{l}"}.join(' ')
 			end
 		end
 

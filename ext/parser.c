@@ -366,7 +366,6 @@ void rleaf_init_redleaf_parser( void ) {
 	rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
 	rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
 
-	/* TODO: two-arg form to support baseuri? */
 	/* TODO: support IOs as well as Strings? */
 	rb_define_method( rleaf_cRedleafParser, "parse", rleaf_redleaf_parser_parse, -1 );
 	

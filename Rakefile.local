@@ -27,6 +27,12 @@ ADDITIONAL_INCLUDE_DIRS = %w[
 	/opt/local/include
 ]
 
+ADDITIONAL_LIBRARY_DIRS = %w[
+	/usr/local/lib
+	/opt/lib
+	/opt/local/lib
+]
+
 # Additional (auto-generated) spec constants
 SPEC_RAKEFILE = SPECDIR + 'Rakefile'
 
@@ -84,7 +90,7 @@ file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
 			end
 
 			trace "Checking for librdf_new_world()"
-			gen.include_library( "rdf", "librdf_new_world" ) or
+			gen.include_library( "rdf", "librdf_new_world", *ADDITIONAL_LIBRARY_DIRS ) or
 				fail( "Could not find Redland RDF library (http://librdf.org/)." )
 
 			gen.has_function?( "librdf_parser_guess_name " ) or
