@@ -78,6 +78,7 @@ begin
 		file PARSER_SPECFILE => [ PARSER_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ] do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
+			log "Writing #{PARSER_SPECFILE}..."
 			gen.write_specfile( PARSER_SPEC_TEMPLATE, PARSER_SPECFILE ) do |examples|
 				examples << gen.find_positive_parser_tests
 				examples << gen.find_negative_parser_tests
@@ -90,6 +91,7 @@ begin
 		file ENTAILMENT_SPECFILE => [ ENTAILMENT_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ] do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
+			log "Writing #{ENTAILMENT_SPECFILE}..."
 			gen.write_specfile( ENTAILMENT_SPEC_TEMPLATE, ENTAILMENT_SPECFILE ) do |examples|
 				examples << gen.find_positive_entailment_tests
 				examples << gen.find_negative_entailment_tests
@@ -102,6 +104,7 @@ begin
 		file MISCELLANEOUS_SPECFILE => [ MISCELLANEOUS_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ]do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
+			log "Writing #{MISCELLANEOUS_SPECFILE}..."
 			gen.write_specfile( MISCELLANEOUS_SPEC_TEMPLATE, MISCELLANEOUS_SPECFILE ) do |examples|
 				examples << gen.find_miscellaneous_tests
 			end

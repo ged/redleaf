@@ -44,7 +44,7 @@ describe Redleaf::Parser do
 	end
 
 	before( :each ) do
-		setup_logging( :debug )
+		setup_logging( :fatal )
 		@nt_parser = Redleaf::NTriplesParser.new
 		@rdfxml_parser = Redleaf::RDFXMLParser.new
 	end
