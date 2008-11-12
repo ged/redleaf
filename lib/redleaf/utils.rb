@@ -23,6 +23,7 @@ module Redleaf # :nodoc:
 		### Convert the specified Ruby +object+ to a typed literal and return it as a two-element
 		### Array of value and type URI.
 		def object_to_node( object )
+			Redleaf.log.error "Ack! Can't yet convert %p" % [ object ]
 			raise NotImplementedError,
 				"node conversions outside of the XML Schema base types is not yet supported."
 		end

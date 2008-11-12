@@ -54,6 +54,8 @@ module Redleaf
 		
 		# The logger that's currently in effect
 		attr_accessor :logger
+		alias_method :log, :logger
+		alias_method :log=, :logger=
 	end
 
 
