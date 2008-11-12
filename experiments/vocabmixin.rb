@@ -22,6 +22,10 @@ require 'redleaf/store/sqlite'
 
 include Redleaf::Constants::CommonNamespaces
 
+def make_classname( label )
+	label.gsub( /(?:\s+|^)(.)/ ) { $1.upcase }
+end
+
 store = Redleaf::SQLiteStore.load( 'vocabmixin.db' )
 graph = store.graph
 
@@ -38,12 +42,14 @@ sparql = %{
 	WHERE {
 		?klass rdf:type rdfs:Class ;
 		       rdfs:label ?label ;
-		       rdfs:comment ?comment ;
-		       rdfs:subClassOf ?superclass .
+		       rdfs:comment ?comment .
+	    OPTIONAL { ?klass rdfs:subClassOf ?superclass . }
 		FILTER langMatches( lang(?label), 'EN' ).
 		FILTER langMatches( lang(?comment), 'EN' ).
 	}
 }
+
+
 
 classes = {}
 graph.query( sparql, :rdf => RDF, :rdfs => RDFS ).each do |row|
@@ -52,11 +58,34 @@ graph.query( sparql, :rdf => RDF, :rdfs => RDFS ).each do |row|
 		:comment => nil,
 		:properties => {},
 		:superclasses => [],
+		:classname => nil,
 	}
-	classes[ row[:klass] ][ :comment ] = row[:comment]
-	classes[ row[:klass] ][ :label ]   = row[:label]
+	classes[ row[:klass] ][ :comment ]      = row[:comment]
+	classes[ row[:klass] ][ :label ]        = row[:label]
+	classes[ row[:klass] ][ :classname ]    = make_classname( row[:label] )
 	classes[ row[:klass] ][ :superclasses ] << row[:superclass]
 end
 
 
-pp classes
+classes.each do |uri,classinfo|
+	if classinfo[:superclasses].first.nil?
+		$stderr.puts <<-EOF
+		class #{ classinfo[:classname] }
+		end
+		EOF
+	elsif local_super = classinfo[:superclasses].find {|uri| classes.key?(uri) }
+		$stderr.puts <<-EOF
+		class #{ classinfo[:classname] } < #{ classes[local_super][:classname] }
+		end
+		EOF
+	else
+		$stderr.puts <<-EOF
+		class #{ classinfo[:classname] } < RemoteClass( '#{classinfo[:superclasses].first}' )
+		end
+		EOF
+	end
+end
+
+
+
+
