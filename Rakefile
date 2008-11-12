@@ -46,7 +46,7 @@ PROJECT_NAME  = 'Redleaf'
 PKG_NAME      = PROJECT_NAME.downcase
 PKG_SUMMARY   = 'An RDF library for Ruby'
 VERSION_FILE  = LIBDIR + 'redleaf.rb'
-PKG_VERSION   = VERSION_FILE.read[ /VERSION\s*=\s*'(\d+\.\d+\.\d+)'/, 1 ]
+PKG_VERSION   = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ]
 PKG_FILE_NAME = "#{PKG_NAME.downcase}-#{PKG_VERSION}"
 GEM_FILE_NAME = "#{PKG_FILE_NAME}.gem"
 
@@ -195,6 +195,7 @@ GEMSPEC   = Gem::Specification.new do |gem|
 
 	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
 	
+
 	gem.files             = RELEASE_FILES.
 		collect {|f| f.relative_path_from(BASEDIR).to_s }
 	gem.test_files        = SPEC_FILES.

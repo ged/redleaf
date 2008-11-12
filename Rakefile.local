@@ -23,6 +23,8 @@ EXT_SO        = EXTDIR + "redleaf_ext.#{CONFIG['DLEXT']}"
 
 ADDITIONAL_INCLUDE_DIRS = %w[
 	/usr/local/include
+	/usr/local/include/rasqal
+	/usr/local/include/raptor
 	/opt/include
 	/opt/local/include
 ]
