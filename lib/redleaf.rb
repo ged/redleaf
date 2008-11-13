@@ -89,6 +89,7 @@ module Redleaf
 	require 'redleaf/namespace'
 	require 'redleaf/parser'
 	require 'redleaf/store'
+	require 'redleaf/core_extensions'
 
 end # module Redleaf
 

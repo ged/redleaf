@@ -457,27 +457,63 @@ rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
 }
 
 
-/* 
- * call-seq:
- *    statement === other_statement   -> true or false
+/*
+ * Convert the specified VALUE to a librdf_statement. The caller is responsible for freeing the
+ * resulting statement, and for catching the ArgumentError this function raises if it can't
+ * figure out how to convert the +object+.
  * 
- * Case equality: Returns true if the receiver matches +other_statement+, where some parts of the
- * receiving statement - subject, predicate or object - can be empty (NULL). Empty parts match 
- * against any value, parts with values must match exactly.
+ * The caller is responsible for catching the ArgumentError that results if the
+ * +object+ can't be converted to a statement.
+ */
+librdf_statement *
+rleaf_obj_to_librdf_statement( VALUE rbobj ) {
+	librdf_statement *ptr = NULL;
+	
+	if ( IsStatement(rbobj) ) {
+		rleaf_log( "debug", "Copying a librdf_statement from a Redleaf::Statement" );
+		ptr = librdf_new_statement_from_statement( rleaf_get_statement(rbobj) );
+	}
+	
+	else if ( TYPE(rbobj) == T_ARRAY ) {
+		librdf_node *subject, *predicate, *object;
+
+		subject   = rleaf_value_to_subject_node( rb_ary_entry(rbobj, 0) );
+		predicate = rleaf_value_to_predicate_node( rb_ary_entry(rbobj, 1) );
+		object    = rleaf_value_to_object_node( rb_ary_entry(rbobj, 2) );
+		
+		rleaf_log( "debug", "Creating a statement from an Array" );
+		ptr = librdf_new_statement_from_nodes( rleaf_rdf_world, subject, predicate, object );
+	}
+
+	else {
+		rb_raise( rb_eArgError, "can't convert %s to a Redleaf::Statement", rb_class2name(CLASS_OF(rbobj)) );
+	}
+
+	return ptr;
+}
+
+
+/* 
+ * call-seq: statement === other_statement      -> true or false
+ * statement === [node, node, node]   -> true or false
+ * 
+ * Case equality: Returns true if the receiver matches +other_statement+
+ * (or the statement created from the Array of nodes), where some parts
+ * of the receiving statement - subject, predicate or object - can be
+ * empty (nil). Empty parts match against any value, parts with values
+ * must match exactly.
  * 
  */
 static VALUE 
 rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
-	librdf_statement *other_stmt;
+	librdf_statement *other_stmt = rleaf_obj_to_librdf_statement( other );
 
-	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
-
-	other_stmt = rleaf_get_statement( other );
-	
 	if ( librdf_statement_match(stmt, other_stmt) ) {
+		librdf_free_statement( other_stmt );
 		return Qtrue;
 	} else {
+		librdf_free_statement( other_stmt );
 		return Qfalse;
 	}
 }

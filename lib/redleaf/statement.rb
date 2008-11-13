@@ -4,6 +4,7 @@ require 'redleaf'
 require 'redleaf/mixins'
 require 'redleaf/utils'
 
+
 # An RDF statement class. A statement is a node-arc-node triple (subject
 # --predicate--> object). The subject can be either a URI or a blank node, the
 # predicate is always a URI, and the object can be a URI, a blank node, or a
@@ -34,6 +35,13 @@ class Redleaf::Statement
 
 	# SVN Id
 	SVNId = %q$Id$
+
+
+	### Generates a Fixnum hash value for the statement, made up of the hash of its components.
+	def hash
+		return [ self.subject, self.predicate, self.object ].hash
+	end
+	
 
 end # class Redleaf::Statement
 

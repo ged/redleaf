@@ -880,6 +880,72 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 }
 
 
+/* 
+-- #subjects( predicate, object )/#sources( predicate, object )
+librdf_iterator* librdf_model_get_sources(librdf_model* model, librdf_node* arc, librdf_node* target)
+
+-- #subject( predicate, object )/#source( predicate, object )
+librdf_node* librdf_model_get_source(librdf_model* model, librdf_node* arc, librdf_node* target)
+
+-- #predicates( subject, object )/#arcs( subject, object )
+librdf_iterator* librdf_model_get_arcs(librdf_model* model, librdf_node* source, librdf_node* target)
+
+-- #predicate( subject, object )/#arc( subject, object )
+librdf_node* librdf_model_get_arc(librdf_model* model, librdf_node* source, librdf_node* target)
+
+-- #objects( subject, predicate )/#targets( subject, predicate )
+librdf_iterator* librdf_model_get_targets(librdf_model* model, librdf_node* source, librdf_node* arc)
+
+-- #object( subject, predicate )/#target( subject, predicate )
+librdf_node* librdf_model_get_target(librdf_model* model, librdf_node* source, librdf_node* arc)
+
+ */
+
+/*
+ *  call-seq:
+ *     graph.subjects( predicate, object )   -> [ nodes ]
+ *
+ *  Return an Array of subject nodes from the graph that have the specified +predicate+ and +object+.
+ *
+ */
+static VALUE rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *arc, *target;
+	librdf_iterator *iter;
+	VALUE rval = rb_ary_new();
+	
+	arc = rleaf_value_to_predicate_node( predicate );
+	target = rleaf_value_to_object_node( object );
+	
+	iter = librdf_model_get_sources( ptr->model, arc, target );
+	if ( !iter ) {
+		librdf_free_node( arc );
+		librdf_free_node( target );
+		rb_raise( rb_eRuntimeError, "failed to get sources for - %s -> %s",
+			librdf_node_to_string(arc), librdf_node_to_string(target) );
+	}
+
+	while ( ! librdf_iterator_end(iter) ) {
+		librdf_node *source = librdf_iterator_get_object( iter );
+		VALUE subject = rleaf_librdf_node_to_value( source );
+		librdf_free_node( source );
+		
+		rb_ary_push( rval, subject );
+		librdf_iterator_next( iter );
+	}
+	librdf_free_iterator( iter );
+	
+	return rval;
+}
+
+
+// static VALUE rleaf_redleaf_graph_subject( VALUE self, VALUE predicate, VALUE object ) {
+// 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+// }
+// 
+
+
+
 
 
 
@@ -940,8 +1006,14 @@ rleaf_init_redleaf_graph( void ) {
 
 	rb_define_method( rleaf_cRedleafGraph, "serialized_as", rleaf_redleaf_graph_serialized_as, 1 );
 
-	rb_define_method( rleaf_cRedleafGraph, "execute_query", 
-		rleaf_redleaf_graph_execute_query, -1 );
+	rb_define_method( rleaf_cRedleafGraph, "execute_query", rleaf_redleaf_graph_execute_query, -1 );
+	
+	rb_define_method( rleaf_cRedleafGraph, "subjects", rleaf_redleaf_graph_subjects, 2 );
+	// rb_define_method( rleaf_cRedleafGraph, "subject", rleaf_redleaf_graph_subject, 1 );
+	// rb_define_method( rleaf_cRedleafGraph, "predicates", rleaf_redleaf_graph_predicates, 2 );
+	// rb_define_method( rleaf_cRedleafGraph, "predicate", rleaf_redleaf_graph_predicate, 1 );
+	// rb_define_method( rleaf_cRedleafGraph, "objects", rleaf_redleaf_graph_objects, 2 );
+	// rb_define_method( rleaf_cRedleafGraph, "object", rleaf_redleaf_graph_object, 1 );
 	
 	/*
 
@@ -950,24 +1022,6 @@ rleaf_init_redleaf_graph( void ) {
 
 	-- #has_predicate_out?( subject, url )/#has_arc_out?( subject, url )
 	int librdf_model_has_arc_out(librdf_model *model, librdf_node *node, librdf_node *property);
-
-	-- #subjects( predicate, object )/#sources( predicate, object )
-	librdf_iterator* librdf_model_get_sources(librdf_model* model, librdf_node* arc, librdf_node* target)
-
-	-- #predicates( subject, object )/#arcs( subject, object )
-	librdf_iterator* librdf_model_get_arcs(librdf_model* model, librdf_node* source, librdf_node* target)
-
-	-- #objects( subject, predicate )/#targets( subject, predicate )
-	librdf_iterator* librdf_model_get_targets(librdf_model* model, librdf_node* source, librdf_node* arc)
-
-	-- #subject( predicate, object )/#source( predicate, object )
-	librdf_node* librdf_model_get_source(librdf_model* model, librdf_node* arc, librdf_node* target)
-
-	-- #predicate( subject, object )/#arc( subject, object )
-	librdf_node* librdf_model_get_arc(librdf_model* model, librdf_node* source, librdf_node* target)
-
-	-- #object( subject, predicate )/#target( subject, predicate )
-	librdf_node* librdf_model_get_target(librdf_model* model, librdf_node* source, librdf_node* arc)
 
 	-- #marshal_dump
 	-- #marshal_load

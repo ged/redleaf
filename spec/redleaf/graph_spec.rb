@@ -69,11 +69,9 @@ describe Redleaf::Graph do
 			@graph.should be_empty()
 		end
 		
-
 		it "has the same store as duplicates of itself" do
 			@graph.dup.store.should equal( @graph.store )
 		end
-
 
 		it "assigns an anonymous bnode when given the special token :_ as a subject" do
 			@graph << [ :_, FOAF[:knows], ME ]
@@ -85,7 +83,6 @@ describe Redleaf::Graph do
 			stmt.subject.to_s.should =~ /r\d+r\d+r\d+/
 		end
 		
-
 		it "considers bnodes to be equivalent when testing graph equality" do
 			@graph << [ :_, FOAF[:knows], ME ]
 			
@@ -95,13 +92,11 @@ describe Redleaf::Graph do
 			@graph.should === other_graph
 		end
 		
-
 		it "produces tainted duplicates if it itself is tainted" do
 			@graph.taint
 			@graph.dup.should be_tainted()
 		end
 		
-
 		it "is equivalent to another graph with no nodes" do
 			other_graph = Redleaf::Graph.new
 			@graph.should === other_graph
@@ -110,8 +105,7 @@ describe Redleaf::Graph do
 		it "has a default store" do
 			@graph.store.should be_an_instance_of( Redleaf::DEFAULT_STORE_CLASS )
 		end
-		
-		
+				
 		it "can have statements appended to it as Redleaf::Statements" do
 			stmts = TEST_FOAF_TRIPLES.collect do |triple|
 				Redleaf::Statement.new( *triple )
@@ -153,8 +147,7 @@ describe Redleaf::Graph do
 		it "knows that it is not empty" do
 			@graph.should_not be_empty()
 		end
-		
-		
+				
 		it "is not equivalent to another graph with no nodes" do
 			other_graph = Redleaf::Graph.new
 			@graph.should_not === other_graph
@@ -190,8 +183,7 @@ describe Redleaf::Graph do
 		it "has a default store" do
 			@graph.store.should be_an_instance_of( Redleaf::DEFAULT_STORE_CLASS )
 		end
-	
-		
+			
 		it "provides a way to remove statements by passing a triple" do
 			triple = [ ME, FOAF[:phone], URI.parse('tel:303.555.1212') ]
 
@@ -369,6 +361,7 @@ describe Redleaf::Graph do
 		it "is topologically-sortable" do
 			sorted = @graph.tsort.map {|stmt| stmt.subject }
 			sorted.index( DOAP[:Repository] ).should < sorted.index( DOAP[:SVNRepository] )
+			sorted.length.should == @graph.length
 		end
 		
 	end

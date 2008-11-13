@@ -68,6 +68,9 @@ rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 /*
  * Convert the given Ruby URI object to a librdf_uri and return it. The caller must
  * free the returned pointer.
+ * 
+ * The caller is responsible for catching the ArgumentError that results if the
+ * +uriobj+ can't be converted.
  */
 librdf_uri *
 rleaf_object_to_librdf_uri( VALUE uriobj ) {
@@ -240,6 +243,9 @@ rleaf_value_to_librdf_node( VALUE object ) {
  * Check the given Ruby VALUE for suitability as the subject of a triple and return a 
  * librdf_node pointer to an equivalent node if it is suitable. Raises a
  * ArgumentError if it is not.
+ * 
+ * The caller is responsible for catching the ArgumentError that results if the
+ * +subject+ is invalid.
  */
 librdf_node *
 rleaf_value_to_subject_node( VALUE subject ) {
@@ -259,6 +265,9 @@ rleaf_value_to_subject_node( VALUE subject ) {
  * Check the given Ruby VALUE for suitability as the predicate of a triple and return a 
  * librdf_node pointer to an equivalent node if it is suitable. Raises a
  * ArgumentError if it is not.
+ * 
+ * The caller is responsible for catching the ArgumentError that results if the
+ * +predicate+ is invalid.
  */
 librdf_node *
 rleaf_value_to_predicate_node( VALUE predicate ) {
@@ -278,6 +287,9 @@ rleaf_value_to_predicate_node( VALUE predicate ) {
  * Check the given Ruby VALUE for suitability as the object of a triple and return a 
  * librdf_node pointer to an equivalent node if it is suitable. Raises a
  * ArgumentError if it is not.
+ * 
+ * The caller is responsible for catching the ArgumentError that results if the
+ * +object+ is invalid.
  */
 librdf_node *
 rleaf_value_to_object_node( VALUE object ) {

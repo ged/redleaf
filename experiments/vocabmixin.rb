@@ -14,12 +14,16 @@ BEGIN {
 
 require 'pp'
 require 'open-uri'
+require 'set'
+require 'logger'
 
 require 'redleaf'
 require 'redleaf/constants'
 require 'redleaf/graph'
 require 'redleaf/store/sqlite'
 
+# Redleaf.logger.level = Logger::DEBUG
+Redleaf.install_core_extensions
 include Redleaf::Constants::CommonNamespaces
 
 def make_classname( label )
@@ -36,56 +40,58 @@ else
 	$stderr.puts "DOAP vocabulary already loaded."
 end
 
-
-sparql = %{
-	SELECT ?klass ?label ?comment ?superclass
-	WHERE {
-		?klass rdf:type rdfs:Class ;
-		       rdfs:label ?label ;
-		       rdfs:comment ?comment .
-	    OPTIONAL { ?klass rdfs:subClassOf ?superclass . }
-		FILTER langMatches( lang(?label), 'EN' ).
-		FILTER langMatches( lang(?comment), 'EN' ).
-	}
-}
+$stderr.puts( graph.to_turtle )
 
 
+unhandled = []
+modules = {}
 
-classes = {}
-graph.query( sparql, :rdf => RDF, :rdfs => RDFS ).each do |row|
-	classes[ row[:klass] ] ||= {
-		:label => nil,
-		:comment => nil,
-		:properties => {},
-		:superclasses => [],
-		:classname => nil,
-	}
-	classes[ row[:klass] ][ :comment ]      = row[:comment]
-	classes[ row[:klass] ][ :label ]        = row[:label]
-	classes[ row[:klass] ][ :classname ]    = make_classname( row[:label] )
-	classes[ row[:klass] ][ :superclasses ] << row[:superclass]
+class RDFModule
+
+	def self::define( graph, subject )
+		instance = self.new( subject.fragment )
+		
+		graph[ subject, nil, nil ].each do |stmt|
+			case stmt.predicate
+			when RDFS[:comment]
+				instance.comment = stmt.object if stmt.object.lang == 'EN'
+			else
+				$stderr.puts "Unhandled predicate %s for class %s" % [ stmt.predicate, subject ]
+			end
+		end
+		
+		return instance
+	end
+
+	def initialize( name )
+		@name         = name
+		@superclasses = []
+		@properties   = []
+		@label        = nil
+		@comment      = nil
+	end
+	
+	attr_accessor :name, :superclasses, :comment, :label, :properties
 end
 
 
-classes.each do |uri,classinfo|
-	if classinfo[:superclasses].first.nil?
-		$stderr.puts <<-EOF
-		class #{ classinfo[:classname] }
-		end
-		EOF
-	elsif local_super = classinfo[:superclasses].find {|uri| classes.key?(uri) }
-		$stderr.puts <<-EOF
-		class #{ classinfo[:classname] } < #{ classes[local_super][:classname] }
-		end
-		EOF
+graph.subjects.each do |subject|
+	typenode = graph[ subject, RDF[:type], nil ].first
+	
+	case typenode.object
+	when RDFS[:Class]
+		modname = subject.fragment
+		modules[ modname ] = RDFModule.define( graph, subject )
+
+	when RDF[:Property]
+		$stderr.puts "Would add a %s property" % [ stmt.subject.fragment ]
+		
 	else
-		$stderr.puts <<-EOF
-		class #{ classinfo[:classname] } < RemoteClass( '#{classinfo[:superclasses].first}' )
-		end
-		EOF
+		unhandled << subject
 	end
 end
 
 
-
+$stderr.puts "Unhandled subjects:",
+	unhandled.to_a.collect {|stmt| "  #{stmt}" }.sort
 

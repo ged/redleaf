@@ -211,6 +211,12 @@ class Redleaf::Graph
 	end
 	
 	
+	### Return the graph as RDF/XML.
+	def to_xml
+		return self.to_rdfxml
+	end
+	
+	
 	
 	#########
 	protected
