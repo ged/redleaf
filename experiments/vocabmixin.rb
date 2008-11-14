@@ -72,10 +72,17 @@ class RDFModule
 	end
 	
 	attr_accessor :name, :superclasses, :comment, :label, :properties
+	
+	
+	def to_s
+		return %{[%s < %p: %s "%s" (%p)]"} % [ name, superclasses, label, comment, properties ]
+	end
+	
 end
 
 
-graph.subjects.each do |subject|
+graph.each do |stmt|
+	subject = stmt.subject
 	typenode = graph[ subject, RDF[:type], nil ].first
 	
 	case typenode.object
@@ -91,6 +98,8 @@ graph.subjects.each do |subject|
 	end
 end
 
+$stderr.puts "Defined modules:",
+	modules.collect {|modname,moddef| "  %s %s" % [modname, moddef] }
 
 $stderr.puts "Unhandled subjects:",
 	unhandled.to_a.collect {|stmt| "  #{stmt}" }.sort
