@@ -8,6 +8,11 @@ ADDITIONAL_LIBRARY_DIRS = %w[
 	/opt/lib
 	/opt/local/lib
 ]
+ADDITIONAL_INCLUDE_DIRS = %w[
+	/usr/local/include
+	/opt/include
+	/opt/local/include
+]
 
 $CFLAGS << ' -Wall' << ' -ggdb' << ' -DDEBUG'
 
@@ -19,12 +24,12 @@ end
 
 dir_config( 'redland' )
 
-have_header( 'redland.h' )  or fail( "missing redland.h" )
+find_library( 'rdf', 'librdf_new_world', *ADDITIONAL_LIBRARY_DIRS ) or
+	fail( "Could not find Redland RDF library (http://librdf.org/)." )
+find_header( 'redland.h', *ADDITIONAL_INCLUDE_DIRS )  or fail( "missing redland.h" )
+
 have_header( 'stdio.h' )    or fail( "missing stdio.h" )
 have_header( 'string.h' )   or fail( "missing string.h" )
 have_header( 'inttypes.h' ) or fail( "missing inttypes.h" )
-
-find_library( 'rdf', 'librdf_new_world', *ADDITIONAL_LIBRARY_DIRS ) or
-	fail( "Could not find Redland RDF library (http://librdf.org/)." )
 
 create_makefile( 'redleaf_ext' )
