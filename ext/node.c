@@ -50,14 +50,22 @@ VALUE
 rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 	VALUE node_object = Qnil;
 	librdf_uri *uri;
-	const unsigned char *uristring;
+	const unsigned char *uristring = NULL;
 
-	rleaf_log( "debug", "trying to convert node %p to a URI object", node );
+	if ( !librdf_node_is_resource(node) )
+		rb_raise( rb_eRuntimeError, "cannot convert a non-resource (%s) to a URI", 
+			librdf_node_to_string(node) );
+
+	rleaf_log( "debug", "trying to convert node %s to a URI object", 
+		librdf_node_to_string(node) );
+
 	if ( (uri = librdf_node_get_uri( node )) == NULL )
-		rb_fatal( "Null pointer from node_get_uri in rleaf_librdf_node_to_uri" );
-	uristring = librdf_uri_as_string( uri );
+		rb_raise( rb_eRuntimeError, "unable to fetch a uri from resource node %s",
+			librdf_node_to_string(node) );
+	if ( (uristring = librdf_uri_as_string( uri )) == NULL )
+		rb_raise( rb_eRuntimeError, "unable to fetch a string from uri %p", uri );
 
-	rleaf_log( "debug", "converting %s to a URI object", uristring );
+	// rleaf_log( "debug", "converting %s to a URI object", uristring );
 	node_object = rb_funcall( rleaf_rb_cURI, rb_intern("parse"), 1,
 		rb_str_new2((const char *)uristring) );
 	
@@ -121,10 +129,13 @@ rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 VALUE 
 rleaf_librdf_node_to_value( librdf_node *node ) {
 	VALUE node_object = Qnil;
-	librdf_node_type nodetype = librdf_node_get_type( node );
+	librdf_node_type nodetype = LIBRDF_NODE_TYPE_UNKNOWN;
 	unsigned char *bnode_idname = NULL;
 	ID bnode_id;
 
+	if ( !node ) rb_fatal( "NULL pointer given to rleaf_librdf_node_to_value()" );
+	nodetype = librdf_node_get_type( node );
+	
 	switch( nodetype ) {
 
 	  /* URI node => URI */

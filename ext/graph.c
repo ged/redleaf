@@ -880,27 +880,6 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 }
 
 
-/* 
--- #subjects( predicate, object )/#sources( predicate, object )
-librdf_iterator* librdf_model_get_sources(librdf_model* model, librdf_node* arc, librdf_node* target)
-
--- #subject( predicate, object )/#source( predicate, object )
-librdf_node* librdf_model_get_source(librdf_model* model, librdf_node* arc, librdf_node* target)
-
--- #predicates( subject, object )/#arcs( subject, object )
-librdf_iterator* librdf_model_get_arcs(librdf_model* model, librdf_node* source, librdf_node* target)
-
--- #predicate( subject, object )/#arc( subject, object )
-librdf_node* librdf_model_get_arc(librdf_model* model, librdf_node* source, librdf_node* target)
-
--- #objects( subject, predicate )/#targets( subject, predicate )
-librdf_iterator* librdf_model_get_targets(librdf_model* model, librdf_node* source, librdf_node* arc)
-
--- #object( subject, predicate )/#target( subject, predicate )
-librdf_node* librdf_model_get_target(librdf_model* model, librdf_node* source, librdf_node* arc)
-
- */
-
 /*
  *  call-seq:
  *     graph.subjects( predicate, object )   -> [ nodes ]
@@ -908,7 +887,8 @@ librdf_node* librdf_model_get_target(librdf_model* model, librdf_node* source, l
  *  Return an Array of subject nodes from the graph that have the specified +predicate+ and +object+.
  *
  */
-static VALUE rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE object ) {
+static VALUE 
+rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE object ) {
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
 	librdf_node *arc, *target;
 	librdf_iterator *iter;
@@ -921,7 +901,7 @@ static VALUE rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE ob
 	if ( !iter ) {
 		librdf_free_node( arc );
 		librdf_free_node( target );
-		rb_raise( rb_eRuntimeError, "failed to get sources for - %s -> %s",
+		rb_raise( rb_eRuntimeError, "failed to get sources for {? -%s-> %s}",
 			librdf_node_to_string(arc), librdf_node_to_string(target) );
 	}
 
@@ -939,11 +919,264 @@ static VALUE rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE ob
 }
 
 
-// static VALUE rleaf_redleaf_graph_subject( VALUE self, VALUE predicate, VALUE object ) {
-// 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
-// }
-// 
+/*
+ *  call-seq:
+ *     graph.subject( predicate, object )   -> nodes
+ *
+ *  Return one subject of a statement with the specified +predicate+ and +object+.
+ *  
+ */
+static VALUE 
+rleaf_redleaf_graph_subject( VALUE self, VALUE predicate, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source, *arc, *target;
+	VALUE rval = Qnil;
+	
+	arc = rleaf_value_to_predicate_node( predicate );
+	target = rleaf_value_to_object_node( object );
+	
+	source = librdf_model_get_source( ptr->model, arc, target );
+	
+	librdf_free_node( arc );
+	librdf_free_node( target );
+	
+	if ( source ) {
+		rval = rleaf_librdf_node_to_value( source );
+		librdf_free_node( source );
+	}
+	
+	return rval;
+}
 
+
+
+/*
+ *  call-seq:
+ *     graph.predicates( subject, object )   -> [ nodes ]
+ *
+ *  Return an Array of predicate nodes from the graph that have the specified +subject+ and +object+.
+ *
+ */
+static VALUE 
+rleaf_redleaf_graph_predicates( VALUE self, VALUE subject, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source, *target;
+	librdf_iterator *iter;
+	VALUE rval = rb_ary_new();
+	
+	source = rleaf_value_to_subject_node( subject );
+	target = rleaf_value_to_object_node( object );
+	
+	iter = librdf_model_get_arcs( ptr->model, source, target );
+	if ( !iter ) {
+		librdf_free_node( source );
+		librdf_free_node( target );
+		rb_raise( rb_eRuntimeError, "failed to get arcs for: {%s -?-> %s}",
+			librdf_node_to_string(source), librdf_node_to_string(target) );
+	}
+
+	while ( ! librdf_iterator_end(iter) ) {
+		librdf_node *source = librdf_iterator_get_object( iter );
+		VALUE predicate = rleaf_librdf_node_to_value( source );
+		librdf_free_node( source );
+		
+		rb_ary_push( rval, predicate );
+		librdf_iterator_next( iter );
+	}
+	librdf_free_iterator( iter );
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.predicate( subject, object )   -> nodes
+ *
+ *  Return one predicate of a statement with the specified +subject+ and +object+.
+ *  
+ */
+static VALUE 
+rleaf_redleaf_graph_predicate( VALUE self, VALUE subject, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source, *arc, *target;
+	VALUE rval = Qnil;
+	
+	source = rleaf_value_to_subject_node( subject );
+	target = rleaf_value_to_object_node( object );
+	
+	arc = librdf_model_get_arc( ptr->model, source, target );
+	
+	librdf_free_node( source );
+	librdf_free_node( target );
+	
+	if ( arc ) {
+		rval = rleaf_librdf_node_to_value( arc );
+		librdf_free_node( arc );
+	}
+	
+	return rval;
+}
+
+
+
+/*
+ *  call-seq:
+ *     graph.objects( subject, predicate )   -> [ nodes ]
+ *
+ *  Return an Array of object nodes from the graph that have the specified +subject+ and +predicate+.
+ *
+ */
+static VALUE 
+rleaf_redleaf_graph_objects( VALUE self, VALUE subject, VALUE predicate ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source, *arc;
+	librdf_iterator *iter;
+	VALUE rval = rb_ary_new();
+	
+	source = rleaf_value_to_subject_node( subject );
+	arc = rleaf_value_to_predicate_node( predicate );
+	
+	iter = librdf_model_get_targets( ptr->model, source, arc );
+	if ( !iter ) {
+		librdf_free_node( source );
+		librdf_free_node( arc );
+		rb_raise( rb_eRuntimeError, "failed to get targets for: {%s -?-> %s}",
+			librdf_node_to_string(source), librdf_node_to_string(arc) );
+	}
+
+	while ( ! librdf_iterator_end(iter) ) {
+		librdf_node *source = librdf_iterator_get_object( iter );
+		VALUE object = rleaf_librdf_node_to_value( source );
+		librdf_free_node( source );
+		
+		rb_ary_push( rval, object );
+		librdf_iterator_next( iter );
+	}
+	librdf_free_iterator( iter );
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.object( subject, predicate )   -> nodes
+ *
+ *  Return one object of a statement with the specified +subject+ and +predicate+.
+ *  
+ */
+static VALUE 
+rleaf_redleaf_graph_object( VALUE self, VALUE subject, VALUE predicate ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source, *target, *arc;
+	VALUE rval = Qnil;
+	
+	source = rleaf_value_to_subject_node( subject );
+	arc = rleaf_value_to_predicate_node( predicate );
+	
+	target = librdf_model_get_target( ptr->model, source, arc );
+	
+	librdf_free_node( source );
+	librdf_free_node( arc );
+	
+	if ( target ) {
+		rval = rleaf_librdf_node_to_value( target );
+		librdf_free_node( target );
+	}
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.predicates_about( subject )   -> nodes
+ *
+ *  Returns an Array of predicates (URI objects) that point from the specified +subject+.
+ *
+ */
+static VALUE 
+rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source;
+	librdf_iterator *iter;
+	VALUE rval = rb_ary_new();
+
+	rleaf_log_with_context( self, "debug", "fetching predicates about %s",
+		RSTRING_PTR(rb_inspect( subject )) );
+	
+	source = rleaf_value_to_subject_node( subject );
+	iter = librdf_model_get_arcs_out( ptr->model, source );
+	librdf_free_node( source );
+	
+	if ( !iter )
+		rb_raise( rb_eRuntimeError, "could not get arcs out for %s", rb_inspect(subject) );
+	
+	while ( ! librdf_iterator_end(iter) ) {
+		librdf_node *arc = librdf_iterator_get_object( iter );
+		VALUE predicate;
+		
+		if ( !arc ) {
+			librdf_free_iterator( iter );
+			rb_raise( rb_eRuntimeError, "iterator returned NULL arc" );
+		}
+
+		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
+		predicate = rleaf_librdf_node_to_value( arc );
+		librdf_free_node( arc );
+		
+		rb_ary_push( rval, predicate );
+		librdf_iterator_next( iter );
+	}
+	librdf_free_iterator( iter );
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.predicates_entailing( object )   -> nodes
+ *
+ *  Returns an Array of predicates (URI objects) that point to the specified +object+.
+ *
+ */
+static VALUE 
+rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *target;
+	librdf_iterator *iter;
+	VALUE rval = rb_ary_new();
+	
+	target = rleaf_value_to_subject_node( object );
+	iter = librdf_model_get_arcs_in( ptr->model, target );
+	
+	if ( !iter ) {
+		librdf_free_node( target );
+		rb_raise( rb_eRuntimeError, "could not get arcs in for %s", rb_inspect(object) );
+	}
+	
+	while ( ! librdf_iterator_end(iter) ) {
+		librdf_node *arc = librdf_iterator_get_object( iter );
+		VALUE predicate;
+		
+		if ( !arc ) {
+			librdf_free_iterator( iter );
+			rb_raise( rb_eRuntimeError, "iterator returned NULL arc" );
+		}
+
+		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
+		predicate = rleaf_librdf_node_to_value( arc );
+		librdf_free_node( arc );
+		
+		rb_ary_push( rval, predicate );
+		librdf_iterator_next( iter );
+	}
+	librdf_free_iterator( iter );
+	
+	return rval;
+}
 
 
 
@@ -1009,14 +1242,26 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_method( rleaf_cRedleafGraph, "execute_query", rleaf_redleaf_graph_execute_query, -1 );
 	
 	rb_define_method( rleaf_cRedleafGraph, "subjects", rleaf_redleaf_graph_subjects, 2 );
-	// rb_define_method( rleaf_cRedleafGraph, "subject", rleaf_redleaf_graph_subject, 1 );
-	// rb_define_method( rleaf_cRedleafGraph, "predicates", rleaf_redleaf_graph_predicates, 2 );
-	// rb_define_method( rleaf_cRedleafGraph, "predicate", rleaf_redleaf_graph_predicate, 1 );
-	// rb_define_method( rleaf_cRedleafGraph, "objects", rleaf_redleaf_graph_objects, 2 );
-	// rb_define_method( rleaf_cRedleafGraph, "object", rleaf_redleaf_graph_object, 1 );
-	
-	/*
+	rb_define_method( rleaf_cRedleafGraph, "subject", rleaf_redleaf_graph_subject, 2 );
+	rb_define_method( rleaf_cRedleafGraph, "predicates", rleaf_redleaf_graph_predicates, 2 );
+	rb_define_method( rleaf_cRedleafGraph, "predicate", rleaf_redleaf_graph_predicate, 2 );
+	rb_define_method( rleaf_cRedleafGraph, "objects", rleaf_redleaf_graph_objects, 2 );
+	rb_define_method( rleaf_cRedleafGraph, "object", rleaf_redleaf_graph_object, 2 );
 
+	rb_define_alias( rleaf_cRedleafGraph, "sources", "subjects" );
+	rb_define_alias( rleaf_cRedleafGraph, "source", "subject" );
+	rb_define_alias( rleaf_cRedleafGraph, "arcs", "predicates" );
+	rb_define_alias( rleaf_cRedleafGraph, "arc", "predicate" );
+	rb_define_alias( rleaf_cRedleafGraph, "targets", "objects" );
+	rb_define_alias( rleaf_cRedleafGraph, "target", "object" );
+
+	rb_define_method( rleaf_cRedleafGraph, "predicates_about", rleaf_redleaf_graph_predicates_about, 1 );
+	rb_define_alias( rleaf_cRedleafGraph, "arcs_out", "predicates_about" );
+	rb_define_method( rleaf_cRedleafGraph, "predicates_entailing", rleaf_redleaf_graph_predicates_entailing, 1 );
+	rb_define_alias( rleaf_cRedleafGraph, "arcs_in", "predicates_entailing" );
+
+
+	/*
 	-- #has_predicate_in?( object, url )/#has_arc_in?( object, url )
 	int librdf_model_has_arc_in(librdf_model *model, librdf_node *node, librdf_node *property);
 

@@ -17,50 +17,22 @@ W3CTEST_TASKLIB = SPECDIR + 'w3ctest-tasks.rb'
 trace "Adding tasks from #{W3CTEST_TASKLIB}"
 load W3CTEST_TASKLIB
 
+desc "Build the W3C conformance test suite"
+task :build_specs => 'w3ctests:generate'
+
 # C extension constants
-EXT_RAKEFILE  = EXTDIR + 'Rakefile'
-EXT_SO        = EXTDIR + "redleaf_ext.#{CONFIG['DLEXT']}"
-
-ADDITIONAL_INCLUDE_DIRS = %w[
-	/usr/local/include
-	/usr/local/include/rasqal
-	/usr/local/include/raptor
-	/opt/include
-	/opt/local/include
-]
-
-ADDITIONAL_LIBRARY_DIRS = %w[
-	/usr/local/lib
-	/opt/lib
-	/opt/local/lib
-]
-
-# Additional (auto-generated) spec constants
-SPEC_RAKEFILE = SPECDIR + 'Rakefile'
-
-
-#####################################################################
-###	H E L P E R S
-#####################################################################
-
-### Log a subdirectory change, execute a block, and exit the subdirectory
-def in_subdirectory( subdir )
-	block = Proc.new
-	
-	log "Entering #{subdir}"
-	Dir.chdir( subdir, &block )
-	log "Leaving #{subdir}"
-end
-	
+EXT_MAKEFILE  = EXTDIR + 'Makefile'
+EXT_SOURCES   = FileList[ EXTDIR + '*.c' ]
+EXT_SO        = EXTDIR + "linkparser_ext.#{CONFIG['DLEXT']}"
 
 
 #####################################################################
 ###	T A S K S
 #####################################################################
 
-# task :local => [ :build, :build_specs ]
-task :local => [ :build ]
-task :spec => [ :build ]
+# Make both the default task and the spec task depend on building the extension
+task :local => :build
+task :spec => :build
 namespace :spec do
 	task :doc   => [ :build ]
 	task :quiet => [ :build ]
@@ -68,76 +40,42 @@ namespace :spec do
 	task :text  => [ :build ]
 end
 
-
-task :debug do
-	$DEBUG = true
-end
-
-desc "Make the Rakefile for the C extension"
-file EXT_RAKEFILE.to_s => FileList[ 'Rakefile', EXTDIR + '*.c' ] do
-	require 'misc/monkeypatches' # Fix Mkrf's output and some other stuff
-	
-	log "Configuring redleaf C extension"
-	Dir.chdir( EXTDIR ) do
-		Mkrf::Generator.new( 'redleaf_ext', FileList['*.c'] ) do |gen|
-			trace "Setting CFLAGS"
-			gen.cflags << ' -Wall'
-			gen.cflags << ' -ggdb'
-			gen.cflags << ' -DDEBUG'
-
-			%w[redland.h raptor.h rasqal.h rdf_init.h].each do |header|
-				trace "Checking for #{header}"
-				gen.include_header( header, *ADDITIONAL_INCLUDE_DIRS ) or
-					fail( "Could not find #{header} header file" )
-			end
-
-			trace "Checking for librdf_new_world()"
-			gen.include_library( "rdf", "librdf_new_world", *ADDITIONAL_LIBRARY_DIRS ) or
-				fail( "Could not find Redland RDF library (http://librdf.org/)." )
-
-			gen.has_function?( "librdf_parser_guess_name " ) or
-				fail( "No librdf_parser_guess_name ()" )
-
-		end
+desc "Make the Makefile for the C extension"
+file EXT_MAKEFILE.to_s => EXT_SOURCES do
+	log "Configuring Redleaf C extension"
+	in_subdirectory( EXTDIR ) do
+		ruby 'extconf.rb'
 	end
 end
-CLOBBER.include( EXTDIR + 'mkrf.log' )
-
+CLOBBER.include( EXTDIR + 'mkmf.log', EXTDIR + 'conftest.dSYM', EXT_SO )
 
 desc "Build the C extension"
-task :build => EXT_RAKEFILE.to_s do
+task :build => EXT_SO
+file EXT_SO => [ EXT_MAKEFILE.to_s, *EXT_SOURCES ] do
 	in_subdirectory( EXTDIR ) do
-		rake
+		sh 'make'
 	end
 end
 
 
 desc "Rebuild the C extension"
-task :rebuild => EXT_RAKEFILE.to_s do
-	in_subdirectory( EXTDIR ) do
-		rake :clobber, :default
-	end
-end
-
-
-desc "Build the W3C conformance test suite"
-task :build_specs => 'w3ctests:generate'
+task :rebuild => [ :clean, :build ]
 
 
 task :clean do
-	if EXT_RAKEFILE.exist?
+	if EXT_MAKEFILE.exist?
 		in_subdirectory( EXTDIR ) do
-			rake :clean
+			sh 'make clean'
 		end
 	end
 end	
 
 task :clobber do
-	if EXT_RAKEFILE.exist?
+	if EXT_MAKEFILE.exist?
 		in_subdirectory( EXTDIR ) do
-			rake :clobber
+			sh 'make distclean'
 		end
 	end
 end	
-CLOBBER.include( EXT_RAKEFILE )
+CLOBBER.include( EXT_MAKEFILE )
 

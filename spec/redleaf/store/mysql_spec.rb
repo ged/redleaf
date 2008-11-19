@@ -38,8 +38,6 @@ include Redleaf::Constants
 describe Redleaf::MySQLStore do
 	include Redleaf::SpecHelpers
 
-	TESTING_STORE_NAME = 'splornk'
-
 	before( :all ) do
 		setup_logging( :fatal )
 	end
@@ -52,7 +50,6 @@ describe Redleaf::MySQLStore do
 
 	after( :all ) do
 		reset_logging()
-		File.delete( TESTING_STORE_NAME ) if File.exist?( TESTING_STORE_NAME )
 	end
 
 

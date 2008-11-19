@@ -38,8 +38,6 @@ include Redleaf::Constants
 describe Redleaf::FileStore do
 	include Redleaf::SpecHelpers
 
-	TESTING_STORE_NAME = 'splornk'
-
 	before( :all ) do
 		setup_logging( :fatal )
 	end

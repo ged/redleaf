@@ -44,7 +44,7 @@ class Redleaf::Store
 
 			unless self.backends.key?( @backend.to_s )
 				Redleaf.logger.warn "local Redland library doesn't have the %p store; valid values are: %p" %
-					[ @backend.to_s, self.backends ]
+					[ @backend.to_s, self.backends.keys ]
 			end
 		end
 

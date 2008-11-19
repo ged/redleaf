@@ -26,8 +26,10 @@ module Redleaf::TestConstants
 	        [ ME,       FOAF[:knows],               :mahlon ],
 	        [ :mahlon,  RDF[:type],                 FOAF[:Person] ],
 	        [ :mahlon,  FOAF[:mbox_sha1sum],        "fd2b68f1f42cf523276824cb93261b0de58621b6" ],
-	        [ :mahlon,  FOAF[:name],                "Mahlon E Smith" ],
+	        [ :mahlon,  FOAF[:name],                "Mahlon E. Smith" ],
 		]
+
+		TESTING_STORE_NAME = 'redleaf_testing_store'
 
 	end
 	

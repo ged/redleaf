@@ -244,6 +244,55 @@ describe Redleaf::Graph do
 			subjects.uniq.should have(2).members
 		end
 		
+		it "can find all subjects for a given predicate and object" do
+			subjects = @graph.subjects( RDF[:type], FOAF[:Person] )
+			subjects.should have(2).members
+			subjects.should include( ME, :mahlon )
+		end
+		
+		it "can find one subject for a given predicate and object" do
+			subject = @graph.subject( RDF[:type], FOAF[:Person] )
+			[ ME, :mahlon ].should include( subject )
+		end
+		
+		it "can find all predicates for a given subject and object" do
+			subjects = @graph.predicates( ME, FOAF[:Person] )
+			subjects.should have(1).member
+			subjects.should == [ RDF[:type] ]
+		end
+		
+		it "can find one predicate for a given subject and object" do
+			subject = @graph.predicate( ME, FOAF[:Person] )
+			subject.should == RDF[:type]
+		end
+		
+		it "can find all objects for a given subject and predicate" do
+			subjects = @graph.objects( ME, FOAF[:givenname] )
+			subjects.should have(1).member
+			subjects.should == [ "Michael" ]
+		end
+		
+		it "can find one object for a given subject and predicate" do
+			subject = @graph.object( :mahlon, FOAF[:name] )
+			subject.should == "Mahlon E. Smith"
+		end
+		
+		it "can find all predicates that are about a given subject" do
+			predicates = @graph.predicates_about( ME )
+			filtered_predicates = TEST_FOAF_TRIPLES.
+				select {|s,p,o| s == ME }.
+				collect {|s,p,o| p }
+
+			predicates.should have( filtered_predicates.length ).members
+			predicates.should include( *filtered_predicates )
+		end
+		
+		it "can find all predicates that entail a given object" do
+			predicates = @graph.predicates_entailing( FOAF[:Person] )
+			predicates.should have( 2 ).members
+			predicates.should == [ RDF[:type], RDF[:type] ]
+		end
+		
 		it "knows it includes a statement which has been added to it" do
 			stmt = Redleaf::Statement.new( *TEST_FOAF_TRIPLES.first )
 			@graph.should include( stmt )
