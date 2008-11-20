@@ -256,6 +256,10 @@ rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
 			store = rb_class_new_instance( 0, NULL, DEFAULT_STORE_CLASS );
 		}
 
+		if ( !IsStore(store) )
+			rb_raise( rb_eTypeError, "wrong argument type %s (expected a Redleaf::Store)",
+				rb_class2name(CLASS_OF(store)) );
+
 		DATA_PTR( self ) = graph = rleaf_graph_alloc( store );
 		
 	} else {

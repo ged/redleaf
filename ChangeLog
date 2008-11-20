@@ -1,3 +1,188 @@
+-- Wed, 19 Nov 2008 20:58:57 -0000 by deveiant (r61) -----
+   Changed: ext/extconf.rb
+
+   Reworked ext/extconf.rb to hopefully fix the build under FreeBSD.
+
+
+-- Wed, 19 Nov 2008 20:06:34 -0000 by deveiant (r60) -----
+   Added:   ext/extconf.rb (new)
+   Changed: spec/lib/constants.rb
+            ext
+            LICENSE
+            Rakefile
+            ext/graph.c
+            spec/redleaf/store/file_spec.rb (and 7 other/s)
+   Deleted: misc
+
+    * Converted back to mkmf after struggling with Mkrf too long.
+    * Redleaf::Graph
+    - Implemented #subjects, #subject, #predicates, #predicate, #objects, #object, 
+    #predicates_about, and #predicates_entailing
+    * Added a bunch of sanity-checking to some node-conversion functions after spending a few
+    days tracking down segfaults.
+    * Only list the types of store backend in the warning about unimplemented stores. 
+    * Factored up a testing constant in the store tests.
+
+
+-- Fri, 14 Nov 2008 17:28:52 -0000 by deveiant (r59) -----
+   Changed: spec/redleaf/core_extensions_spec.rb
+            lib/redleaf/core_extensions.rb
+            experiments/vocabmixin.rb
+
+    * More work on the vocabulary mixin experiment
+    * Added language-tag StringExtensions
+
+
+-- Thu, 13 Nov 2008 15:54:40 -0000 by deveiant (r58) -----
+   Added:   spec/redleaf/core_extensions_spec.rb (new)
+            lib/redleaf/core_extensions.rb (new)
+   Changed: lib/redleaf/statement.rb
+            ext/graph.c
+            experiments/vocabmixin.rb
+            ext/statement.c
+            ext/node.c
+            spec/redleaf/graph_spec.rb (and 4 other/s)
+
+    * Redleaf::Graph
+    - Started work on #subjects,#predicates, etc.
+    - Added topological sorting via the TSort library.
+    * Added a collection of core class extensions
+    * Added Redleaf::Statement#hash
+
+
+-- Wed, 12 Nov 2008 21:18:06 -0000 by deveiant (r57) -----
+   Changed: spec/redleaf/graph_spec.rb
+            lib/redleaf/utils.rb
+            lib/redleaf.rb
+            lib/redleaf/graph.rb
+
+    * Added diagnostic logging to the node util function object_to_node()
+    * Added topological sorting to Redleaf::Graph
+    * Added Redleaf.log as an alias to .logger
+
+
+-- Wed, 12 Nov 2008 18:03:07 -0000 by deveiant (r56) -----
+   Changed: experiments/vocabmixin.rb
+
+   More work on the vocab mixin experiment.
+
+
+-- Wed, 12 Nov 2008 14:12:43 -0000 by deveiant (r55) -----
+   Added:   experiments/vocabmixin.rb (new)
+   Changed: /trunk
+            Rakefile
+            Rakefile.local
+
+    * Added the start of an experimental Semitar-ish mixin interface
+    * Updated build system
+
+
+-- Mon, 10 Nov 2008 18:20:58 -0000 by deveiant (r54) -----
+   Changed: spec/redleaf/namespace_spec.rb
+            spec/templates/w3c_parser_spec.template
+            spec/w3ctest-tasks.rb
+
+    * Added some logging to the W3C test-generation task
+    * Un-spammified some testing log levels
+
+
+-- Sun, 09 Nov 2008 06:28:56 -0000 by deveiant (r53) -----
+   Changed: spec/redleaf_spec.rb
+
+   Hopefully fixing the default_logger spec on FreeBSD.
+
+
+-- Sun, 09 Nov 2008 06:20:27 -0000 by mahlon (r52) -----
+   Changed: spec/templates/w3c_parser_spec.template
+            lib/redleaf/constants.rb
+            lib/redleaf/utils.rb
+            spec/w3ctest-tasks.rb
+
+   Checkpoint update for w3c auto-spec generator.
+
+
+-- Sun, 09 Nov 2008 04:21:05 -0000 by mahlon (r51) -----
+   Changed: ext/parser.c
+            /trunk
+            misc/monkeypatches.rb
+            Rakefile.local
+
+   * Add an additional space to the compile time library paths
+   * Add some additional library directories so rascal can be located cross-platform
+   Index: ext/parser.c
+   ===================================================================
+   --- ext/parser.c	(revision 50)
+   +++ ext/parser.c	(working copy)
+   @@ -366,7 +366,6 @@
+   rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
+   rb_define_method( rleaf_cRedleafParser, "accept_header", rleaf_redleaf_parser_accept_header, 0 );
+   -	/* TODO: two-arg form to support baseuri? */
+   /* TODO: support IOs as well as Strings? */
+   rb_define_method( rleaf_cRedleafParser, "parse", rleaf_redleaf_parser_parse, -1 );
+   Index: misc/monkeypatches.rb
+   ===================================================================
+   --- misc/monkeypatches.rb	(revision 50)
+   +++ misc/monkeypatches.rb	(working copy)
+   @@ -115,7 +115,7 @@
+   if RUBY_PLATFORM =~ /mswin/
+   @library_paths.collect {|l| "/libpath:#{l}"}.join(' ')
+   else
+   -				Config::CONFIG['LIBRUBYARG_SHARED'] + @library_paths.collect {|l| "-L#{l}"}.join(' ')
+   +				Config::CONFIG['LIBRUBYARG_SHARED'] + ' ' + @library_paths.collect {|l| "-L#{l}"}.join(' ')
+   end
+   end
+   Index: Rakefile.local
+   ===================================================================
+   --- Rakefile.local	(revision 50)
+   +++ Rakefile.local	(working copy)
+   @@ -27,6 +27,12 @@
+   /opt/local/include
+   ]
+   +ADDITIONAL_LIBRARY_DIRS = %w[
+   +	/usr/local/lib
+   +	/opt/lib
+   +	/opt/local/lib
+   +]
+   +
+   # Additional (auto-generated) spec constants
+   SPEC_RAKEFILE = SPECDIR + 'Rakefile'
+   @@ -84,7 +90,7 @@
+   end
+   trace "Checking for librdf_new_world()"
+   -			gen.include_library( "rdf", "librdf_new_world" ) or
+   +			gen.include_library( "rdf", "librdf_new_world", *ADDITIONAL_LIBRARY_DIRS ) or
+   fail( "Could not find Redland RDF library (http://librdf.org/)." )
+   gen.has_function?( "librdf_parser_guess_name " ) or
+
+
+-- Sun, 09 Nov 2008 03:12:40 -0000 by deveiant (r50) -----
+   Added:   spec/redleaf/parser/grddl_spec.rb (new)
+            lib/redleaf/parser/grddl.rb (new)
+            spec/redleaf/store/postgresql_spec.rb (new)
+            spec/redleaf/parser/trig_spec.rb (new)
+            lib/redleaf/store/mysql.rb (new)
+            spec/redleaf/parser/rsstagsoup_spec.rb (new) (and 11 other/s)
+   Changed: /trunk
+            spec/redleaf/parser/ntriples_spec.rb
+            spec/redleaf/namespace_spec.rb
+            lib/redleaf/store/sqlite.rb
+            spec/redleaf/graph_spec.rb
+            spec/redleaf/queryresult_spec.rb (and 31 other/s)
+
+    * Redleaf::Graph - Added a `#length` alias for `#size`
+    * Added a Redleaf::ParseError class.
+    * Redleaf::Store
+    - Fixed the one-arg constructor
+    - Added implementations for the 'file', 'mysql', and 'postgresql' backends
+    - Fixed the constructor/initializer/loader methods for the sqlite store
+    * Redleaf::Parser
+    - Made the base class concrete, and use the 'guess' parser
+    - Added the #parse method; it will probably be re-implemented in a better fashion later.
+    - Added implementations for the 'turtle', 'trig', 'rsstagsoup', 'grddl', and 'rdfa' backends
+    * Added a CC (Creative Commons) namespace to Redleaf::Constants::CommonNamespaces
+    * Changed all the 'spec/runner' requires to 'spec'
+
+
 -- Mon, 03 Nov 2008 06:40:51 -0000 by deveiant (r49) -----
    Added:   lib/redleaf/queryresult/boolean.rb (new)
             experiments/json_qr.c (new)

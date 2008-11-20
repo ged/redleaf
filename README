@@ -1,20 +1,53 @@
 = Redleaf
 
-Redleaf is an RDF library for Ruby. 
+Redleaf is an RDF library for Ruby. It's composed of a hand-written binding for the Redland RDF
+Library, and a high-level layer that adds some idioms that Rubyists might find familiar.
 
-Redleaf is an RDF library for Ruby. It's composed of a hand-written C binding to the Redland 
-RDF Libraries, and a high-level, more idiomatic layer written in Ruby that wraps the low-level
-Redland API functions.  
+It's currently not quite feature-complete, but the extension already binds a good slice of the
+functionality that is offered by Redland. It should be considered to be of alpha quality: while
+we've already started building projects using it, we expect that the API may have to change
+somewhat as we learn more, and it has not yet been throughly tested in a production setting.
 
-In the meantime, you can check out the current development source with Subversion from the 
-following URL:
+In the meantime, you can help out by checking out the current development source with Subversion
+from the following URL:
 
     svn://deveiate.org/Redleaf/trunk
 
-The project page is also likely to have more details:
+The project page also has more details and the most-recent API documentation:
 
     http://deveiate.org/projects/Redleaf
 
+== Authors
+
+ * Michael Granger <ged@FaerieMUD.org>
+ * Mahlon E. Smith <mahlon@martini.nu>
+
 == License
 
-See the LICENSE file in the same directory for licensing details.
+Copyright (c) 2008, Michael Granger and Mahlon E. Smith
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the author/s, nor the names of the project's
+  contributors may be used to endorse or promote products derived from this
+  software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

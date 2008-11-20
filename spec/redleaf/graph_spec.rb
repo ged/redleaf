@@ -57,6 +57,19 @@ describe Redleaf::Graph do
 		Redleaf::Graph.model_types.should be_an_instance_of( Hash )
 		Redleaf::Graph.model_types.should have_at_least(1).members
 	end
+
+
+	it "can be created with an explicit Store" do
+		store = Redleaf::HashesStore.new
+		graph = Redleaf::Graph.new( store )
+		graph.store.should == store
+	end
+	
+	it "raises an error if created with anything other than a Store" do
+		lambda {
+			Redleaf::Graph.new( "not a store" )
+		}.should raise_error( TypeError, /wrong argument type String/i )
+	end
 	
 
 	describe "with no nodes" do

@@ -45,8 +45,16 @@ DATADIR       = BASEDIR + 'data'
 PROJECT_NAME  = 'Redleaf'
 PKG_NAME      = PROJECT_NAME.downcase
 PKG_SUMMARY   = 'An RDF library for Ruby'
+
 VERSION_FILE  = LIBDIR + 'redleaf.rb'
-PKG_VERSION   = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ]
+if VERSION_FILE.exist? && buildrev = ENV['CC_BUILD_LABEL']
+	PKG_VERSION = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ] + '.' + buildrev
+elsif VERSION_FILE.exist?
+	PKG_VERSION = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ]
+else
+	PKG_VERSION = '0.0.0'
+end
+
 PKG_FILE_NAME = "#{PKG_NAME.downcase}-#{PKG_VERSION}"
 GEM_FILE_NAME = "#{PKG_FILE_NAME}.gem"
 
@@ -74,7 +82,6 @@ RAKE_TASKLIBS = Pathname.glob( RAKE_TASKDIR + '*.rb' )
 LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
 
 EXTRA_PKGFILES = []
-EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'misc/monkeypatches.rb' ).delete_if {|item| item =~ /\.svn/ } 
 EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/templates' ).delete_if {|item| item =~ /\.svn/ } 
 EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/spec_generator.rb' ).delete_if {|item| item =~ /\.svn/ } 
 EXTRA_PKGFILES.concat Pathname.glob( BASEDIR + 'spec/Rakefile' ).delete_if {|item| item =~ /\.svn/ } 
@@ -150,8 +157,6 @@ RUBYFORGE_PROJECT = 'redleaf'
 
 # Gem dependencies: gemname => version
 DEPENDENCIES = {
-	'rubyzip' => '>= 0.9.1',
-	'mkrf' => '>= 0.2.3',
 }
 
 # Developer Gem dependencies: gemname => version
@@ -168,11 +173,12 @@ DEVELOPMENT_DEPENDENCIES = {
 	'tmail'       => '>= 1.2.3.1',
 	'ultraviolet' => '>= 0.10.2',
 	'libxml-ruby' => '>= 0.8.3',
+	'rubyzip' => '>= 0.9.1',
 }
 
 # Non-gem requirements: packagename => version
 REQUIREMENTS = {
-	'Redland' => '>= 1.0.7',
+	'Redland' => '>= 1.0.8',
 }
 
 # RubyGem specification
@@ -181,11 +187,20 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.version           = PKG_VERSION
 
 	gem.summary           = PKG_SUMMARY
-	gem.description       = <<-EOD
-	Redleaf is an RDF library for Ruby. It's composed of a hand-written C binding to the Redland 
-	RDF Libraries, and a high-level, more idiomatic layer written in Ruby that wraps the low-level
-	Redland API functions. 
-	EOD
+	gem.description       = [
+		"Redleaf is an RDF library for Ruby. It's composed of a hand-written binding ",
+		"for the Redland RDF Library, and a high-level, more idiomatic Ruby layer.",
+  	  ].join( "\n" )
+	gem.post_install_message = [
+		"Thanks for installing Redleaf!",
+		"",
+		"If you have questions, comments, suggestions or find a bug, please contact us via",
+		"the bug-tracker on the project page:",
+		"",
+		"  http://deveiate.org/projects/Redleaf",
+		"",
+		"Happy RDFing!",
+	  ].join( "\n" )
 
 	gem.authors           = 'Michael Granger and Mahlon E. Smith'
 	gem.email             = 'ged@FaerieMUD.org'
@@ -284,7 +299,7 @@ end
 desc "Cruisecontrol build"
 task :cruise => [:clean, 'spec:quiet', :package] do |task|
 	raise "Artifacts dir not set." if ARTIFACTS_DIR.to_s.empty?
-	artifact_dir = ARTIFACTS_DIR.cleanpath
+	artifact_dir = ARTIFACTS_DIR.cleanpath + ENV['CC_BUILD_LABEL']
 	artifact_dir.mkpath
 	
 	coverage = BASEDIR + 'coverage'
