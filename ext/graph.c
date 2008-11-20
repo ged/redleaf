@@ -461,7 +461,8 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 		}
 	
 		if ( librdf_model_add_statement(ptr->model, stmt_ptr) != 0 )
-			rb_raise( rb_eRuntimeError, "could not add statement to graph 0x%x", self );
+			rb_raise( rb_eRuntimeError, "could not add statement %s to graph",
+			 	RSTRING_PTR(rb_inspect(statement)) );
 	}
 	
 	return self;
