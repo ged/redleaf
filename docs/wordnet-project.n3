@@ -1,0 +1,198 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix wordnet: <http://xmlns.com/wordnet/1.6/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+wordnet:Project
+    a rdfs:Class ;
+    rdfs:comment "any piece of work that is undertaken or attempted; \"he prepared for great undertakings\"" ;
+    rdfs:description "any piece of work that is undertaken or attempted; \"he prepared for great undertakings\"" ;
+    rdfs:label "Project [ 1 ]" ;
+    rdfs:subClassOf wordnet:Work .
+
+wordnet:Pushover
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Pushover" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Picnic
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Picnic" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Endeavour
+    a rdfs:Class ;
+    rdfs:description "a purposeful or industrious undertaking (especially one that requires effort or boldness); \"he had doubts about the whole enterprise\"" ;
+    rdfs:label "Endeavour" ;
+    rdfs:subClassOf wordnet:Project .
+
+<http://xmlns.com/wordnet/1.6/Child's_play>
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Child's_play" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Act
+    a rdfs:Class ;
+    rdfs:subClassOf wordnet:Human_action .
+
+wordnet:Cinch
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Cinch" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Endeavor
+    a rdfs:Class ;
+    rdfs:description "a purposeful or industrious undertaking (especially one that requires effort or boldness); \"he had doubts about the whole enterprise\"" ;
+    rdfs:label "Endeavor" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Labour_of_love
+    a rdfs:Class ;
+    rdfs:description "productive work performed voluntarily without material reward or compensation" ;
+    rdfs:label "Labour_of_love" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Human_action
+    a rdfs:Class ;
+    rdfs:subClassOf wordnet:Human_activity .
+
+wordnet:Duck_soup
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Duck_soup" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Assignment
+    a rdfs:Class ;
+    rdfs:description "an undertaking that you have been assigned to do (as by an instructor)" ;
+    rdfs:label "Assignment" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Venture
+    a rdfs:Class ;
+    rdfs:description "any venturesome undertaking especially one with an uncertain outcome" ;
+    rdfs:label "Venture" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Large_order
+    a rdfs:Class ;
+    rdfs:description "a formidable task or requirement; \"finishing in time was a tall order but we did it\"" ;
+    rdfs:label "Large_order" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Walkover
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Walkover" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Dangerous_undertaking
+    a rdfs:Class ;
+    rdfs:description "a wild and exciting undertaking (not necessarily lawful)" ;
+    rdfs:label "Dangerous_undertaking" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Human_activity
+    a rdfs:Class .
+
+wordnet:Manhattan_Project
+    a rdfs:Class ;
+    rdfs:description "code name for the secret United States project set up in 1942 to develop atomic bombs for use in World War II" ;
+    rdfs:label "Manhattan_Project" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:No-brainer
+    a rdfs:Class ;
+    rdfs:description "anything that requires little thought" ;
+    rdfs:label "No-brainer" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Escapade
+    a rdfs:Class ;
+    rdfs:description "a wild and exciting undertaking (not necessarily lawful)" ;
+    rdfs:label "Escapade" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Endurance_contest
+    a rdfs:Class ;
+    rdfs:description "any long and arduous undertaking" ;
+    rdfs:label "Endurance_contest" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Work
+    a rdfs:Class ;
+    rdfs:subClassOf wordnet:Activity .
+
+wordnet:Piece_of_cake
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Piece_of_cake" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Snap
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Snap" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Breeze
+    a rdfs:Class ;
+    rdfs:description "any undertaking that is easy to do; \"marketing this product will be no picnic\"" ;
+    rdfs:label "Breeze" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Tall_order
+    a rdfs:Class ;
+    rdfs:description "a formidable task or requirement; \"finishing in time was a tall order but we did it\"" ;
+    rdfs:label "Tall_order" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Marathon
+    a rdfs:Class ;
+    rdfs:description "any long and arduous undertaking" ;
+    rdfs:label "Marathon" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Labor_of_love
+    a rdfs:Class ;
+    rdfs:description "productive work performed voluntarily without material reward or compensation" ;
+    rdfs:label "Labor_of_love" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Proposition
+    a rdfs:Class ;
+    rdfs:description "a task to be dealt with; \"securing adequate funding is a time-consuming proposition\"" ;
+    rdfs:label "Proposition" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Baby
+    a rdfs:Class ;
+    rdfs:description "a project of personal concern to someone; \"this project is his baby\"" ;
+    rdfs:label "Baby" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Risky_venture
+    a rdfs:Class ;
+    rdfs:description "a wild and exciting undertaking (not necessarily lawful)" ;
+    rdfs:label "Risky_venture" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Adventure
+    a rdfs:Class ;
+    rdfs:description "a wild and exciting undertaking (not necessarily lawful)" ;
+    rdfs:label "Adventure" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Enterprise
+    a rdfs:Class ;
+    rdfs:description "a purposeful or industrious undertaking (especially one that requires effort or boldness); \"he had doubts about the whole enterprise\"" ;
+    rdfs:label "Enterprise" ;
+    rdfs:subClassOf wordnet:Project .
+
+wordnet:Activity
+    a rdfs:Class ;
+    rdfs:subClassOf wordnet:Act .
+

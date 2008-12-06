@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"?>
+<rdf:RDF xml:lang="en"
+         xmlns="http://usefulinc.com/ns/doap#" 
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:foaf="http://xmlns.com/foaf/0.1/">
+  <Project rdf:about="http://deveiate.org/projects/Redleaf">
+    <created>2008-11-21</created>
+    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
+    <name>Apache Redleaf</name>
+    <homepage rdf:resource="http://deveiate.org/projects/Redleaf" />
+    <shortdesc>An RDF library for Ruby</shortdesc>
+    <description>
+		Redleaf is an RDF library for Ruby. It's composed of a hand-written binding for the Redland
+        RDF Library, and a high-level layer that adds some idioms that Rubyists might find familiar.
+    </description>
+    <bug-database rdf:resource="http://deveiate.org/projects/Redleaf/report" />
+    <download-page rdf:resource="http://deveiate.org/projects/Redleaf/wiki" />
+    <programming-language>C</programming-language>
+    <programming-language>Ruby</programming-language>
+    <category rdf:resource="http://projects.apache.org/category/library" />
+    <release>
+      <Version>
+        <name>Maple</name>
+        <created>2008-12-01</created>
+        <revision>0.0.1</revision>
+      </Version>
+    </release>
+    <repository>
+      <SVNRepository>
+        <location rdf:resource="http://svn://deveiate.org/Redleaf"/>
+        <browse rdf:resource="http://deveiate.org/projects/Redleaf/browser"/>
+      </SVNRepository>
+    </repository>
+    <maintainer>
+      <foaf:Person>
+        <foaf:name>Michael Granger</foaf:name>
+          <foaf:mbox rdf:resource="mailto:ged@FaerieMUD.org"/>
+      </foaf:Person>
+    </maintainer>
+  </Project>
+</rdf:RDF>

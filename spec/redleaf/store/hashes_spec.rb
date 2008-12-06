@@ -73,8 +73,6 @@ describe Redleaf::HashesStore do
 		end
 		
 		it_should_behave_like "A Store"
-
-
 		
 	end
 

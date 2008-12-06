@@ -32,12 +32,16 @@ class Redleaf::PostgreSQLStore < Redleaf::Store
 	# SVN Id
 	SVNId = %q$Id$
 
-	# Default options
+	# Default options -- the PostgreSQL backend requires that all of them be set,
+	# even if they're empty.
 	DEFAULT_OPTIONS = {
 		:new      => true,
 		:database => 'test',
-		:username => '', 
+		:host     => 'localhost',
+		:port     => '5432',
+		:user     => 'test', 
 		:password => '',
+		:contexts => true,
 	}
 
 	# Use the 'postgresql' Redland backend
@@ -49,8 +53,8 @@ class Redleaf::PostgreSQLStore < Redleaf::Store
 	#################################################################
 
 	### Load the PostgreSQL-backed Redleaf::HashesStore from the specified +database+.
-	def self::load( database )
-		return new( database, :new => false )
+	def self::load( database, opthash={} )
+		return new( database, opthash.merge(:new => false) )
 	end
 	
 	

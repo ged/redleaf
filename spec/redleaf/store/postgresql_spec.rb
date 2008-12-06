@@ -46,7 +46,6 @@ describe Redleaf::PostgreSQLStore do
 
 
 	before( :each ) do
-		pending "figuring out wtf we need to connect to this backend"
 		pending "no postgresql backend; will not test" unless Redleaf::PostgreSQLStore.is_supported?
 	end
 	

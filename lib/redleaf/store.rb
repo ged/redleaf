@@ -35,20 +35,30 @@ class Redleaf::Store
 	###	C L A S S   M E T H O D S
 	#################################################################
 
+	@derivatives = {}
+	class << self; attr_reader :derivatives; end
+	
+	### Register the given +subclass+ as being implemented by the specified +backend+.
+	def self::register( subclass, backend )
+		Redleaf.logger.debug "Registering %p as the %p backend" % [ subclass, backend ]
+		@derivatives[ backend.to_sym ] = subclass
+	end
+	
+
 	### Set the class's Redland backend to +new_setting+ if given, and return the current
 	### (new) setting.
 	def self::backend( new_setting=nil )
 		if new_setting
 			Redleaf.logger.debug "Setting backend for %p to %p" % [ self, new_setting ]
 			@backend = new_setting
+			Redleaf::Store.register( self, @backend )
 
-			unless self.backends.key?( @backend.to_s )
+			unless self.is_supported?
 				Redleaf.logger.warn "local Redland library doesn't have the %p store; valid values are: %p" %
 					[ @backend.to_s, self.backends.keys ]
 			end
 		end
 
-		
 		return @backend
 	end
 	
@@ -69,15 +79,45 @@ class Redleaf::Store
 	def self::is_supported?
 		return self.backends.include?( self.backend.to_s )
 	end
+
+
+	### Make a Redland-style opthash pair String out of the specified +key+ and +value+.
+	def self::make_optpair( key, value )
+		name = key.to_s.gsub( /_/, '-' )
+		value = case value
+		        when FalseClass
+		        	'no'
+		        when TrueClass
+		        	'yes'
+		        when NilClass
+		        	''
+		        else
+		        	value
+		        end
+		
+		return "%s='%s'" % [ name, value ]
+	end
 	
 
 	### Make a librdf_hash-style optstring from the given +opthash+ and return it.
 	def self::make_optstring( opthash )
 		Redleaf.logger.debug "Making an optstring from hash: %p" % [ opthash ]
-		optstring = opthash.collect {|k,v| "%s='%s'" % [k.to_s.gsub(/_/, '-'),v] }.join( ', ' )
+		filter = self.method( :make_optpair )
+		optstring = opthash.collect( &filter ).join( ', ' )
 		Redleaf.logger.debug "  optstring is: %p" % [ optstring ]
 		
 		return optstring
+	end
+
+
+	### Attempt to load the Redleaf::Store concrete class that wraps the given +backend+, create
+	### one with the specified +args+, and return it.
+	def self::create( backend, *args )
+		require "redleaf/store/#{backend}"
+		subclass = self.derivatives[ backend.to_sym ] or
+			raise "Ack! Loading the %p backend didn't register a subclass." % [ backend ]
+		
+		return subclass.new( *args )
 	end
 	
 	
@@ -88,6 +128,18 @@ class Redleaf::Store
 	### Returns +true+ if the Store persists after the process has exited.
 	def persistent?
 		return false
+	end
+
+
+	### Return a human-readable representation of the object suitable for debugging.
+	def inspect
+		return "#<%s:0x%x name: %s, options: %p, graph: %p>" % [
+			self.class.name,
+			self.class.object_id * 2,
+			self.name,
+			self.opthash,
+			self.graph,
+		]
 	end
 	
 

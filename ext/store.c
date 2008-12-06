@@ -287,17 +287,23 @@ rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 		backend = rb_funcall( CLASS_OF(self), rb_intern("validated_backend"), 0 );
 		backendname = rb_id2name( rb_to_id(backend) );
 
-		if ( name == Qnil )
+		if ( name == Qnil ) {
 			storename = NULL;
-		else
+			rb_iv_set( self, "@name", Qnil );
+		}
+		else {
 			storename = StringValuePtr( name );
+			rb_iv_set( self, "@name", name );
+		}
+
+		rb_iv_set( self, "@opthash", opthash );
 
 		/* Make the option string */
 		optstring = rleaf_optstring_from_rubyhash( opthash );
 		rleaf_log_with_context( self, "debug", 
 			"Got backend = \"%s\", name = \"%s\", optstring = \"%s\"", 
 			backendname, storename, optstring );
-
+		
 		DATA_PTR( self ) = store = rleaf_store_alloc( backendname, storename, optstring );
 		xfree( optstring );
 
@@ -436,6 +442,11 @@ rleaf_init_redleaf_store( void ) {
 	rb_define_singleton_method( rleaf_cRedleafStore, "backends", rleaf_redleaf_store_s_backends, 0 );
 	
 	rb_define_method( rleaf_cRedleafStore, "initialize", rleaf_redleaf_store_initialize, -1 );
+
+	/* attr_reader :name */
+	rb_attr( rleaf_cRedleafStore, rb_intern("name"), 1, 0, Qtrue );
+	/* attr_reader :opthash */
+	rb_attr( rleaf_cRedleafStore, rb_intern("opthash"), 1, 0, Qtrue );
 
 	rb_define_method( rleaf_cRedleafStore, "has_contexts?", rleaf_redleaf_store_has_contexts_p, 0 );
 	rb_define_method( rleaf_cRedleafStore, "graph", rleaf_redleaf_store_graph, 0 );

@@ -34,6 +34,12 @@ class Redleaf::HashesStore < Redleaf::Store
 	# SVN Id
 	SVNId = %q$Id$
 
+	# Default options hash
+	DEFAULT_OPTIONS = {
+		:new       => true,
+		:hash_type => :memory,
+	}
+
 
 	# Use the 'hashes' Redland backend
 	backend :hashes
@@ -44,16 +50,9 @@ class Redleaf::HashesStore < Redleaf::Store
 	#################################################################
 
 	### Load the BDB-backed Redleaf::HashesStore from the specified +path+.
-	def self::load( path )
-		path = Pathname.new( path )
-		
-		options = {
-			:new => false,
-			:dir => path.dirname,
-			:hash_type => 'bdb',
-		}
-		
-		return new( path.basename, options )
+	def self::load( path, options={} )
+		options.merge!( :new => false )
+		return new( path, options )
 	end
 	
 	
@@ -63,24 +62,25 @@ class Redleaf::HashesStore < Redleaf::Store
 
 	### Create a new Redleaf::HashesStore, optionally enabling contexts.
 	def initialize( name=nil, options={} )
+		opthash = DEFAULT_OPTIONS.merge( options )
+
 		if name.is_a?( Hash )
-			options = name
+			opthash.merge!( name )
 			name = nil
 		end
 		
 		if name.nil?
-			@hash_type = :memory
+			opthash[:hash_type] = @hash_type = :memory
 		else
-			@hash_type = :bdb
+			path = Pathname.new( name )
+			opthash[:dir] = path.dirname
+			opthash[:hash_type] = @hash_type = :bdb
+			name = path.basename
 		end
 		
-		options ||= {}
-		options[:new] = true if options[:new].nil?
-		options[:hash_type] = @hash_type
-
 		self.log.debug "Constructing a %p with name = %p, options = %p" % 
-			[ self.class.name, name, options ]
-		return super( name, options )
+			[ self.class.name, name, opthash ]
+		return super( name, opthash )
 	end
 
 

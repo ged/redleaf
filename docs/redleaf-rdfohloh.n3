@@ -1,0 +1,36 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix rdfohloh: <http://rdfohloh.wikier.org/ns#> .
+@prefix rdfohloh_redleaf: <http://rdfohloh.wikier.org/project/redleaf/> .
+@prefix rdfohloh_project: <http://rdfohloh.wikier.org/project/> .
+@prefix deveiate_projects: <http://deveiate.org/projects/> .
+@prefix ohloh_projects: <http://www.ohloh.net/projects/> .
+@prefix gedns: <http://rdfohloh.wikier.org/user/9251#> .
+@prefix ged: <http://rdfohloh.wikier.org/user/9251/> .
+
+
+rdfohloh_project:redleaf	dct:updated					"2008-11-21T23:58:56Z" ;
+            				rdfohloh:ohloh-page			ohloh_projects:redleaf ;
+            				doap:created				"2008-09-10T14:46:31Z" ;
+            				doap:description			"Redleaf is an RDF library for Ruby. It's composed of a  hand-written C binding to the Redland RDF Libraries, and a high-level, idiomatic Ruby layer that wraps the low-level Redland API functions to provide a Ruby-ish way of interacting with RDF." ;
+            				doap:developer				gedns:person ;
+            				doap:download-page			deveiate_projects:Redleaf ;
+            				doap:homepage				deveiate_projects:Redleaf ;
+            				doap:name					"Redleaf" ;
+            				doap:programming-language	"Ruby" ;
+            				a							doap:Project ;
+            				owl:sameAs					rdfohloh_project:16613 .
+
+rdfohloh_redleaf:n3			dct:isFormatOf				rdfohloh_project:redleaf ;
+            				a 							foaf:Document ;
+            				rdfs:label					"Redleaf's DOAP document serialized in n3" ;
+            				foaf:primaryTopic			rdfohloh_project:redleaf .
+
+gedns:person 				a							foaf:Person ;
+            				rdfs:seeAlso				ged:rdf ;
+            				foaf:name					"ged" .
+
