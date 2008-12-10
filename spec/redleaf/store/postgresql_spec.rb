@@ -38,10 +38,9 @@ include Redleaf::Constants
 describe Redleaf::PostgreSQLStore do
 	include Redleaf::SpecHelpers
 
-	TESTING_STORE_NAME = 'test'
-
 	before( :all ) do
 		setup_logging( :fatal )
+		@store_config = get_test_config( 'postgresql' )
 	end
 
 
@@ -52,7 +51,6 @@ describe Redleaf::PostgreSQLStore do
 
 	after( :all ) do
 		reset_logging()
-		File.delete( TESTING_STORE_NAME ) if File.exist?( TESTING_STORE_NAME )
 	end
 
 
@@ -64,7 +62,7 @@ describe Redleaf::PostgreSQLStore do
 	describe "instance" do
 		
 		before( :each ) do
-			@store = Redleaf::PostgreSQLStore.new( TESTING_STORE_NAME )
+			@store = Redleaf::PostgreSQLStore.new( TESTING_STORE_NAME, @store_config )
 		end
 		
 		

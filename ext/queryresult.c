@@ -290,7 +290,8 @@ rleaf_redleaf_queryresult_formatted_as( VALUE self, VALUE format ) {
 		rb_class2name(CLASS_OF( self )), RSTRING(rb_obj_as_string(format))->ptr );
 	formaturi = rleaf_object_to_librdf_uri( format );
 	result = librdf_query_results_to_counted_string( res, formaturi, NULL, &length );
-	librdf_free_uri( formaturi );
+	/* This was causing double free, I think. */
+	/* librdf_free_uri( formaturi ); */
 	
 	if ( !result )
 		rb_raise( rb_eRuntimeError, "Could not fetch results as %s", librdf_uri_as_string(formaturi) );

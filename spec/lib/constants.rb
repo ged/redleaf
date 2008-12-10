@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'pathname'
+
 require 'redleaf'
 require 'redleaf/constants'
 
@@ -31,6 +33,8 @@ module Redleaf::TestConstants
 
 		TESTING_STORE_NAME = 'redleaf_testing_store'
 
+		BASEDIR = Pathname( __FILE__ ).dirname.parent.parent
+		TESTING_CONFIG_FILE = BASEDIR + 'test-config.yml'
 	end
 	
 end

@@ -12,7 +12,10 @@ BEGIN {
 }
 
 begin
+	require 'yaml'
 	require 'redleaf'
+	
+	require 'spec/lib/constants'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
 		require 'rubygems'
@@ -24,6 +27,7 @@ end
 
 ### RSpec helper functions.
 module Redleaf::SpecHelpers
+	include Redleaf::TestConstants
 
 	unless defined?( LEVEL )
 		LEVEL = {
@@ -63,6 +67,31 @@ module Redleaf::SpecHelpers
 			Redleaf.logger.formatter = Redleaf::HtmlLogFormatter.new( logger )
 		end
 	end
+	
+	
+	### Load the test config if it exists and return the specified +section+ of the config 
+	### as a Hash. If the file doesn't exist, or the specified section doesn't exist, an
+	### empty Hash will be returned.
+	def get_test_config( section )
+		return {} unless TESTING_CONFIG_FILE.exist?
+
+		Redleaf.logger.debug "Trying to load test config: %s" % [ TESTING_CONFIG_FILE ]
+	
+		begin
+			config = YAML.load_file( TESTING_CONFIG_FILE )
+			if config[ section ]
+				return config[ section ]
+			else
+				Redleaf.logger.debug "No %p section in the config (%p)." % [ section, config ]
+				return {}
+			end
+		rescue => err
+			Redleaf.logger.error "Test config failed to load: %s: %s: %s" %
+				[ err.class.name, err.message, err.backtrace.first ]
+			return {}
+		end
+	end
+	
 	
 end
 

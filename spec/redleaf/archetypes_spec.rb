@@ -62,7 +62,7 @@ describe Redleaf::Archetypes do
 	describe "-enabled class" do
 		
 		before( :each ) do
-			setup_logging( :debug )
+			setup_logging( :fatal )
 			
 			@extended_class = Class.new do
 				include Redleaf::Archetypes, Redleaf::Constants::CommonNamespaces
