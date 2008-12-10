@@ -80,6 +80,8 @@ module Redleaf::SpecHelpers
 		begin
 			config = YAML.load_file( TESTING_CONFIG_FILE )
 			if config[ section ]
+				Redleaf.logger.debug "Loaded the config, returning the %p section: %p." %
+					[ section, config[section] ]
 				return config[ section ]
 			else
 				Redleaf.logger.debug "No %p section in the config (%p)." % [ section, config ]
