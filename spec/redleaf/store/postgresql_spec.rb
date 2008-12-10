@@ -39,7 +39,7 @@ describe Redleaf::PostgreSQLStore do
 	include Redleaf::SpecHelpers
 
 	before( :all ) do
-		setup_logging( :fatal )
+		setup_logging( :debug )
 		@store_config = get_test_config( 'postgresql' )
 	end
 

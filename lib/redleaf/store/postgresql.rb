@@ -4,6 +4,7 @@ require 'pathname'
  
 require 'redleaf'
 require 'redleaf/store'
+require 'redleaf/mixins'
 
 # A Redleaf::Store that uses PostgreSQL. This module is based on the MySQL
 # store and is compiled in when PostgreSQL is available. This store provides
@@ -25,6 +26,7 @@ require 'redleaf/store'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::PostgreSQLStore < Redleaf::Store
+	include Redleaf::HashUtilities
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -64,6 +66,7 @@ class Redleaf::PostgreSQLStore < Redleaf::Store
 
 	### Create a new Redleaf::PostgreSQLStore. 
 	def initialize( name, opthash={} )
+		opthash = symbolify_keys( opthash )
 		options = DEFAULT_OPTIONS.merge( opthash )
 		return super( name, options )
 	end
