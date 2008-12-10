@@ -67,7 +67,10 @@ class Redleaf::PostgreSQLStore < Redleaf::Store
 	### Create a new Redleaf::PostgreSQLStore. 
 	def initialize( name, opthash={} )
 		opthash = symbolify_keys( opthash )
+		self.log.debug "Symbolified keys: %p" % [ opthash ]
 		options = DEFAULT_OPTIONS.merge( opthash )
+		
+		self.log.debug "Merged options are: %p" % [ options ]
 		return super( name, options )
 	end
 

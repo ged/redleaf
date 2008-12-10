@@ -39,7 +39,7 @@ describe Redleaf::PostgreSQLStore do
 	include Redleaf::SpecHelpers
 
 	before( :all ) do
-		setup_logging( :debug )
+		setup_logging( :fatal )
 		@store_config = get_test_config( 'postgresql' )
 	end
 
@@ -55,7 +55,7 @@ describe Redleaf::PostgreSQLStore do
 
 
 	it "can be created with a name" do
-		Redleaf::PostgreSQLStore.new( TESTING_STORE_NAME )
+		Redleaf::PostgreSQLStore.new( TESTING_STORE_NAME, @store_config )
 	end
 
 
