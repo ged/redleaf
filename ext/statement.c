@@ -5,9 +5,8 @@
  * Authors
  * 
  * - Michael Granger <ged@FaerieMUD.org>
- * - Mahlon Smith <mahlon@martini.nu>
  * 
- * Copyright (c) 2008, Michael Granger and Mahlon Smith
+ * Copyright (c) 2008, 2009 Michael Granger
  * 
  * All rights reserved.
  * 

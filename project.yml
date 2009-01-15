@@ -5,7 +5,7 @@ project_homepage: http://deveiate.org/projects/Redleaf
 rubyforge_group: deveiate
 project_requirements: 
   Redland: ">= 1.0.8"
-author_name: Michael Granger and Mahlon E. Smith
+author_name: Michael Granger
 project_description: |-
   Redleaf is an RDF library for Ruby. It's composed of a hand-written binding 
   for the Redland RDF Library, and a high-level, more idiomatic Ruby layer.

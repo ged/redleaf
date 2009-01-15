@@ -4,10 +4,10 @@
 #
 # Based on various other Rakefiles, especially one by Ben Bleything
 #
-# Copyright (c) 2008 The FaerieMUD Consortium
+# Copyright (c) 2009 The FaerieMUD Consortium
 #
 # Authors:
-#  * Michael Granger and Mahlon E. Smith <ged@FaerieMUD.org>
+#  * Michael Granger <ged@FaerieMUD.org>
 #
 
 BEGIN {
@@ -203,7 +203,7 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		"Happy RDFing!",
 	  ].join( "\n" )
 
-	gem.authors           = 'Michael Granger and Mahlon E. Smith'
+	gem.authors           = 'Michael Granger'
 	gem.email             = 'ged@FaerieMUD.org'
 	gem.homepage          = 'http://deveiate.org/projects/Redleaf'
 	gem.rubyforge_project = RUBYFORGE_PROJECT

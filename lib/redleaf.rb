@@ -12,7 +12,6 @@ require 'logger'
 # == Authors
 # 
 # * Michael Granger <ged@FaerieMUD.org>
-# * Mahlon Smith <mahlon@martini.nu>
 # 
 # :include: LICENSE
 #

@@ -24,7 +24,6 @@ require 'redleaf/mixins'
 #   under the same terms as Perl itself.
 #   
 # * Michael Granger <ged@FaerieMUD.org>
-# * Mahlon Smith <mahlon@martini.nu>
 # 
 # :include: LICENSE
 #
