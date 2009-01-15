@@ -65,7 +65,7 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
 	rleaf_STORE *ptr = ALLOC( rleaf_STORE );
 	
 	if ( (storage = librdf_new_storage( rleaf_rdf_world, backend, name, optstring )) == 0 )
-		rb_raise( rb_eRuntimeError, 
+		rb_raise( rleaf_eRedleafError, 
 			"Could not create a new storage with: backend=\"%s\", name=\"%s\", optstring=\"%s\"", 
 			backend, name, optstring );
 
@@ -82,16 +82,7 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
  */
 static void 
 rleaf_store_gc_mark( rleaf_STORE *ptr ) {
-	// rleaf_log( "debug", "in mark function for RedLeaf::Store %p", ptr );
-	
-	if ( ptr ) {
-		// rleaf_log( "debug", "marking graph of rleaf_STORE <%p>", ptr );
-		rb_gc_mark( ptr->graph );
-	}
-	
-	else {
-		rleaf_log( "debug", "not marking graph for uninitialized rleaf_STORE" );
-	}
+	if ( ptr && ptr->graph ) rb_gc_mark( ptr->graph );
 }
 
 
@@ -102,22 +93,18 @@ rleaf_store_gc_mark( rleaf_STORE *ptr ) {
 static void
 rleaf_store_gc_free( rleaf_STORE *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
-		// rleaf_log( "debug", "in free function of Redleaf::Store <%p>", ptr );
 
-		if ( ptr->graph )
+		/* Not sure if I need to break the graph<->storage link here, and if I do, how. [MG] */
+		if ( ptr->storage ) {
 			librdf_storage_close( ptr->storage );
-		if ( ptr->storage )
 			librdf_free_storage( ptr->storage );
+		}
 		
-		ptr->storage = NULL;
 		ptr->graph   = Qnil;
+		ptr->storage = NULL;
 		
 		xfree( ptr );
 		ptr = NULL;
-	}
-
-	else {
-		rleaf_log( "warn", "not freeing an uninitialized Redleaf::Store" );
 	}
 }
 
@@ -144,13 +131,11 @@ check_store( VALUE self ) {
  */
 rleaf_STORE *
 rleaf_get_store( VALUE self ) {
-	rleaf_STORE *stmt = check_store( self );
+	rleaf_STORE *store = check_store( self );
 
-	// rleaf_log_with_context( self, "debug", "fetched a Store <0x%x>.", self );
-	if ( !stmt )
-		rb_raise( rb_eRuntimeError, "uninitialized Store" );
+	if ( !store ) rb_fatal( "Use of uninitialized Redleaf::Store" );
 
-	return stmt;
+	return store;
 }
 
 
@@ -308,7 +293,7 @@ rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 		xfree( optstring );
 
 	} else {
-		rb_raise( rb_eRuntimeError,
+		rb_raise( rleaf_eRedleafError,
 				  "Cannot re-initialize a store once it's been created." );
 	}
 
@@ -330,7 +315,7 @@ rleaf_redleaf_store_has_contexts_p( VALUE self ) {
 	librdf_iterator *contexts;
 
 	if ( store->graph == Qnil )
-		rb_raise( rb_eRuntimeError, "Storage has not yet been associated with a graph." );
+		rb_raise( rleaf_eRedleafError, "Storage has not yet been associated with a graph." );
 	
 	rleaf_log_with_context( self, "debug", "Checking for contexts in %s:%p", 
 		rb_class2name(CLASS_OF(self)), store );
@@ -415,7 +400,7 @@ rleaf_redleaf_store_sync( VALUE self ) {
 	rleaf_STORE *store = rleaf_get_store( self );
 	
 	if ( librdf_storage_sync(store->storage) == 0 )
-		rb_raise( rb_eRuntimeError, "Failed to sync to the underlying storage." );
+		rb_raise( rleaf_eRedleafError, "Failed to sync to the underlying storage." );
 	
 	return Qtrue;
 }

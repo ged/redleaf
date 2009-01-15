@@ -58,7 +58,6 @@ describe Redleaf::Namespace do
 			@namespace.to_s.should == @namespace.uri.to_s
 		end
 
-
 		it "returns terms qualified relative to the namespace" do
 			@namespace[ 'Person' ].to_s.should == @namespace.uri.to_s + 'Person'
 		end
@@ -66,6 +65,11 @@ describe Redleaf::Namespace do
 		it "accepts Symbols as terms as well as Strings" do
 			@namespace[ :member_name ].to_s.should == @namespace.uri.to_s + 'member_name'
 		end
+		
+		it "knows it's not a fragment-style namespace" do
+			@namespace.should_not be_fragment_style()
+		end
+		
 	end	
 	
 	
@@ -80,7 +84,6 @@ describe Redleaf::Namespace do
 			@namespace.to_s.should == @namespace.uri.to_s
 		end
 
-
 		it "returns terms qualified relative to the namespace" do
 			@namespace[ 'integer' ].to_s.should == @namespace.uri.to_s + 'integer'
 		end
@@ -88,6 +91,11 @@ describe Redleaf::Namespace do
 		it "accepts Symbols as terms as well as Strings" do
 			@namespace[ :string ].to_s.should == @namespace.uri.to_s + 'string'
 		end
+
+		it "knows it's a fragment-style namespace" do
+			@namespace.should be_fragment_style()
+		end
+		
 	end	
 	
 	

@@ -1,3 +1,78 @@
+-- Wed, 10 Dec 2008 01:54:23 -0000 by deveiant (r68) -----
+   Changed: spec/redleaf/store/postgresql_spec.rb
+            lib/redleaf/store/postgresql.rb
+
+   Oops. Wasn't actually using the damn config in instantiation for the outer example.
+
+
+-- Wed, 10 Dec 2008 01:30:18 -0000 by deveiant (r67) -----
+   Changed: spec/lib/helpers.rb
+
+   Adding more tracing to try to figure out why the build server won't pick up the test config.
+
+
+-- Wed, 10 Dec 2008 01:24:58 -0000 by deveiant (r66) -----
+   Changed: spec/redleaf/mixins_spec.rb
+            lib/redleaf/mixins.rb
+            spec/redleaf/store/postgresql_spec.rb
+            lib/redleaf/store/postgresql.rb
+
+   Symbolify opthash keys before merging in the PostgreSQL store. Will probably need to do the same
+   thing in other store implementations.
+
+
+-- Wed, 10 Dec 2008 01:08:38 -0000 by deveiant (r65) -----
+   Changed: spec/lib/constants.rb
+            spec/redleaf/archetypes_spec.rb
+            /trunk
+            spec/lib/helpers.rb
+            ext/queryresult.c
+            spec/redleaf/store/postgresql_spec.rb (and 1 other/s)
+
+   Made the db-backed store specs try to read a config file for connection info.
+
+
+-- Sat, 06 Dec 2008 09:41:43 -0000 by deveiant (r64) -----
+   Added:   docs/wordnet-project.n3 (new)
+            spec/redleaf/archetypes_spec.rb (new)
+            lib/redleaf/archetypes.rb (new)
+            docs/foaf.n3 (new)
+            docs/doap_Redleaf.rdf (new)
+            examples/archetypes.rb (new) (and 3 other/s)
+   Changed: ext/store.c
+            spec/redleaf/store/hashes_spec.rb
+            lib/redleaf/store/hashes.rb
+            spec/redleaf/store_spec.rb
+            lib/redleaf/store.rb
+            spec/redleaf/store/postgresql_spec.rb (and 2 other/s)
+
+    * Added @name ivar to Redleaf::Store.
+    * Cleaned up and made the PostgreSQL store functional.
+    * Fixed the opthash-creation code so it works more consistently.
+    * Started work on Redleaf::Archetypes. Thanks to Jeremiah Jordan for the
+    excellent name suggestion.
+
+
+-- Thu, 20 Nov 2008 19:31:12 -0000 by deveiant (r63) -----
+   Changed: ext/graph.c
+
+   Made the error raised from a failed Redleaf::Graph#append marginally more informative.
+
+
+-- Thu, 20 Nov 2008 00:34:46 -0000 by deveiant (r62) -----
+   Changed: README
+            Rakefile
+            ext/graph.c
+            project.yml
+            ChangeLog
+            spec/redleaf/graph_spec.rb (and 1 other/s)
+
+    * Updated build system.
+    * Made a decent whack at a first version of the README.
+    * Updated the project settings file
+    * Fix a bug when Redleaf::Graph.new is called with an object other than a Redleaf::Store
+
+
 -- Wed, 19 Nov 2008 20:58:57 -0000 by deveiant (r61) -----
    Changed: ext/extconf.rb
 

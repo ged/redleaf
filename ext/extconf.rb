@@ -32,4 +32,6 @@ have_header( 'stdio.h' )    or fail( "missing stdio.h" )
 have_header( 'string.h' )   or fail( "missing string.h" )
 have_header( 'inttypes.h' ) or fail( "missing inttypes.h" )
 
+# find_library( 'efence', 'malloc', *ADDITIONAL_INCLUDE_DIRS )
+
 create_makefile( 'redleaf_ext' )

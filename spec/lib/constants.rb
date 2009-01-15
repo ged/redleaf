@@ -21,9 +21,9 @@ module Redleaf::TestConstants
 	        [ ME,       FOAF[:name],                "Michael Granger" ],
 	        [ ME,       FOAF[:givenname],           "Michael" ],
 	        [ ME,       FOAF[:family_name],         "Granger" ],
-	        [ ME,       FOAF[:homepage],            URI.parse('http://deveiate.org/') ],
-	        [ ME,       FOAF[:workplaceHomepage],   URI.parse('http://laika.com/') ],
-	        [ ME,       FOAF[:phone],               URI.parse('tel:303.555.1212') ],
+	        [ ME,       FOAF[:homepage],            URI('http://deveiate.org/') ],
+	        [ ME,       FOAF[:workplaceHomepage],   URI('http://laika.com/') ],
+	        [ ME,       FOAF[:phone],               URI('tel:303.555.1212') ],
 	        [ ME,       FOAF[:mbox_sha1sum],        "8680b054d586d747a6fcb7046e9ce7cb39554404"],
 	        [ ME,       FOAF[:knows],               :mahlon ],
 	        [ :mahlon,  RDF[:type],                 FOAF[:Person] ],
@@ -35,6 +35,10 @@ module Redleaf::TestConstants
 
 		BASEDIR = Pathname( __FILE__ ).dirname.parent.parent
 		TESTING_CONFIG_FILE = BASEDIR + 'test-config.yml'
+		
+		constants.each do |cname|
+			const_get(cname).freeze
+		end
 	end
 	
 end

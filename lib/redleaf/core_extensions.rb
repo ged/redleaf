@@ -86,6 +86,7 @@ module Redleaf
 	def install_core_extensions
 		Redleaf.log.debug "Installing Array extensions"
 		Array.instance_eval { include Redleaf::ArrayExtensions }
+		Redleaf.log.debug "Installing String extensions"
 		String.instance_eval { include Redleaf::StringExtensions }
 	end
 	

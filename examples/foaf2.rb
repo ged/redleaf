@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# Port of a Python RDFlib example from http://code.google.com/p/rdflib/wiki/IntroSparql
+# Port of the example from foaf1.rb using Redleaf Archetypes
 
 BEGIN {
 	require 'pathname'
@@ -13,34 +13,37 @@ BEGIN {
 }
 
 require 'redleaf'
+require 'redleaf/archetypes'
 require 'logger'
 
 Redleaf.logger.level = Logger::DEBUG
 
 FOAF = Redleaf::Namespace.new( "http://xmlns.com/foaf/0.1/" )
 
+class Person
+	include Redleaf::Archetypes
+	include_archetype FOAF[:Person]
+end
+
 graph = Redleaf::Graph.new
 graph.load( "http://bigasterisk.com/foaf.rdf" )
 graph.load( "http://www.w3.org/People/Berners-Lee/card.rdf" )
 graph.load( "http://danbri.livejournal.com/data/foaf" ) 
 
-# Create foaf:name triples for each foaf:member_name (the attribute LiveJournal uses for the
-# member's full name)
-graph[ nil, FOAF[:member_name], nil ].each do |stmt|
-	graph << [ stmt.subject, FOAF[:name], stmt.object ]
+people = Person.find_in( graph )
+
+# Use the most-consanguine 'knows' property:
+people.each do |person|
+	person.knows.each do |other_person|
+		puts "%s knows %s" % [ person.name, other_person.name ]
+	end
 end
 
-sparql = %(
-  SELECT ?aname ?bname
-  WHERE {
-        ?a foaf:knows ?b .
-        ?a foaf:name ?aname .
-        ?b foaf:name ?bname .
-  }
-)
-
-graph.query( sparql, :foaf => FOAF ) do |row|
-	puts "%s knows %s" % row
+# Explicitly use the FOAF[:knows] predicate
+people.each do |person|
+	person[ FOAF[:knows] ].each do |other_person|
+		puts "%s knows %s" % [ person.name, other_person.name ]
+	end
 end
 
 # Output:

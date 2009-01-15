@@ -1,16 +1,5 @@
 #!rake
 
-begin
-	require 'mkrf'
-rescue LoadError => err
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	
-	warn "You need to have the mkrf library installed to build this."
-end
-
 W3CTEST_TASKLIB = SPECDIR + 'w3ctest-tasks.rb'
 
 # Load the W3C test rake tasks
@@ -23,7 +12,7 @@ task :build_specs => 'w3ctests:generate'
 # C extension constants
 EXT_MAKEFILE  = EXTDIR + 'Makefile'
 EXT_SOURCES   = FileList[ EXTDIR + '*.c' ]
-EXT_SO        = EXTDIR + "linkparser_ext.#{CONFIG['DLEXT']}"
+EXT_SO        = EXTDIR + "redleaf_ext.#{CONFIG['DLEXT']}"
 
 
 #####################################################################

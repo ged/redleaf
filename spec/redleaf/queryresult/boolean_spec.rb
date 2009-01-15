@@ -50,9 +50,9 @@ describe Redleaf::BooleanQueryResult do
 		@graph = Redleaf::Graph.new
 		@graph <<
 			[ :_a, FOAF[:name],       "Alice" ] <<
-			[ :_a, FOAF[:homepage],   URI.parse('http://work.example.org/alice/') ] <<
+			[ :_a, FOAF[:homepage],   URI('http://work.example.org/alice/') ] <<
 			[ :_b, FOAF[:name],       "Bob" ] <<
-			[ :_b, FOAF[:mbox],       URI.parse('mailto:bob@work.example') ]
+			[ :_b, FOAF[:mbox],       URI('mailto:bob@work.example') ]
 
 		@result = @graph.query( ASK_SPARQL_QUERY )
 	end

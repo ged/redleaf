@@ -52,7 +52,7 @@ describe Redleaf::GraphQueryResult do
 		@graph = Redleaf::Graph.new
 		@graph <<
 			[ :_a, FOAF[:name], "Alice" ] <<
-			[ :_a, FOAF[:mbox], URI.parse('mailto:alice@example.org') ]
+			[ :_a, FOAF[:mbox], URI('mailto:alice@example.org') ]
 
 		@result = @graph.query( CONSTRUCT_SPARQL_QUERY )
 	end
@@ -69,7 +69,7 @@ describe Redleaf::GraphQueryResult do
 		@result.graph.should be_an_instance_of( Redleaf::Graph )
 		@result.graph.statements.should have(1).member
 		@result.graph.statements.first.should == 
-			Redleaf::Statement.new( URI.parse('http://example.org/person#Alice'), vcard[:FN], "Alice" )
+			Redleaf::Statement.new( URI('http://example.org/person#Alice'), vcard[:FN], "Alice" )
 	end
 
 end

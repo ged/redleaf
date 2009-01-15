@@ -40,8 +40,8 @@ describe Redleaf::Statement do
 
 	BOOK   = Redleaf::Namespace.new( 'http://purl.org/net/schemas/book/' )
 
-	TEST_ISBN_URN          = URI.parse( 'urn:isbn:0297783297' )
-	TEST_EMAIL_URL         = URI.parse( 'mailto:ged@FaerieMUD.org' )
+	TEST_ISBN_URN          = URI( 'urn:isbn:0297783297' )
+	TEST_EMAIL_URL         = URI( 'mailto:ged@FaerieMUD.org' )
 	TEST_FAVORITE_BOOK_URI = BOOK[:favourite]
 
 	before( :all ) do
@@ -64,7 +64,7 @@ describe Redleaf::Statement do
 		# Subject
 
 		it "allows its subject to be set to a URI" do
-			deveiate = URI.parse( 'http://deveiate.org/' )
+			deveiate = URI( 'http://deveiate.org/' )
 			@statement.subject = deveiate
 			@statement.subject.should == deveiate
 		end
@@ -283,7 +283,7 @@ describe Redleaf::Statement do
 
 		before( :each ) do
 			@subject1  = TEST_EMAIL_URL
-			@subject2  = URI.parse('mailto:mahlon@martini.nu')
+			@subject2  = URI('mailto:mahlon@martini.nu')
 			@predicate = TEST_FAVORITE_BOOK_URI
 			@object    = TEST_ISBN_URN
 

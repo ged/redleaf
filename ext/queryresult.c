@@ -55,19 +55,9 @@ VALUE rleaf_cRedleafSyntaxQueryResult;
 
 /*
  * GC Mark function
- */
 static void 
-rleaf_queryresult_gc_mark( librdf_query_results *ptr ) {
-	rleaf_log( "debug", "in mark function for RedLeaf::QueryResult %p", ptr );
-	
-	if ( ptr ) {
-		rleaf_log( "debug", "marking graph of rleaf_STORE <%p>", ptr );
-	}
-	
-	else {
-		rleaf_log( "debug", "not marking graph for uninitialized rleaf_STORE" );
-	}
-}
+rleaf_queryresult_gc_mark( librdf_query_results *ptr ) {}
+ */
 
 
 
@@ -77,14 +67,8 @@ rleaf_queryresult_gc_mark( librdf_query_results *ptr ) {
 static void
 rleaf_queryresult_gc_free( librdf_query_results *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
-		rleaf_log( "debug", "in free function of Redleaf::QueryResult <%p>", ptr );
-
 		librdf_free_query_results( ptr );
 		ptr = NULL;
-	}
-
-	else {
-		rleaf_log( "warn", "not freeing an uninitialized Redleaf::QueryResult" );
 	}
 }
 
@@ -112,7 +96,7 @@ librdf_query_results *
 rleaf_get_queryresult( VALUE self ) {
 	librdf_query_results *res = check_queryresult( self );
 
-	if ( !res ) rb_raise( rb_eRuntimeError, "uninitialized QueryResult" );
+	if ( !res ) rb_fatal( "Use of uninitialized QueryResult" );
 
 	return res;
 }
@@ -151,8 +135,7 @@ rleaf_new_queryresult( VALUE graph, librdf_query_results *res ) {
 		rb_fatal( "Unhandled query result %p", res );
 	}
 
-	result = Data_Wrap_Struct( result_class, 
-		rleaf_queryresult_gc_mark, rleaf_queryresult_gc_free, res );
+	result = Data_Wrap_Struct( result_class, NULL, rleaf_queryresult_gc_free, res );
 	rb_obj_call_init( result, 1, &graph );
 
 	return result;
@@ -294,7 +277,7 @@ rleaf_redleaf_queryresult_formatted_as( VALUE self, VALUE format ) {
 	/* librdf_free_uri( formaturi ); */
 	
 	if ( !result )
-		rb_raise( rb_eRuntimeError, "Could not fetch results as %s", librdf_uri_as_string(formaturi) );
+		rb_raise( rleaf_eRedleafError, "Could not fetch results as %s", librdf_uri_as_string(formaturi) );
 	
 	rval = rb_str_new( (char *)result, length );
 	xfree( result );
@@ -426,7 +409,7 @@ rleaf_redleaf_graphqueryresult_graph( VALUE self ) {
 		librdf_stream *stream;
 
 		if ( !(stream = librdf_query_results_as_stream(res)) )
-			rb_raise( rb_eRuntimeError, "failed to fetch stream of statements from result <%p>", res );
+			rb_raise( rleaf_eRedleafError, "failed to fetch stream of statements from result <%p>", res );
 
 	 	graphobj = rb_class_new_instance( 0, NULL, rleaf_cRedleafGraph );
 		graph = rleaf_get_graph( graphobj );
@@ -464,7 +447,7 @@ rleaf_redleaf_booleanqueryresult_value( VALUE self ) {
 	librdf_query_results *res = rleaf_get_queryresult( self );
 	int value = librdf_query_results_get_boolean( res );
 	
-	if ( value < 0 ) rb_raise( rb_eRuntimeError, "couldn't fetch boolean result" );
+	if ( value < 0 ) rb_raise( rleaf_eRedleafError, "couldn't fetch boolean result" );
 	rleaf_log_with_context( self, "debug", "Boolean result is: %d", value );
 	
 	return value ? Qtrue : Qfalse;

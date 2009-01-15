@@ -67,7 +67,7 @@ describe Redleaf::MemoryStore do
 		describe "without an associated Redleaf::Graph" do
 			it "raises an error when checked for contexts" do
 				lambda {
-					@store.has_contexts?
+					@store.has_contexts?.should == true
 				}.should raise_error( RuntimeError, /associated with a graph/i )
 			end
 		end

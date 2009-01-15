@@ -66,26 +66,15 @@ static VALUE rleaf_redleaf_statement_object_eq( VALUE, VALUE );
 static librdf_statement *
 rleaf_statement_alloc() {
 	librdf_statement *ptr = librdf_new_statement( rleaf_rdf_world );
-	// rleaf_log( "debug", "initialized a librdf_statement <%p>", ptr );
 	return ptr;
 }
 
 
 /*
  * GC Mark function
- */
 static void 
-rleaf_statement_gc_mark( librdf_statement *ptr ) {
-	// rleaf_log( "debug", "in mark function for RedLeaf::Statement %p", ptr );
-	
-	if ( ptr ) {
-		// rleaf_log( "debug", "marked" );
-	}
-	
-	else {
-		rleaf_log( "debug", "not marked" );
-	}
-}
+rleaf_statement_gc_mark( librdf_statement *ptr ) {}
+ */
 
 
 
@@ -95,13 +84,8 @@ rleaf_statement_gc_mark( librdf_statement *ptr ) {
 static void 
 rleaf_statement_gc_free( librdf_statement *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
-		// rleaf_log( "debug", "in free function of Redleaf::Statement <%p>", ptr );
 		librdf_free_statement( ptr );
 		ptr = NULL;
-	}
-
-	else {
-		rleaf_log( "warn", "not freeing an uninitialized Redleaf::Statement" );
 	}
 }
 
@@ -111,7 +95,6 @@ rleaf_statement_gc_free( librdf_statement *ptr ) {
  */
 static librdf_statement *
 check_statement( VALUE self ) {
-	// rleaf_log_with_context( self, "debug", "checking a Redleaf::Statement object (%d).", self );
 	Check_Type( self, T_DATA );
 
     if ( !IsStatement(self) ) {
@@ -130,9 +113,8 @@ librdf_statement *
 rleaf_get_statement( VALUE self ) {
 	librdf_statement *stmt = check_statement( self );
 
-	// rleaf_log_with_context( self, "debug", "fetching a Statement <%p>.", stmt );
 	if ( !stmt )
-		rb_raise( rb_eRuntimeError, "uninitialized Statement" );
+		rb_fatal( "Use of uninitialized Redleaf::Statement" );
 
 	return stmt;
 }
@@ -165,7 +147,8 @@ rleaf_value_to_librdf_statement( VALUE object ) {
 	librdf_statement *stmt_copy = NULL;
 
 	if ( TYPE(object) == T_ARRAY ) {
-		rleaf_log( "debug", "creating a new librdf_statement from a triple" );
+		rleaf_log( "debug", "creating a new librdf_statement from a triple: %s",
+		 	RSTRING(rb_inspect(object))->ptr );
 
 		if ( RARRAY(object)->len != 3 )
 			rb_raise( rb_eArgError, "wrong number of elements for triple (%d for 3)",
@@ -192,7 +175,7 @@ rleaf_value_to_librdf_statement( VALUE object ) {
 	}
 	
 	if ( stmt_copy == NULL )
-		rb_raise( rb_eRuntimeError, "failed to create a new librdf_statement from nodes" );
+		rb_raise( rleaf_eRedleafError, "failed to create a new librdf_statement from nodes" );
 
 	return stmt_copy;
 }
@@ -211,7 +194,7 @@ rleaf_value_to_librdf_statement( VALUE object ) {
  */
 static VALUE
 rleaf_redleaf_statement_s_allocate( VALUE klass ) {
-	return Data_Wrap_Struct( klass, rleaf_statement_gc_mark, rleaf_statement_gc_free, 0 );
+	return Data_Wrap_Struct( klass, NULL, rleaf_statement_gc_free, 0 );
 }
 
 
@@ -557,10 +540,10 @@ rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
 		
 		if ( librdf_statement_decode(stmt, (unsigned char *)RSTRING(datastring)->ptr,
 		     RSTRING(datastring)->len) == 0 )
-			rb_raise( rb_eRuntimeError, "librdf_statement_decode() failed." );
+			rb_raise( rleaf_eRedleafError, "librdf_statement_decode() failed." );
 	
 	} else {
-		rb_raise( rb_eRuntimeError,
+		rb_raise( rleaf_eRedleafError,
 				  "Cannot load marshalled data into a statement once it's been created." );
 	}
 

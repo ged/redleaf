@@ -42,7 +42,7 @@ describe Redleaf::Graph do
 	        Redleaf::Constants::CommonNamespaces
 
 	before( :all ) do
-		setup_logging( :fatal )
+		setup_logging( :error )
 
 		@basedir     = Pathname.new( __FILE__ ).dirname.parent.parent
 		@specdir     = @basedir + 'spec'
@@ -144,9 +144,14 @@ describe Redleaf::Graph do
 		
 		it "can load URIs that point to RDF data" do
 			rdfxml_file = @specdatadir + 'mgranger-foaf.xml'
-			uri = URI.parse( 'file:' + rdfxml_file )
+			uri = URI( 'file:' + rdfxml_file )
 			@graph.load( uri.to_s ).should == TEST_FOAF_TRIPLES.length
 		end
+		
+		it "can sync itself to the underlying store" do
+			@graph.sync.should be_true()
+		end
+		
 	end
 
 
@@ -198,7 +203,7 @@ describe Redleaf::Graph do
 		end
 			
 		it "provides a way to remove statements by passing a triple" do
-			triple = [ ME, FOAF[:phone], URI.parse('tel:303.555.1212') ]
+			triple = [ ME, FOAF[:phone], URI('tel:303.555.1212') ]
 
 			stmts = @graph.remove( triple )
 
@@ -206,13 +211,13 @@ describe Redleaf::Graph do
 			stmts[0].should be_an_instance_of( Redleaf::Statement )
 			stmts[0].subject.should == ME
 			stmts[0].predicate.should == FOAF[:phone]
-			stmts[0].object.should == URI.parse('tel:303.555.1212')
+			stmts[0].object.should == URI('tel:303.555.1212')
 			
 			@graph[ nil, FOAF[:phone], nil ].should be_empty()
 		end
 		
 		it "provides a way to remove statements by passing a statement object" do
-			target = Redleaf::Statement.new( ME, FOAF[:phone], URI.parse('tel:303.555.1212') )
+			target = Redleaf::Statement.new( ME, FOAF[:phone], URI('tel:303.555.1212') )
 
 			stmts = @graph.remove( target )
 
@@ -220,7 +225,7 @@ describe Redleaf::Graph do
 			stmts[0].should be_an_instance_of( Redleaf::Statement )
 			stmts[0].subject.should == ME
 			stmts[0].predicate.should == FOAF[:phone]
-			stmts[0].object.should == URI.parse('tel:303.555.1212')
+			stmts[0].object.should == URI('tel:303.555.1212')
 			
 			@graph[ nil, FOAF[:phone], nil ].should be_empty()
 		end
@@ -280,14 +285,14 @@ describe Redleaf::Graph do
 		end
 		
 		it "can find all objects for a given subject and predicate" do
-			subjects = @graph.objects( ME, FOAF[:givenname] )
-			subjects.should have(1).member
-			subjects.should == [ "Michael" ]
+			objects = @graph.objects( ME, FOAF[:givenname] )
+			objects.should have(1).member
+			objects.should == [ "Michael" ]
 		end
 		
 		it "can find one object for a given subject and predicate" do
-			subject = @graph.object( :mahlon, FOAF[:name] )
-			subject.should == "Mahlon E. Smith"
+			object = @graph.object( :mahlon, FOAF[:name] )
+			object.should == "Mahlon E. Smith"
 		end
 		
 		it "can find all predicates that are about a given subject" do
@@ -306,6 +311,23 @@ describe Redleaf::Graph do
 			predicates.should == [ RDF[:type], RDF[:type] ]
 		end
 		
+		it "knows if it has the specified predicate about the given subject" do
+			@graph.should have_predicate_about( ME, FOAF[:phone] )
+			@graph.should_not have_predicate_about( ME, DOAP[:name] )
+		end
+		
+		
+		it "knows if it has any statements with the given subject" do
+			@graph.include_subject?( ME ).should be_true()
+			@graph.include_subject?( :nonexistant ).should be_false()
+		end
+		
+		it "knows if it has any statements with the given object" do
+			@graph.include_object?( :mahlon ).should be_true()
+			@graph.include_object?( :nonexistant ).should be_false()
+		end
+		
+
 		it "knows it includes a statement which has been added to it" do
 			stmt = Redleaf::Statement.new( *TEST_FOAF_TRIPLES.first )
 			@graph.should include( stmt )
@@ -334,6 +356,10 @@ describe Redleaf::Graph do
 		it "can be serialized via a #to_<format> method" do
 			@graph.to_rdfxml.should =~
 				%r{<\?xml version=\"1.0\" encoding=\"utf-8\"\?>\n<rdf:RDF}
+		end
+		
+		it "can sync itself to the underlying store" do
+			@graph.sync.should be_true()
 		end
 		
 	end
@@ -376,7 +402,7 @@ describe Redleaf::Graph do
 				 [ DOAP[:Project], RDFS[:isDefinedBy], DOAP.uri ],
 				 [ DOAP[:Project], RDFS[:label], "Project@en" ],
 				 [ DOAP[:Project], RDFS[:comment], "A project.@en" ],
-				 [ DOAP[:Project], RDFS[:subClassOf], URI.parse('http://xmlns.com/wordnet/1.6/Project') ],
+				 [ DOAP[:Project], RDFS[:subClassOf], URI('http://xmlns.com/wordnet/1.6/Project') ],
 				 [ DOAP[:Project], RDFS[:subClassOf], FOAF[:Project] ],
 				 [ DOAP[:Version], RDF[:type], RDFS[:Class] ],
 				 [ DOAP[:Version], RDFS[:isDefinedBy], DOAP.uri ],

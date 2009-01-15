@@ -32,7 +32,7 @@ module Redleaf # :nodoc:
 		### Transform the given +string_value+ into a Ruby object based on the datatype
 		### in +typeduri+.
 		def make_typed_literal_object( typeuri, string_value )
-			typeuri = URI.parse( typeuri ) unless typeuri.is_a?( URI )
+			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
 			Redleaf.logger.debug "Making Ruby object from typed literal %p<%s>" %
 				[ string_value, typeuri ]
 

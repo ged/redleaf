@@ -136,7 +136,7 @@ class Redleaf::Graph
 		return self.execute_query( querystring )
 	end
 	
-
+	
 	### call-seq:
 	###    graph.is_equivalent_to?( other_graph )   -> true or false
 	###    graph === other_graph                    -> true or false

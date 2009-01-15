@@ -2,9 +2,11 @@
 
 require 'tmpdir'
 require 'pathname'
+require 'singleton'
 
 require 'redleaf'
 require 'redleaf/namespace'
+require 'redleaf/exceptions'
 require 'redleaf/store/hashes'
 
 
@@ -69,8 +71,6 @@ require 'redleaf/store/hashes'
 module Redleaf::Archetypes
 	include Redleaf::Loggable
 
-	DEFAULT_REGISTRY_CACHE_DIR = Pathname.new( Dir.tmpdir )
-
 	
 	### The methods to add to including classes
 	module ClassMethods
@@ -79,15 +79,15 @@ module Redleaf::Archetypes
 		
 		### Add an Archetype for the RDF Class declared at the specified +uri+ to the
 		### receiving Class or Module.
-		def include_archetype( uri )
+		def include_archetype( uri, options={} )
 			uri = URI( uri ) unless uri.is_a?( URI )
-			@archetypes ||= []
-			@archetypes << uri
+			@archetypes ||= {}
+			@archetypes[ uri ] = options
 
 			Redleaf.logger.debug "Extending %p with %s" % [ self, uri ]
 		end
 		
-	end # module Redleaf::Archetypes::ClassMethods
+	end # module ClassMethods
 
 	
 	### Inclusion callback -- add the ability to declare Archetypes for the including Class or
@@ -102,16 +102,85 @@ module Redleaf::Archetypes
 	### from the Properties in the class's domain.
 	class MixinFactory
 
+		# The directory that the registry cache store is created in
+		REGISTRY_CACHE_DIR = Pathname.new( Dir.tmpdir )
+
 		### Create a new MixinFactory that will use the specified directory for its cache of
 		### loaded triples.
-		def initialize( cachedir=DEFAULT_REGISTRY_CACHE_DIR )
-			@cachedb = Pathname.new( cachedir ) + 'redleaf' + 'archetypes'
+		def initialize
+			@cachedb = REGISTRY_CACHE_DIR + 'redleaf' + 'archetypes'
 			@cachedb.mkpath
+
+			@modules = {}
 			@store = Redland::HashesStore.load( @cachedb )
+			@graph = @store.graph
 		end
 		
 		
-	end
+		######
+		public
+		######
+
+		### Fetch the archetype module for the given +uri+, fetching the vocabulary and creating
+		### the module if necessary.
+		def get_archetype_module( classuri )
+			@modules[ key ] ||= self.make_module_for( classuri )
+			return @modules[ classuri ]
+		end
+
+
+		### Create a new Module object that provides the functionality described by the 
+		### given +classuri+.
+		def make_module_for( classuri )
+			properties = nil
+			
+		end
+
+
+		### Return an Array of class property statements for the given +classuri+, loading the 
+		### containing vocabulary if it isn't already loaded.
+		def get_class_properties( classuri )
+
+			# If the graph doesn't yet have the necessary vocabulary loaded, try to load it
+			# ourselves.
+			unless @graph.has_subject?( classuri )
+				vocabulary, typename = split_typeuri( classuri )
+
+				stmt_count = @graph.load( vocabulary )
+
+				unless @graph.has_subject?( classuri )
+					raise Redleaf::Error,
+						"Loading the vocabulary at %s didn't add any statements describing %s" %
+						[ vocabulary, typename ]
+				end
+			end
+
+			
+		end
+		
+
+		#######
+		private
+		#######
+
+		### Split the given +uri+ into a vocabulary uri and a type name.
+		def split_typeuri( uri )
+			vocabulary = uri.dup
+			typename = nil
+
+			if uri.fragment
+				typename = uri.fragment
+				vocabulary.fragment = nil
+			else
+				typename = uri.path.sub( %r{.*/}, '' )
+				vocabulary.path = uri.path.sub( %r{/[^/]*$}, '' )
+			end
+
+			return vocabulary, typename
+		end
+		
+		
+	end # class MixinFactory
 	
 end # module Redleaf::Archetypes
 

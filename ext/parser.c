@@ -55,26 +55,15 @@ VALUE rleaf_cRedleafParser;
 static librdf_parser *
 rleaf_parser_alloc( const char *name ) {
 	librdf_parser *ptr = librdf_new_parser( rleaf_rdf_world, name, NULL, NULL );
-	rleaf_log( "debug", "initialized a librdf_parser <%p>", ptr );
 	return ptr;
 }
 
 
 /*
  * GC Mark function
- */
 static void 
-rleaf_parser_gc_mark( librdf_parser *ptr ) {
-	rleaf_log( "debug", "in mark function for Redleaf::Parser %p", ptr );
-	
-	if ( ptr ) {
-		rleaf_log( "debug", "marking for a librdf_parser <%p>", ptr );
-	}
-	
-	else {
-		rleaf_log( "debug", "not marking an unallocated librdf_parser" );
-	}
-}
+rleaf_parser_gc_mark( librdf_parser *ptr ) {}
+ */
 
 
 
@@ -83,16 +72,9 @@ rleaf_parser_gc_mark( librdf_parser *ptr ) {
  */
 static void 
 rleaf_parser_gc_free( librdf_parser *ptr ) {
-	rleaf_log( "debug", "in free function of Redleaf::Parser <%p>", ptr );
-
 	if ( ptr && rleaf_rdf_world ) {
-		rleaf_log( "debug", "Freeing librdf_parser <%p>", ptr );
 		librdf_free_parser( ptr );
 		ptr = NULL;
-	}
-
-	else {
-		rleaf_log( "warn", "not freeing an uninitialized librdf_parser" );
 	}
 }
 
@@ -123,7 +105,7 @@ rleaf_get_parser( VALUE self ) {
 
 	rleaf_log_with_context( self, "debug", "fetching a Parser <%p>.", parser );
 	if ( !parser )
-		rb_raise( rb_eRuntimeError, "uninitialized Parser" );
+		rb_fatal( "Use of uninitialized Parser" );
 
 	return parser;
 }
@@ -143,7 +125,7 @@ rleaf_get_parser( VALUE self ) {
  */
 static VALUE 
 rleaf_redleaf_parser_s_allocate( VALUE klass ) {
-	return Data_Wrap_Struct( klass, rleaf_parser_gc_mark, rleaf_parser_gc_free, 0 );
+	return Data_Wrap_Struct( klass, NULL, rleaf_parser_gc_free, 0 );
 }
 
 
@@ -252,7 +234,7 @@ rleaf_redleaf_parser_initialize( VALUE self ) {
 		DATA_PTR( self ) = parser = rleaf_parser_alloc( typename );
 		
 	} else {
-		rb_raise( rb_eRuntimeError,
+		rb_raise( rleaf_eRedleafError,
 				  "Cannot re-initialize a parser once it's been created." );
 	}
 

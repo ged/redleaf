@@ -80,7 +80,14 @@ describe Redleaf::Archetypes do
 			@extended_class.module_eval do
 				include_archetype DOAP[:Project]
 			end
-			@extended_class.archetypes.should include( DOAP[:Project] )
+			@extended_class.archetypes.keys.should include( DOAP[:Project] )
+		end
+		
+		it "can add an archetype to itself as a string" do
+			@extended_class.module_eval do
+				include_archetype DOAP[:Project].to_s
+			end
+			@extended_class.archetypes.keys.should include( DOAP[:Project] )
 		end
 		
 		it "can add multiple archetypes to itself" do
@@ -89,18 +96,32 @@ describe Redleaf::Archetypes do
 				include_archetype FOAF[:Project]
 			end
 			@extended_class.archetypes.should have(2).members
-			@extended_class.archetypes.should include( DOAP[:Project], FOAF[:Project] )
+			@extended_class.archetypes.keys.should include( DOAP[:Project], FOAF[:Project] )
 		end
 		
 		it "can include superclasses when adding archetypes to itself" do
-			pending "completion of the feature"
+			pending "completion of the archetypes system"
 			@extended_class.module_eval do
 				include_archetype DOAP[:Project], :follow_inheritance => true
 			end
 			@extended_class.archetypes.should have(2).members
-			@extended_class.archetypes.should include( DOAP[:Project], FOAF[:Project] )
+			@extended_class.archetypes.keys.should include( DOAP[:Project], FOAF[:Project] )
 		end
 		
+	end
+	
+	
+	describe Redleaf::Archetypes::MixinFactory do
+		
+		before( :each ) do
+			@store = mock( "archetypes store" )
+			@graph = mock( "archetypes graph" )
+			Redleaf::HashesStore.stub!( :load ).and_return( @store )
+			@store.stub!( :graph ).and_return( @graph )
+		end
+
+		it "fetches the vocabulary from the store if the store has it" do
+		end
 		
 	end
 end

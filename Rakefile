@@ -137,6 +137,7 @@ RDOC_OPTIONS = [
 	'-SHN',
 	'-i', '.',
 	'-m', 'README',
+	'-t', PKG_NAME,
 	'-W', 'http://deveiate.org/projects/Redleaf/browser/trunk/'
   ]
 
@@ -145,8 +146,8 @@ SMTP_HOST = 'mail.faeriemud.org'
 SMTP_PORT = 465 # SMTP + SSL
 
 # Project constants
-PROJECT_HOST = 'deveiate.org'
-PROJECT_PUBDIR = "/usr/local/www/public/code"
+PROJECT_HOST = 'deveiate'
+PROJECT_PUBDIR = '/usr/local/www/public/code'
 PROJECT_DOCDIR = "#{PROJECT_PUBDIR}/#{PKG_NAME}"
 PROJECT_SCPPUBURL = "#{PROJECT_HOST}:#{PROJECT_PUBDIR}"
 PROJECT_SCPDOCURL = "#{PROJECT_HOST}:#{PROJECT_DOCDIR}"
@@ -209,8 +210,11 @@ GEMSPEC   = Gem::Specification.new do |gem|
 
 	gem.has_rdoc          = true
 	gem.rdoc_options      = RDOC_OPTIONS
+	gem.extra_rdoc_files  = %w[ChangeLog README LICENSE]
 
 	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
+	gem.executables       = BIN_FILES.select {|pn| pn.executable? }.
+		collect {|pn| pn.relative_path_from(BINDIR).to_s }
 
 	if EXTCONF.exist?
 		gem.extensions << EXTCONF.relative_path_from( BASEDIR ).to_s

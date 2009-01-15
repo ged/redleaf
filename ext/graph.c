@@ -76,16 +76,7 @@ rleaf_graph_alloc( VALUE storeobj ) {
  */
 static void 
 rleaf_graph_gc_mark( rleaf_GRAPH *ptr ) {
-	// rleaf_log( "debug", "in mark function for RedLeaf::Graph %p", ptr );
-	
-	if ( ptr ) {
-		// rleaf_log( "debug", "marking a rleaf_GRAPH <%p>", ptr );
-		rb_gc_mark( ptr->store );
-	}
-	
-	else {
-		rleaf_log( "debug", "not marking an unallocated rleaf_GRAPH" );
-	}
+	if ( ptr && ptr->store ) rb_gc_mark( ptr->store );
 }
 
 
@@ -95,21 +86,15 @@ rleaf_graph_gc_mark( rleaf_GRAPH *ptr ) {
  */
 static void 
 rleaf_graph_gc_free( rleaf_GRAPH *ptr ) {
-	// rleaf_log( "debug", "in free function of Redleaf::Graph <%p>", ptr );
-
 	if ( ptr->model && rleaf_rdf_world ) {
+		/* Not sure if I need to break the graph<->storage link here, and if I do, how. [MG] */
 		librdf_free_model( ptr->model );
 
 		ptr->model = NULL;
 		ptr->store = Qnil;
 
-		// rleaf_log( "debug", "Freeing rleaf_GRAPH <%p>", ptr );
 		xfree( ptr );
 		ptr = NULL;
-	}
-
-	else {
-		rleaf_log( "warn", "not freeing an uninitialized rleaf_GRAPH" );
 	}
 }
 
@@ -138,9 +123,8 @@ rleaf_GRAPH *
 rleaf_get_graph( VALUE self ) {
 	rleaf_GRAPH *graph = check_graph( self );
 
-	// rleaf_log_with_context( self, "debug", "fetching a Graph <%p>.", graph );
 	if ( !graph )
-		rb_raise( rb_eRuntimeError, "uninitialized Graph" );
+		rb_fatal( "Use of uninitialized Graph." );
 
 	return graph;
 }
@@ -263,7 +247,7 @@ rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
 		DATA_PTR( self ) = graph = rleaf_graph_alloc( store );
 		
 	} else {
-		rb_raise( rb_eRuntimeError,
+		rb_raise( rleaf_eRedleafError,
 				  "Cannot re-initialize a graph once it's been created." );
 	}
 
@@ -292,14 +276,14 @@ rleaf_redleaf_graph_dup( VALUE self ) {
 	if ( ! dup_ptr->model ) {
 		librdf_free_stream( statements );
 		xfree( dup_ptr );
-		rb_raise( rb_eRuntimeError, "couldn't create new model from model <%p>", ptr->model );
+		rb_raise( rleaf_eRedleafError, "couldn't create new model from model <%p>", ptr->model );
 	}
 	
 	if ( (librdf_model_add_statements(dup_ptr->model, statements)) != 0 ) {
 		librdf_free_stream( statements );
 		librdf_free_model( dup_ptr->model );
 		xfree( dup_ptr );
-		rb_raise( rb_eRuntimeError, "couldn't add statements from the original model" );
+		rb_raise( rleaf_eRedleafError, "couldn't add statements from the original model" );
 	}
 
 	DATA_PTR( dup ) = dup_ptr;
@@ -461,7 +445,7 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 		}
 	
 		if ( librdf_model_add_statement(ptr->model, stmt_ptr) != 0 )
-			rb_raise( rb_eRuntimeError, "could not add statement %s to graph",
+			rb_raise( rleaf_eRedleafError, "could not add statement %s to graph",
 			 	RSTRING_PTR(rb_inspect(statement)) );
 	}
 	
@@ -503,7 +487,7 @@ rleaf_redleaf_graph_remove( VALUE self, VALUE statement ) {
 	/* FIXME: protect from exceptions so we don't leak search_statement and stream  */
 	if ( !stream ) {
 		librdf_free_statement( search_statement );
-		rb_raise( rb_eRuntimeError, "could not create a stream when removing %s from %s",
+		rb_raise( rleaf_eRedleafError, "could not create a stream when removing %s from %s",
 		 	RSTRING(rb_inspect(statement))->ptr,
 			RSTRING(rb_inspect(self))->ptr );
 	}
@@ -517,7 +501,7 @@ rleaf_redleaf_graph_remove( VALUE self, VALUE statement ) {
 		if ( librdf_model_remove_statement(ptr->model, stmt) != 0 ) {
 			librdf_free_stream( stream );
 			librdf_free_statement( search_statement );
-			rb_raise( rb_eRuntimeError, "failed to remove statement from model" );
+			rb_raise( rleaf_eRedleafError, "failed to remove statement from model" );
 		}
 		
 		librdf_stream_next( stream );
@@ -566,7 +550,7 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
 
 	search_statement = librdf_new_statement_from_nodes( rleaf_rdf_world, subject_node, predicate_node, object_node );
 	if ( !search_statement )
-		rb_raise( rb_eRuntimeError, "could not create a statement from nodes [%s, %s, %s]",
+		rb_raise( rleaf_eRedleafError, "could not create a statement from nodes [%s, %s, %s]",
 			RSTRING(rb_inspect(subject))->ptr,
 			RSTRING(rb_inspect(predicate))->ptr,
 			RSTRING(rb_inspect(object))->ptr );
@@ -575,7 +559,7 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
  	stream = librdf_model_find_statements( ptr->model, search_statement );
 	if ( !stream ) {
 		librdf_free_statement( search_statement );
-		rb_raise( rb_eRuntimeError, "could not create a stream when searching" );
+		rb_raise( rleaf_eRedleafError, "could not create a stream when searching" );
 	}
 
 	while ( ! librdf_stream_end(stream) ) {
@@ -646,7 +630,7 @@ rleaf_redleaf_graph_each_statement( VALUE self ) {
 	
 	stream = librdf_model_as_stream( ptr->model );
 	if ( !stream )
-		rb_raise( rb_eRuntimeError, "Failed to create stream for graph" );
+		rb_raise( rleaf_eRedleafError, "Failed to create stream for graph" );
 	
 	while ( ! librdf_stream_end(stream) ) {
 		stmt = librdf_stream_get_object( stream );
@@ -684,12 +668,12 @@ rleaf_redleaf_graph_load( VALUE self, VALUE uri ) {
 	int statement_count = librdf_model_size( ptr->model );
 	
 	if ( (parser = librdf_new_parser( rleaf_rdf_world, NULL, NULL, NULL )) == NULL )
-		rb_raise( rb_eRuntimeError, "failed to create a parser." );
+		rb_raise( rleaf_eRedleafError, "failed to create a parser." );
 
 	rdfuri = rleaf_object_to_librdf_uri( uri );
 	
 	if ( librdf_parser_parse_into_model(parser, rdfuri, NULL, ptr->model) != 0 )
-		rb_raise( rb_eRuntimeError, "failed to load %s into Model <0x%x>",
+		rb_raise( rleaf_eRedleafError, "failed to load %s into Model <0x%x>",
 		librdf_uri_as_string(rdfuri), self );
 
 	return INT2FIX( librdf_model_size(ptr->model) - statement_count );
@@ -784,14 +768,14 @@ rleaf_redleaf_graph_serialized_as( VALUE self, VALUE format ) {
 	rleaf_log_with_context( self, "debug", "valid format '%s' specified.", formatname );
 	serializer = librdf_new_serializer( rleaf_rdf_world, formatname, NULL, NULL );
 	if ( !serializer )
-		rb_raise( rb_eRuntimeError, "could not create a '%s' serializer", formatname );
+		rb_raise( rleaf_eRedleafError, "could not create a '%s' serializer", formatname );
 
 	/* :TODO: Support for the 'baseuri' argument? */
 	serialized = librdf_serializer_serialize_model_to_counted_string( serializer, NULL, ptr->model, &length );
 	librdf_free_serializer( serializer );
 	
 	if ( !serialized )
-		rb_raise( rb_eRuntimeError, "could not serialize model as '%s'", formatname );
+		rb_raise( rleaf_eRedleafError, "could not serialize model as '%s'", formatname );
 
 	rleaf_log_with_context( self, "debug", "got %d bytes of '%s'", length, formatname );
 	return rb_str_new( (char *)serialized, length );
@@ -845,7 +829,7 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 		base_uri = librdf_new_uri( rleaf_rdf_world, (const unsigned char *)(RSTRING(basestr)->ptr) );
 		if ( !base_uri ) {
 			if ( qlang_uri ) librdf_free_uri( qlang_uri );
-			rb_raise( rb_eRuntimeError, "Couldn't make a librdf_uri out of %s",
+			rb_raise( rleaf_eRedleafError, "Couldn't make a librdf_uri out of %s",
 				RSTRING(basestr)->ptr );
 		}
 	}
@@ -858,7 +842,7 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	if ( !query ) {
 		if ( qlang_uri ) librdf_free_uri( qlang_uri );
 		if ( base_uri ) librdf_free_uri( base_uri );
-		rb_raise( rb_eRuntimeError, "Failed to create query %s", RSTRING(qstring)->ptr );
+		rb_raise( rleaf_eRedleafError, "Failed to create query %s", RSTRING(qstring)->ptr );
 	}
 	
 	/* Check for a non-nil limit and offset, setting them in the query object if they exist. */
@@ -879,7 +863,7 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	if ( base_uri ) librdf_free_uri( base_uri );
 
 	if ( !res )
-		rb_raise( rb_eRuntimeError, "Execution of query failed." );
+		rb_raise( rleaf_eRedleafError, "Execution of query failed." );
 	
 	return rleaf_new_queryresult( self, res );
 }
@@ -906,7 +890,7 @@ rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE object ) {
 	if ( !iter ) {
 		librdf_free_node( arc );
 		librdf_free_node( target );
-		rb_raise( rb_eRuntimeError, "failed to get sources for {? -%s-> %s}",
+		rb_raise( rleaf_eRedleafError, "failed to get sources for {? -%s-> %s}",
 			librdf_node_to_string(arc), librdf_node_to_string(target) );
 	}
 
@@ -976,7 +960,7 @@ rleaf_redleaf_graph_predicates( VALUE self, VALUE subject, VALUE object ) {
 	if ( !iter ) {
 		librdf_free_node( source );
 		librdf_free_node( target );
-		rb_raise( rb_eRuntimeError, "failed to get arcs for: {%s -?-> %s}",
+		rb_raise( rleaf_eRedleafError, "failed to get arcs for: {%s -?-> %s}",
 			librdf_node_to_string(source), librdf_node_to_string(target) );
 	}
 
@@ -1046,7 +1030,7 @@ rleaf_redleaf_graph_objects( VALUE self, VALUE subject, VALUE predicate ) {
 	if ( !iter ) {
 		librdf_free_node( source );
 		librdf_free_node( arc );
-		rb_raise( rb_eRuntimeError, "failed to get targets for: {%s -?-> %s}",
+		rb_raise( rleaf_eRedleafError, "failed to get targets for: {%s -?-> %s}",
 			librdf_node_to_string(source), librdf_node_to_string(arc) );
 	}
 
@@ -1113,10 +1097,11 @@ rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
 	
 	source = rleaf_value_to_subject_node( subject );
 	iter = librdf_model_get_arcs_out( ptr->model, source );
-	librdf_free_node( source );
 	
-	if ( !iter )
-		rb_raise( rb_eRuntimeError, "could not get arcs out for %s", rb_inspect(subject) );
+	if ( !iter ) {
+		librdf_free_node( source );
+		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s", rb_inspect(subject) );
+	}
 	
 	while ( ! librdf_iterator_end(iter) ) {
 		librdf_node *arc = librdf_iterator_get_object( iter );
@@ -1124,7 +1109,8 @@ rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
 		
 		if ( !arc ) {
 			librdf_free_iterator( iter );
-			rb_raise( rb_eRuntimeError, "iterator returned NULL arc" );
+			librdf_free_node( source );
+			rb_raise( rleaf_eRedleafError, "iterator returned NULL arc" );
 		}
 
 		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
@@ -1135,6 +1121,37 @@ rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
 		librdf_iterator_next( iter );
 	}
 	librdf_free_iterator( iter );
+	librdf_free_node( source );
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.has_predicate_about?( subject, predicate )   -> true or false
+ *
+ *  Returns +true+ if the graph has at least one statement with the specified +subject+ and
+ *  +predicate+.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_has_predicate_about_p( VALUE self, VALUE subject, VALUE predicate ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source, *arc;
+	VALUE rval = Qfalse;
+
+	rleaf_log_with_context( self, "debug", "checking for presence of a %s predicate about %s",
+		RSTRING_PTR(rb_inspect( predicate )), RSTRING_PTR(rb_inspect( subject )) );
+	
+	source = rleaf_value_to_subject_node( subject );
+	arc = rleaf_value_to_predicate_node( predicate );
+
+	if ( librdf_model_has_arc_out(ptr->model, source, arc) != 0 )
+		rval = Qtrue;
+
+	librdf_free_node( arc );
+	librdf_free_node( source );
 	
 	return rval;
 }
@@ -1159,7 +1176,7 @@ rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
 	
 	if ( !iter ) {
 		librdf_free_node( target );
-		rb_raise( rb_eRuntimeError, "could not get arcs in for %s", rb_inspect(object) );
+		rb_raise( rleaf_eRedleafError, "could not get arcs in for %s", rb_inspect(object) );
 	}
 	
 	while ( ! librdf_iterator_end(iter) ) {
@@ -1168,7 +1185,7 @@ rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
 		
 		if ( !arc ) {
 			librdf_free_iterator( iter );
-			rb_raise( rb_eRuntimeError, "iterator returned NULL arc" );
+			rb_raise( rleaf_eRedleafError, "iterator returned NULL arc" );
 		}
 
 		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
@@ -1184,7 +1201,122 @@ rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
 }
 
 
+/*
+ *  call-seq:
+ *     graph.has_predicate_entailing?( predicate, object )   -> true or false
+ *
+ *  Returns +true+ if the graph has at least one statement with the specified +predicate+
+ *  and +object+.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_has_predicate_entailing_p( VALUE self, VALUE predicate, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *target, *arc;
+	VALUE rval = Qfalse;
 
+	rleaf_log_with_context( self, "debug", "checking for presence of a %s predicate entailing %s",
+		RSTRING_PTR(rb_inspect( predicate )), RSTRING_PTR(rb_inspect( object )) );
+	
+	arc = rleaf_value_to_predicate_node( predicate );
+	target = rleaf_value_to_object_node( object );
+
+	if ( librdf_model_has_arc_in(ptr->model, target, arc) != 0 )
+		rval = Qtrue;
+
+	librdf_free_node( target );
+	librdf_free_node( arc );
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.include_subject?( subject )   -> true or false
+ *
+ *  Returns +true+ if the graph contains any statements with the specified +subject+.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_include_subject_p( VALUE self, VALUE subject ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *source;
+	librdf_iterator *iter;
+	VALUE rval = Qfalse;
+
+	rleaf_log_with_context( self, "debug", "Checking for statements with %s as the subject",
+		RSTRING_PTR(rb_inspect( subject )) );
+	
+	source = rleaf_value_to_subject_node( subject );
+	iter = librdf_model_get_arcs_out( ptr->model, source );
+	
+	if ( !iter ) {
+		librdf_free_node( source );
+		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s", rb_inspect(subject) );
+	}
+
+	/* If it's not empty, there was at least one matching statement. */
+	if ( ! librdf_iterator_end(iter) ) rval = Qtrue;
+
+	librdf_free_iterator( iter );
+	librdf_free_node( source );
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     graph.include_object?( object )   -> true or false
+ *
+ *  Returns +true+ if the graph contains any statements with the specified +object+.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_include_object_p( VALUE self, VALUE object ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	librdf_node *target;
+	librdf_iterator *iter;
+	VALUE rval = Qfalse;
+
+	rleaf_log_with_context( self, "debug", "Checking for statements with %s as the object",
+		RSTRING_PTR(rb_inspect( object )) );
+	
+	target = rleaf_value_to_object_node( object );
+	iter = librdf_model_get_arcs_in( ptr->model, target );
+	
+	if ( !iter ) {
+		librdf_free_node( target );
+		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s", rb_inspect(object) );
+	}
+
+	/* If it's not empty, there was at least one matching statement. */
+	if ( ! librdf_iterator_end(iter) ) rval = Qtrue;
+
+	librdf_free_iterator( iter );
+	librdf_free_node( target );
+	
+	return rval;
+}
+
+
+/*
+ *  call-seq:
+ *     model.sync
+ *
+ *  Synchronise the model to the model implementation.
+ *
+ */
+static VALUE
+rleaf_redleaf_graph_sync( VALUE self ) {
+	rleaf_GRAPH *ptr = rleaf_get_graph( self );
+	
+	rleaf_log_with_context( self, "debug", "Syncing graph 0x%x.", self );
+
+	if ( librdf_model_sync(ptr->model) != 0 ) return Qfalse;
+	return Qtrue;
+}
 
 
 /*
@@ -1260,28 +1392,35 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_alias( rleaf_cRedleafGraph, "targets", "objects" );
 	rb_define_alias( rleaf_cRedleafGraph, "target", "object" );
 
-	rb_define_method( rleaf_cRedleafGraph, "predicates_about", rleaf_redleaf_graph_predicates_about, 1 );
+	rb_define_method( rleaf_cRedleafGraph, "predicates_about", 
+		rleaf_redleaf_graph_predicates_about, 1 );
 	rb_define_alias( rleaf_cRedleafGraph, "arcs_out", "predicates_about" );
-	rb_define_method( rleaf_cRedleafGraph, "predicates_entailing", rleaf_redleaf_graph_predicates_entailing, 1 );
+
+	rb_define_method( rleaf_cRedleafGraph, "has_predicate_about?", 
+		rleaf_redleaf_graph_has_predicate_about_p, 2 );
+	rb_define_alias( rleaf_cRedleafGraph, "has_arcs_out?", "has_predicate_about?" );
+	rb_define_alias( rleaf_cRedleafGraph, "arcs_out?", "has_predicate_about?" );
+
+	rb_define_method( rleaf_cRedleafGraph, "predicates_entailing", 
+		rleaf_redleaf_graph_predicates_entailing, 1 );
 	rb_define_alias( rleaf_cRedleafGraph, "arcs_in", "predicates_entailing" );
 
+	rb_define_method( rleaf_cRedleafGraph, "has_predicate_entailing?", 
+		rleaf_redleaf_graph_has_predicate_entailing_p, 2 );
+	rb_define_alias( rleaf_cRedleafGraph, "has_arcs_in?", "has_predicate_entailing?" );
+	rb_define_alias( rleaf_cRedleafGraph, "arcs_in?", "has_predicate_entailing?" );
+
+	rb_define_method( rleaf_cRedleafGraph, "include_subject?",
+		rleaf_redleaf_graph_include_subject_p, 1 );
+	rb_define_method( rleaf_cRedleafGraph, "include_object?",
+		rleaf_redleaf_graph_include_object_p, 1 );
+
+	rb_define_method( rleaf_cRedleafGraph, "sync", rleaf_redleaf_graph_sync, 0 );
 
 	/*
-	-- #has_predicate_in?( object, url )/#has_arc_in?( object, url )
-	int librdf_model_has_arc_in(librdf_model *model, librdf_node *node, librdf_node *property);
-
-	-- #has_predicate_out?( subject, url )/#has_arc_out?( subject, url )
-	int librdf_model_has_arc_out(librdf_model *model, librdf_node *node, librdf_node *property);
-
 	-- #marshal_dump
 	-- #marshal_load
 	librdf_stream* librdf_model_as_stream(librdf_model* model)
-
-	-- #arcs_in( object )
-	librdf_iterator* librdf_model_get_arcs_in(librdf_model* model, librdf_node* node)
-
-	-- #arcs_out( subject )
-	librdf_iterator* librdf_model_get_arcs_out(librdf_model* model, librdf_node* node)
 
 	-- #sync
 	void librdf_model_sync(librdf_model* model)

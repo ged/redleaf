@@ -18,6 +18,9 @@ BEGIN {
 begin
 	$stderr.puts "Loading Redleaf..."
 	require 'redleaf'
+	require 'redleaf/constants'
+	
+	include Redleaf::Constants::CommonNamespaces
 rescue => e
 	$stderr.puts "Ack! Redleaf library failed to load: #{e.message}\n\t" +
 		e.backtrace.join( "\n\t" )

@@ -19,7 +19,7 @@ SPEC_DATADIR = SPECDIR + 'data'
 W3C_TEST_DIR = SPEC_DATADIR + 'w3ctests'
 W3C_TEST_MANIFEST = W3C_TEST_DIR + 'Manifest.rdf'
 
-TESTCASE_URL = URI.parse( 'http://www.w3.org/2000/10/rdf-tests/rdfcore/latest_All.zip' )
+TESTCASE_URL = URI( 'http://www.w3.org/2000/10/rdf-tests/rdfcore/latest_All.zip' )
 TESTCASE_ARCHIVE = SPEC_DATADIR + File.basename( TESTCASE_URL.path )
 
 PARSER_SPECFILE = SPECDIR + "w3c_parser_spec.rb"

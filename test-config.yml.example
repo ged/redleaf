@@ -1,0 +1,8 @@
+mysql:
+    user: test
+    database: test
+postgresql:
+    user: test
+    database: test
+    password: a_password
+    host: localhost
