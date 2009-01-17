@@ -76,7 +76,7 @@ describe Redleaf::Namespace do
 	describe "for a fragment-style namespace URI" do
 
 		before( :each ) do
-			@namespace = Redleaf::Namespace.new( 'http://www.w3.org/TR/xmlschema-2/#' )
+			@namespace = Redleaf::Namespace.new( 'http://www.w3.org/2001/XMLSchema#' )
 		end
 	
 

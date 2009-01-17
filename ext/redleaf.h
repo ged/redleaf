@@ -115,7 +115,7 @@ typedef struct rleaf_graph_object {
 
 #define IsURI( obj ) rb_obj_is_kind_of( (obj), rleaf_rb_cURI )
 
-#define XSD_URI_BASE "http://www.w3.org/TR/xmlschema-2/#"
+#define XSD_URI_BASE "http://www.w3.org/2001/XMLSchema#"
 #define XSD_URI(s) XSD_URI_BASE s
 
 #define XSD_STRING_TYPE  (librdf_new_uri_from_uri( (librdf_uri *)rleaf_xsd_string_typeuri ))

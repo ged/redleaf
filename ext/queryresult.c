@@ -111,22 +111,22 @@ rleaf_new_queryresult( VALUE graph, librdf_query_results *res ) {
 	/* Check the result type, create the appropriate result object based on the
 	   type of response (is_bindings(), is_graph(), is_boolean(), etc.) */
 	if ( librdf_query_results_is_bindings(res) ) {
-		rleaf_log( "debug", "  result is a `bindings` result." );
+		rleaf_log_with_context( graph, "debug", "  result is a `bindings` result." );
 		result_class = rleaf_cRedleafBindingQueryResult;
 	}
 	
 	else if ( librdf_query_results_is_graph(res) ) {
-		rleaf_log( "debug", "  result is a `graph` result." );
+		rleaf_log_with_context( graph, "debug", "  result is a `graph` result." );
 		result_class = rleaf_cRedleafGraphQueryResult;
 	}
 	
 	else if ( librdf_query_results_is_boolean(res) ) {
-		rleaf_log( "debug", "  result is a `boolean` result." );
+		rleaf_log_with_context( graph, "debug", "  result is a `boolean` result." );
 		result_class = rleaf_cRedleafBooleanQueryResult;
 	}
 	
 	else if ( librdf_query_results_is_syntax(res) ) {
-		rleaf_log( "debug", "  result is a `syntax` result." );
+		rleaf_log_with_context( graph, "debug", "  result is a `syntax` result." );
 		result_class = rleaf_cRedleafSyntaxQueryResult;
 	}
 	
@@ -272,8 +272,7 @@ rleaf_redleaf_queryresult_formatted_as( VALUE self, VALUE format ) {
 		rb_class2name(CLASS_OF( self )), RSTRING(rb_obj_as_string(format))->ptr );
 	formaturi = rleaf_object_to_librdf_uri( format );
 	result = librdf_query_results_to_counted_string( res, formaturi, NULL, &length );
-	/* This was causing double free, I think. */
-	/* librdf_free_uri( formaturi ); */
+	librdf_free_uri( formaturi ); 
 	
 	if ( !result )
 		rb_raise( rleaf_eRedleafError, "Could not fetch results as %s", librdf_uri_as_string(formaturi) );
@@ -407,14 +406,15 @@ rleaf_redleaf_graphqueryresult_graph( VALUE self ) {
 		rleaf_GRAPH *graph;
 		librdf_stream *stream;
 
-		if ( !(stream = librdf_query_results_as_stream(res)) )
-			rb_raise( rleaf_eRedleafError, "failed to fetch stream of statements from result <%p>", res );
-
 	 	graphobj = rb_class_new_instance( 0, NULL, rleaf_cRedleafGraph );
 		graph = rleaf_get_graph( graphobj );
 
-		librdf_model_add_statements( graph->model, stream );
-		librdf_free_stream( stream );
+		if ( (stream = librdf_query_results_as_stream(res)) ) {
+			librdf_model_add_statements( graph->model, stream );
+			librdf_free_stream( stream );
+		} else {
+			rleaf_log_with_context( self, "info", "Query resulted in an empty graph." );
+		}
 
 		rb_ivar_set( self, rb_intern("@graph"), graphobj );
 	}
@@ -467,11 +467,6 @@ rleaf_redleaf_booleanqueryresult_value( VALUE self ) {
 void
 rleaf_init_redleaf_queryresult( void ) {
 	rleaf_log( "debug", "Initializing Redleaf::QueryResult" );
-
-#ifdef FOR_RDOC
-	rleaf_mRedleaf = rb_define_module( "Redleaf" );
-#endif
-
 	rb_require( "redleaf/queryresult" );
 
 	/* Redleaf::QueryResult */
@@ -507,15 +502,6 @@ rleaf_init_redleaf_queryresult( void ) {
 	int librdf_query_results_to_file_handle( librdf_query_results *query_results, FILE *handle, librdf_uri *format_uri, librdf_uri *base_uri );
 	int librdf_query_results_to_file( librdf_query_results *query_results, const char *name, librdf_uri *format_uri, librdf_uri *base_uri );
 
-	-- #to_json/#to_xml/#to_mimetype
-	unsigned char* librdf_query_results_to_string( librdf_query_results *query_results, librdf_uri *format_uri, librdf_uri *base_uri);
-	librdf_query_results_formatter* librdf_new_query_results_formatter( librdf_query_results *query_results, const char *name, librdf_uri *uri );
-	librdf_query_results_formatter* librdf_new_query_results_formatter_by_mime_type( librdf_query_results *query_results,const char *mime_type );
-	void librdf_free_query_results_formatter( librdf_query_results_formatter *formatter );
-	int librdf_query_results_formats_check( librdf_world *world, const char *name, librdf_uri *uri, const char *mime_type );
-	int librdf_query_results_formats_enumerate( librdf_world *world, unsigned int counter, const char **name, const char **label, unsigned char **uri_string, const char **mime_type );
-	int librdf_query_results_formatter_write( raptor_iostream *iostr, librdf_query_results_formatter *formatter, librdf_query_results *results, librdf_uri *base_uri );
-
 	*/
 
 
@@ -548,6 +534,6 @@ rleaf_init_redleaf_queryresult( void ) {
 	/*
 	 * Redleaf::SyntaxQueryResult
 	 */
-
+	
 }
 

@@ -37,25 +37,25 @@ module Redleaf # :nodoc:
 				[ string_value, typeuri ]
 
 			case typeuri
-			when XSD[:string], XSD_2001[:string]
+			when XSD[:string]
 				return string_value
 
-			when XSD[:boolean], XSD_2001[:boolean]
+			when XSD[:boolean]
 				return string_value == 'true'
 
-			when XSD[:float], XSD_2001[:float]
+			when XSD[:float]
 				return Float( string_value )
 
-			when XSD[:decimal], XSD_2001[:decimal]
+			when XSD[:decimal]
 				return BigDecimal( string_value )
 
-			when XSD[:integer], XSD_2001[:integer]
+			when XSD[:integer]
 				return Integer( string_value )
 
-			when XSD[:dateTime], XSD_2001[:dateTime]
+			when XSD[:dateTime]
 				return DateTime.parse( string_value )
 
-			when XSD[:duration], XSD_2001[:duration]
+			when XSD[:duration]
 				duration = parse_iso8601_duration( string_value ) or
 					raise TypeError, "Invalid ISO8601 date %p" % [ string_value ]
 				return duration

@@ -357,6 +357,32 @@ describe Redleaf::Statement do
 
 	end
 
+	describe " instances with the same typed literal object" do
+		before( :all ) do
+			setup_logging( :debug )
+		end
+		
+		after( :all ) do
+			reset_logging()
+		end
+
+		before( :each ) do
+			# Values from the 'datatypes/test001.rdf' W3C test
+			@subject   = URI( 'http://example.org/foo' )
+			@predicate = URI( 'http://example.org/baz' )
+			@object    = 10 # ^^<http://www.w3.org/2001/XMLSchema#integer>
+
+			@statement1 = Redleaf::Statement.new( @subject, @predicate, @object )
+			@statement2 = Redleaf::Statement.new( @subject, @predicate, @object )
+		end
+
+
+		it "are == to each other" do
+			@statement1.should == @statement2
+		end
+
+	end
+
 end
 
 # vim: set nosta noet ts=4 sw=4:

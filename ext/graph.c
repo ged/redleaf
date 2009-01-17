@@ -538,7 +538,7 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
 	int count = 0;
 	VALUE rval = rb_ary_new();
 
-	rleaf_log_with_context( self, "debug", "searching for statements matching [%s, %s, %s]",
+	rleaf_log_with_context( self, "debug", "searching for statements matching {%s, %s, %s}",
 		RSTRING(rb_inspect(subject))->ptr,
 		RSTRING(rb_inspect(predicate))->ptr,
 		RSTRING(rb_inspect(object))->ptr );
@@ -805,12 +805,12 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	rleaf_log_with_context(
 		self,
 		"debug",
-		"Executing query: %s (%s) with offset: %s, limit %s, and base %s",
-		rb_inspect(qstring),
-		rb_inspect(language),
-		rb_inspect(limit),
-		rb_inspect(offset),
-		rb_inspect(base)
+		"Executing query=%s (%s) with offset=%s, limit=%s, and base=%s",
+		RSTRING_PTR(rb_inspect( qstring )),
+		RSTRING_PTR(rb_inspect( language )),
+		RSTRING_PTR(rb_inspect( limit )),
+		RSTRING_PTR(rb_inspect( offset )),
+		RSTRING_PTR(rb_inspect( base ))
 	  );
 
 	/* Set the query language, from a URI or a language name string */
@@ -835,7 +835,7 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	
 	/* Make the query object */
 	rleaf_log_with_context( self, "debug", "  creating a new '%s' query: %s", 
-		qlang_name, StringValuePtr(qstring) );
+		qlang_name, RSTRING_PTR(qstring) );
 	query = librdf_new_query( rleaf_rdf_world, qlang_name, qlang_uri, 
 		(unsigned char *)(StringValuePtr(qstring)), base_uri );
 	if ( !query ) {
@@ -1417,18 +1417,8 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_method( rleaf_cRedleafGraph, "sync", rleaf_redleaf_graph_sync, 0 );
 
 	/*
-	-- #marshal_dump
-	-- #marshal_load
-	librdf_stream* librdf_model_as_stream(librdf_model* model)
-
-	-- #sync
-	void librdf_model_sync(librdf_model* model)
-
-	-- #to_s
-	-- Maybe methods like: #as_ntriples, #as_rdfxml, etc? that use the mime_type parameter.
-	unsigned char* librdf_model_to_counted_string( librdf_model *model, librdf_uri *uri, const char *name, const char *mime_type, librdf_uri *type_uri, size_t *string_length_p );
-	unsigned char* librdf_model_to_string( librdf_model *model, librdf_uri *uri, const char *name, const char *mime_type, librdf_uri *type_uri );
 	
+	FUTURE WORK:
 	
 	--------------------------------------------------------------
 	Transactions                                                  
@@ -1445,7 +1435,7 @@ rleaf_init_redleaf_graph( void ) {
 	Contexts                                                      
 	--------------------------------------------------------------
 
-	-- 
+	-- #context { block }
 	int librdf_model_context_add_statement(librdf_model* model, librdf_node* context, librdf_statement* statement)
 	int librdf_model_context_add_statements(librdf_model* model, librdf_node* context, librdf_stream* stream)
 	int librdf_model_context_remove_statement(librdf_model* model, librdf_node* context, librdf_statement* statement)

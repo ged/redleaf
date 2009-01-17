@@ -36,6 +36,7 @@ MISCELLANEOUS_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_miscellaneous_spec.templat
 ###	T A S K S
 #####################################################################
 
+desc "Generate specs for the W3C RDF test suite"
 task :w3ctests => [ 'w3ctests:generate' ]
 
 begin
@@ -49,10 +50,21 @@ begin
 		desc "Generate W3C specs"
 		task :generate => [ PARSER_SPECFILE, ENTAILMENT_SPECFILE, MISCELLANEOUS_SPECFILE ]
 
+		# The spec/data directory
+		directory W3C_TEST_DIR.to_s
+
+		# Download the latest testcase zipfile
+		file TESTCASE_ARCHIVE => W3C_TEST_DIR do
+			download TESTCASE_URL, TESTCASE_ARCHIVE
+		end
+		CLOBBER.include( TESTCASE_ARCHIVE )
+
+
 		# Need the data files from the W3C test suite -- download it and unpack it
 		# if necessary
-		file W3C_TEST_MANIFEST.to_s => [ W3C_TEST_DIR, TESTCASE_ARCHIVE ] do
+		file W3C_TEST_MANIFEST => [ TESTCASE_ARCHIVE, W3C_TEST_DIR ] do
 			log "Extracting #{TESTCASE_ARCHIVE}"
+			rm_rf( W3C_TEST_DIR, :verbose => $trace )
 			Zip::ZipFile.open( TESTCASE_ARCHIVE ) do |zipfile|
 				zipfile.each do |file|
 					target = W3C_TEST_DIR + file.to_s
@@ -64,18 +76,10 @@ begin
 			touch( W3C_TEST_MANIFEST, :verbose => $trace )
 		end
 
-		# The spec/data directory
-		directory W3C_TEST_DIR.to_s
-
-		# Download the latest testcase zipfile
-		file TESTCASE_ARCHIVE.to_s do
-			download TESTCASE_URL, TESTCASE_ARCHIVE
-		end
-		CLOBBER.include( TESTCASE_ARCHIVE )
-
-
+		
+		
 		# The specfile that runs examples built from the 'parser' W3C testcases
-		file PARSER_SPECFILE => [ PARSER_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ] do
+		file PARSER_SPECFILE => [ PARSER_SPEC_TEMPLATE, W3C_TEST_MANIFEST ] do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
 			log "Writing #{PARSER_SPECFILE}..."
@@ -88,7 +92,7 @@ begin
 
 
 		# The specfile that runs examples built from the 'entailment' W3C testcases
-		file ENTAILMENT_SPECFILE => [ ENTAILMENT_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ] do
+		file ENTAILMENT_SPECFILE => [ ENTAILMENT_SPEC_TEMPLATE, W3C_TEST_MANIFEST ] do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
 			log "Writing #{ENTAILMENT_SPECFILE}..."
@@ -101,7 +105,7 @@ begin
 
 
 		# The specfile that runs examples built from the 'miscellaneous' W3C testcases
-		file MISCELLANEOUS_SPECFILE => [ MISCELLANEOUS_SPEC_TEMPLATE, W3C_TEST_MANIFEST.to_s ]do
+		file MISCELLANEOUS_SPECFILE => [ MISCELLANEOUS_SPEC_TEMPLATE, W3C_TEST_MANIFEST ]do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
 
 			log "Writing #{MISCELLANEOUS_SPECFILE}..."

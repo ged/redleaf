@@ -371,7 +371,7 @@ describe Redleaf::Graph do
 			@graph = Redleaf::Graph.new
 		end
 
-		it "can be queried with SPARQL" do
+		it "can be queried with a SELECT SPARQL statement" do
 			@graph <<
 				[ :_a, RDF[:type], FOAF[:Person] ] <<
 				[ :_a, FOAF[:name], "Alice" ]
@@ -390,6 +390,90 @@ describe Redleaf::Graph do
 			res = @graph.query( sparql )
 			res.should be_an_instance_of( Redleaf::BindingQueryResult )
 			res.bindings.should == [:name]
+		end
+
+
+		it "can be queried with a CONSTRUCT SPARQL statement" do
+			site = Redleaf::Namespace.new( 'http://example.org/stats#' )
+			@graph <<
+				[ :_a, FOAF[:name], "Alice" ] <<
+				[ :_a, site[:hits], 2349 ] <<
+
+				[ :_b, FOAF[:name], "Bob" ] <<
+				[ :_b, site[:hits], 105 ] <<
+
+				[ :_c, FOAF[:name], "Eve" ] <<
+				[ :_c, site[:hits], 181 ]
+
+			sparql = %{
+				CONSTRUCT { [] foaf:name ?name }
+				WHERE
+				{ [] foaf:name ?name ;
+				     site:hits ?hits .
+				}
+				ORDER BY desc(?hits)
+				LIMIT 2
+			}
+
+			expected_graph = Redleaf::Graph.new
+			expected_graph <<
+				[ :_x, FOAF[:name], "Alice" ] <<
+				[ :_y, FOAF[:name], "Eve" ]
+
+			res = @graph.query( sparql, :foaf => FOAF, :site => site )
+			res.should be_an_instance_of( Redleaf::GraphQueryResult )
+			res.graph.should be_an_instance_of( Redleaf::Graph )
+			res.graph.should_not equal( @graph )
+			res.graph.size.should == 2
+			res.graph.should === expected_graph
+		end
+
+
+		it "can be queried with an ASK SPARQL statement" do
+			@graph <<
+				[ :_a, FOAF[:name],       "Alice" ] <<
+				[ :_a, FOAF[:homepage],   URI('http://work.example.org/alice/') ] <<
+				[ :_b, FOAF[:name],       "Bob" ] <<
+				[ :_b, FOAF[:mbox],       URI('mailto:bob@work.example') ]
+			
+			sparql = %{
+				PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
+				ASK  { ?x foaf:name  "Alice" }
+			}
+			
+			res = @graph.query( sparql )
+			res.should be_an_instance_of( Redleaf::BooleanQueryResult )
+			res.value.should be_true()
+		end
+
+
+		it "can be queried with a DESCRIBE SPARQL statement with no WHERE clause" do
+			sparql = %{
+				DESCRIBE <http://example.org/>
+			}
+			
+			res = @graph.query( sparql )
+			res.graph.should be_empty()
+		end
+
+		it "can be queried with a DESCRIBE SPARQL statement" do
+			@graph <<
+				[:_a, FOAF[:givenname],   'Alice' ] <<
+				[:_a, FOAF[:family_name], 'Hacker' ] <<
+				[:_b, FOAF[:firstname],   'Bob' ] <<
+				[:_b, FOAF[:surname],     'Hacker' ]
+			
+
+			sparql = %{
+				PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
+				DESCRIBE ?x
+				WHERE    { ?x foaf:family_name "Hacker" }
+			}
+			
+			pending "figuring out what the hell I'm doing wrong" do
+				res = @graph.query( sparql )
+				res.graph.should_not be_empty()
+			end
 		end
 	end
 	

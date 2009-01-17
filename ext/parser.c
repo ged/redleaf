@@ -352,23 +352,18 @@ void rleaf_init_redleaf_parser( void ) {
 	
 	/*
 
-	librdf_stream* librdf_parser_parse_as_stream( librdf_parser *parser, librdf_uri *uri, librdf_uri *base_uri );
-	int librdf_parser_parse_into_model( librdf_parser *parser, librdf_uri *uri, librdf_uri *base_uri, librdf_model *model );
-	librdf_stream* librdf_parser_parse_string_as_stream( librdf_parser *parser, unsigned char *string, librdf_uri *base_uri );
-	int librdf_parser_parse_string_into_model( librdf_parser *parser, unsigned char *string, librdf_uri *base_uri, librdf_model *model );
+	FUTURE WORK:
 
-	librdf_stream* librdf_parser_parse_counted_string_as_stream( librdf_parser *parser, unsigned char *string, size_t length, librdf_uri *base_uri );
-	int librdf_parser_parse_counted_string_into_model( librdf_parser *parser, unsigned char *string, size_t length, librdf_uri *base_uri, librdf_model *model );
-
-	#define             LIBRDF_PARSER_FEATURE_ERROR_COUNT
-	#define             LIBRDF_PARSER_FEATURE_WARNING_COUNT
-	librdf_node* librdf_parser_get_feature( librdf_parser *parser, librdf_uri *feature );
-	int librdf_parser_set_feature( librdf_parser *parser, librdf_uri *feature, librdf_node *value );
-
-	char* librdf_parser_get_accept_header( librdf_parser *parser );
+	-- #namespaces_seen_count
 	int librdf_parser_get_namespaces_seen_count( librdf_parser *parser );
+
+	-- #namespace_seen_prefixes
 	const char* librdf_parser_get_namespaces_seen_prefix( librdf_parser *parser, int offset );
+	
+	-- #namespace_seen_uris
 	librdf_uri* librdf_parser_get_namespaces_seen_uri( librdf_parser *parser, int offset );
+
+	-- #filter_uri {|uri| return true if the parser should fetch }
 	librdf_uri_filter_func librdf_parser_get_uri_filter( librdf_parser *parser, void **user_data_p );
 	void librdf_parser_set_uri_filter( librdf_parser *parser, librdf_uri_filter_funcfilter, void *user_data );
 

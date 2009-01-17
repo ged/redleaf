@@ -53,8 +53,7 @@ module Redleaf::Constants
 		OWL        = Redleaf::Namespace.new( 'http://www.w3.org/2002/07/owl#' )
 
 		# The XML Schema namespace
-		XSD        = Redleaf::Namespace.new( 'http://www.w3.org/TR/xmlschema-2/#' )
-		XSD_2001   = Redleaf::Namespace.new( 'http://www.w3.org/2001/XMLSchema#' )
+		XSD        = Redleaf::Namespace.new( 'http://www.w3.org/2001/XMLSchema#' )
 		
 		# The Creative Commons licensing vocabulary
 		CC         = Redleaf::Namespace.new( 'http://creativecommons.org/ns#' )
