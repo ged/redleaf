@@ -19,6 +19,17 @@ require 'redleaf/store/hashes'
 
 XHTML_MANIFEST = 'http://www.w3.org/2006/07/SWD/RDFa/testsuite/xhtml1-testcases/rdfa-xhtml1-test-manifest.rdf'
 
+SPEC_TEMPLATE = <<-EOF
+	it "passes RDFa test %s" do
+		xhtml = %p
+		sparql = %p
+		
+		res = @parser.parse( xhtml )
+		res.graph.query( sparql ).should be_true()
+	end
+	
+EOF
+
 include Redleaf::Constants::CommonNamespaces
 TEST = Redleaf::Namespace.new( 'http://www.w3.org/2006/03/test-description#' )
 
@@ -34,16 +45,19 @@ else
 end
 
 sparql = %{
-	SELECT ?test ?input ?result
+	SELECT ?test ?title ?input ?result
 	WHERE {
 		?test test:reviewStatus test:approved ;
+		      dc:title ?title ;
 		      test:informationResourceInput ?input ;
 		      test:informationResourceResults ?result .
 	}
 }
 
 puts "Approved tests: "
-graph.query( sparql, :test => TEST ).each do |row|
-	puts row.inspect
+graph.query( sparql, :test => TEST, :dc => DC ).each do |row|
+	number = row[:test][/\d+$/]
+
+	puts SPEC_TEMPLATE % row.values_at( :test, xhtml, sparql )
 end
 
