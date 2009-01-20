@@ -64,13 +64,23 @@ describe Redleaf::RDFaParser do
 		
 		
 		it_should_behave_like "A Parser"
+
+
+		it "requires that #parse be called with a baseuri to avoid segfaulting" do
+			lambda {
+				@parser.parse( "something" )
+			}.should raise_error( ArgumentError, /baseuri/ )
+		end
 		
 
-		it "parses valid XHTML1.1+RDFa content"
 		it "raises an error when asked to parse input that isn't valid XHTML"
-
 	end
+
+
+	### See also the spec generated from the W3C RDFa tests suite via the 'rdfatests' task
+	### for more RDFa testing
 
 end
 
 # vim: set nosta noet ts=4 sw=4:
+	

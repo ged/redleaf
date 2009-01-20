@@ -13,6 +13,8 @@ BEGIN {
 	$LOAD_PATH.unshift( extdir.to_s )
 }
 
+require 'open-uri'
+
 require 'redleaf'
 require 'redleaf/constants'
 require 'redleaf/store/hashes'
@@ -21,14 +23,19 @@ XHTML_MANIFEST = 'http://www.w3.org/2006/07/SWD/RDFa/testsuite/xhtml1-testcases/
 
 SPEC_TEMPLATE = <<-EOF
 	it "passes RDFa test %s" do
-		xhtml = %p
-		sparql = %p
+		xhtml = File.read( '%s' )
+		sparql = File.read( '%s' )
 		
-		res = @parser.parse( xhtml )
-		res.graph.query( sparql ).should be_true()
+		graph = @parser.parse( xhtml, '%s' )
+		graph.query( sparql ).should be_true()
 	end
 	
 EOF
+
+BASEDIR = Pathname( __FILE__ ).dirname.parent
+SPECDIR = BASEDIR + 'spec'
+RDFA_SPECDIR = SPECDIR + 'rdfa'
+RDFA_SPECDIR.mkpath
 
 include Redleaf::Constants::CommonNamespaces
 TEST = Redleaf::Namespace.new( 'http://www.w3.org/2006/03/test-description#' )
@@ -56,8 +63,40 @@ sparql = %{
 
 puts "Approved tests: "
 graph.query( sparql, :test => TEST, :dc => DC ).each do |row|
-	number = row[:test][/\d+$/]
+	input_uri = row[:input]
+	input_file = RDFA_SPECDIR + Pathname( input_uri.path ).basename
+	result_uri = row[:result]
+	result_file = RDFA_SPECDIR + Pathname( result_uri.path ).basename
 
-	puts SPEC_TEMPLATE % row.values_at( :test, xhtml, sparql )
+	if !input_file.exist?
+		$stderr.puts "Downloading %s from %s" % [ input_file, input_uri ]
+		input_file.open( 'w' ) do |fh|
+			io = open( input_uri )
+			fh.write( io.read )
+		end
+		$stderr.puts "  sleeping for politeness..."
+		sleep 1
+	else
+		$stderr.puts "Reusing existing %s" % [ input_file ]
+	end
+		
+	if !result_file.exist?
+		$stderr.puts "Downloading %s from %s" % [ result_file, result_uri ]
+		result_file.open( 'w' ) do |fh|
+			io = open( result_uri )
+			fh.write( io.read )
+		end
+		$stderr.puts "  sleeping for politeness..."
+		sleep 1
+	else
+		$stderr.puts "Reusing existing %s" % [ result_file ]
+	end
+		
+	puts SPEC_TEMPLATE % [
+		row[:test],
+		input_file.relative_path_from( BASEDIR ),
+		result_file.relative_path_from( BASEDIR ),
+		input_uri,
+	]
 end
 

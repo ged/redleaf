@@ -1,13 +1,23 @@
 #!rake
 
-W3CTEST_TASKLIB = SPECDIR + 'w3ctest-tasks.rb'
+SPEC_DATADIR     = SPECDIR + 'data'
+SPEC_TEMPLATEDIR = SPECDIR + 'templates'
+
+W3CTEST_TASKLIB  = SPECDIR + 'w3ctest-tasks.rb'
+RDFATEST_TASKLIB = SPECDIR + 'rdfatest-tasks.rb'
 
 # Load the W3C test rake tasks
 trace "Adding tasks from #{W3CTEST_TASKLIB}"
 load W3CTEST_TASKLIB
+trace "Adding tasks from #{RDFATEST_TASKLIB}"
+load RDFATEST_TASKLIB
+
 
 desc "Build the W3C conformance test suite"
 task :build_specs => 'w3ctests:generate'
+
+desc "Build the W3C RDFa test suite"
+task :build_specs => 'rdfatests:generate'
 
 # C extension constants
 EXT_MAKEFILE  = EXTDIR + 'Makefile'

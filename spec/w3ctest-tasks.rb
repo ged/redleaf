@@ -15,7 +15,6 @@ require 'uri'
 require 'pathname'
 
 SPEC_GENERATOR = SPECDIR + 'spec_generator.rb'
-SPEC_DATADIR = SPECDIR + 'data'
 W3C_TEST_DIR = SPEC_DATADIR + 'w3ctests'
 W3C_TEST_MANIFEST = W3C_TEST_DIR + 'Manifest.rdf'
 
@@ -26,7 +25,6 @@ PARSER_SPECFILE = SPECDIR + "w3c_parser_spec.rb"
 ENTAILMENT_SPECFILE = SPECDIR + "w3c_entailment_spec.rb"
 MISCELLANEOUS_SPECFILE = SPECDIR + "w3c_miscellaneous_spec.rb"
 
-SPEC_TEMPLATEDIR = SPECDIR + 'templates'
 PARSER_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_parser_spec.template'
 ENTAILMENT_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_entailment_spec.template'
 MISCELLANEOUS_SPEC_TEMPLATE = SPEC_TEMPLATEDIR + 'w3c_miscellaneous_spec.template'

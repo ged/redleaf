@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+BEGIN {
+	require 'pathname'
+	basedir = Pathname.new( __FILE__ ).dirname.parent
+
+	libdir = basedir + "lib"
+	extdir = basedir + "ext"
+
+	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
+	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
+}
+
+begin
+	require 'redleaf'
+	require 'redleaf/graph'
+	require 'redleaf/parser/rdfa'
+
+	require 'spec'
+	require 'spec/lib/helpers'
+	require 'spec/lib/constants'
+rescue LoadError
+	unless Object.const_defined?( :Gem )
+		require 'rubygems'
+		retry
+	end
+	raise
+end
+
+
+
+#####################################################################
+###	C O N T E X T S
+#####################################################################
+describe Redleaf::RDFaParser do
+	include Redleaf::SpecHelpers
+
+	before( :all ) do
+		@specdir = Pathname.new( __FILE__ ).expand_path.dirname.relative_path_from( Pathname.getwd )
+		@datadir = @specdir + 'data/rdfatests'
+	end
+
+	before( :each ) do
+		setup_logging( :fatal )
+		@parser = Redleaf::RDFaParser.new
+	end
+	
+	after( :each ) do
+		reset_logging()
+	end
+	
+
+<% examples.each do |example| %>
+<%= example[:comment] %>
+	# <<%= example[:test] %>>
+	it %{passes W3C RDFa test <%= example[:number] %>: <%= example[:title] %>} do
+<% if example[:pending] %>
+		pending "<%= example[:pending] %>"
+<% end %>
+		input_uri = URI( '<%= example[:input] %>' )
+		input_file = @datadir + Pathname( input_uri.path ).basename
+		result_uri = URI( '<%= example[:result] %>' )
+		result_file = @datadir + Pathname( result_uri.path ).basename
+
+		xhtml = input_file.read
+		sparql = result_file.read
+		
+		graph = @parser.parse( xhtml, input_uri )
+		graph.query( sparql ).should be_true()
+	end
+
+	
+<% end %>
+
+end
+
+# vim: set nosta noet ts=4 sw=4:
