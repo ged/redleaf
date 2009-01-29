@@ -1,3 +1,79 @@
+-- Tue, 20 Jan 2009 22:36:59 -0000 by deveiant (r73) -----
+   Added:   spec/templates/w3c_rdfa_spec.template (new)
+            spec/rdfatest-tasks.rb
+            -> renamed from /trunk/spec/w3ctest-tasks.rb@r72
+   Changed: spec/redleaf/parser/rdfa_spec.rb
+            lib/redleaf/parser/rdfa.rb
+            spec/data
+            experiments/build-rdfa-specs.rb
+            spec
+            Rakefile.local (and 2 other/s)
+
+    * Finished addition of the W3C RDFa test suite spec
+
+
+-- Mon, 19 Jan 2009 21:26:21 -0000 by deveiant (r72) -----
+   Changed: experiments/build-rdfa-specs.rb
+            spec/redleaf/statement_spec.rb
+
+    * Added a bit more to the RDFa test suite experiment.
+    * Turned off accidentally-committed debug level output for one of Statement's specs.
+
+
+-- Sat, 17 Jan 2009 02:35:34 -0000 by deveiant (r71) -----
+   Added:   experiments/rdfa-xhtml1-test-manifest.rdf (new)
+            experiments/build-rdfa-specs.rb (new)
+   Changed: ext/parser.c
+            /trunk
+            ext/graph.c
+            spec/redleaf/namespace_spec.rb
+            ext/queryresult.c
+            lib/redleaf/constants.rb (and 6 other/s)
+
+    * Cleaned up some of the graph code.
+    * Moved back to using the correct XSD namespace URI.
+    * Started work on the RDFa parser tests
+    * Fixed the W3C test suite rake tasks so they don't try to re-extract the files.
+    * Added some more query result specs.
+
+
+-- Thu, 15 Jan 2009 19:15:51 -0000 by deveiant (r70) -----
+   Changed: README
+            lib/redleaf/parser/grddl.rb
+            lib/redleaf/parser/ntriples.rb
+            lib/redleaf/namespace.rb
+            project.yml
+            lib/redleaf/store/sqlite.rb (and 38 other/s)
+
+   Removed Mahlon attributions at his request. :(
+
+
+-- Thu, 15 Jan 2009 19:01:32 -0000 by deveiant (r69) -----
+   Added:   examples/foaf2.rb (new)
+            experiments/tagsoup.rb (new)
+            test-config.yml.example (new)
+            experiments/class-finalizer.rb (new)
+   Changed: spec/redleaf/namespace_spec.rb
+            lib/redleaf/namespace.rb
+            project.yml
+            spec/redleaf/graph_spec.rb
+            spec/w3ctest-tasks.rb
+            Rakefile.local (and 25 other/s)
+
+    * Updated build system
+    * Fixed malloc bugs caused by logging from mark/free functions.
+    * Replaced RuntimeErrors in lots of places with Redleaf::Errors for ease of exception-handling.
+    * Redleaf::Graph
+    - Added new methods: #has_predicate_about?, #has_predicate_entailing?, #include_subject?,
+    #include_object?, #sync
+    * Added Redleaf::Namespace#fragment_style? and fixed an inverted-logic bug in the initial code that
+    set it.
+    * More work on Archetypes
+    * Bumped required version of RSpec to 1.1.11 for hash-matching fix
+    * Removed leftover 'mkrf' require
+    * Added testing-config example file
+
+
 -- Wed, 10 Dec 2008 01:54:23 -0000 by deveiant (r68) -----
    Changed: spec/redleaf/store/postgresql_spec.rb
             lib/redleaf/store/postgresql.rb

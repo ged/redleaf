@@ -24,16 +24,16 @@ to make adding RDF to a Ruby application as simple as possible.
 
 h2. Other RDF Libraries
 
-We tried out a few other RDF libraries for Ruby, and while each of them is full of great ideas, we ultimately wanted something a little different than what any of them offered.
+I tried out a few other RDF libraries for Ruby, and while each of them is full of great ideas, I ultimately wanted something a little different than what any of them offered.
 
 <dl class="link-catalog">
 	<dt>Redland – "http://librdf.org/":http://librdf.org/</dt>
 	<dd>The Ruby binding for the excellent collection of RDF libraries grouped under
-		the name 'Redland' came the closest to what we wanted. The SWIG-based interface
-		ultimately still showed through, and our initial trials exposed some design decisions
-		that we didn't feel like we could work around. We're of course still using the same
-		excellent C backend, but we're custom-fitting it to Ruby in a more intimate way, and 
-		adding what we think is a more-natural way of using RDF from Ruby for practical 
+		the name 'Redland' came the closest to what I wanted. The SWIG-based interface
+		ultimately still showed through, and my initial trials exposed some design decisions
+		that I didn't feel like I could work around. I'm of course still using the same
+		excellent C backend, but I'm custom-fitting it to Ruby in a more intimate way, and 
+		adding what I think is a more-natural way of using RDF from Ruby for practical 
 		tasks.</dd>
 	<dt>Semitar – "http://semitar.projects.semwebcentral.org/":http://semitar.projects.semwebcentral.org/</dt>
 	<dd>This was a project that Rich Kilmer described to be in great detail at the 2003
@@ -52,7 +52,7 @@ We tried out a few other RDF libraries for Ruby, and while each of them is full 
 	<dd>There are a few other libraries for doing RDF stuff on Rubyforge, but nothing that
 		is as feature-complete or flexible as Redland, and nothing that presents a 
 		more-Rubyish interface. That's not to say that they're bad, of course, just not
-		our cup of tea.</dd>
+		my cup of tea.</dd>
 </dl>
 
 h2. Authors

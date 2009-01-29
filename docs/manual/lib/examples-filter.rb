@@ -47,7 +47,7 @@ class ExamplesFilter < Manual::Page::Filter
 		:line_numbers => :inline,
 		:tab_width    => 4,
 		:hint         => :debug,
-		:testable     => true
+		:testable     => false,
 	}
 
 	# PI	   ::= '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'

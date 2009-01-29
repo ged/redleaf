@@ -25,7 +25,8 @@ require 'redleaf/utils'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::Statement
-	include Redleaf::Loggable,
+	include Comparable,
+	        Redleaf::Loggable,
 	        Redleaf::Constants::CommonNamespaces,
 	        Redleaf::NodeUtils
 
@@ -39,6 +40,15 @@ class Redleaf::Statement
 	### Generates a Fixnum hash value for the statement, made up of the hash of its components.
 	def hash
 		return [ self.subject, self.predicate, self.object ].hash
+	end
+	
+	
+	### Comparable interface
+	def <=>( other )
+		return 0 unless other
+		return ( self.subject.to_s <=> other.subject.to_s ).nonzero? ||
+		       ( self.predicate.to_s <=> other.predicate.to_s ).nonzero? ||
+		       ( self.object.to_s <=> other.object.to_s )
 	end
 	
 

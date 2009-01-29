@@ -276,6 +276,10 @@ describe Redleaf::Statement do
 			@statement2.should === @statement1
 		end
 
+		it "sort as equal" do
+			(@statement1 <=> @statement2).should == 0
+		end
+
 	end
 
 
@@ -302,6 +306,11 @@ describe Redleaf::Statement do
 		it "do not case-match each other" do
 			@statement1.should_not === @statement2
 		end
+
+		it "sort on the subject" do
+			@statement2.should > @statement1
+		end
+
 	end
 
 
@@ -326,6 +335,11 @@ describe Redleaf::Statement do
 		it "case-match each other" do
 			@statement1.should === @statement2
 		end
+
+		it "sort on the subject" do
+			( @statement1 <=> @statement2 ).should == 0
+		end
+
 	end
 
 
@@ -353,6 +367,10 @@ describe Redleaf::Statement do
 
 		it "case-match each other" do
 			@statement1.should === @statement2
+		end
+
+		it "sort with the null subject first" do
+			@statement1.should > @statement2
 		end
 
 	end

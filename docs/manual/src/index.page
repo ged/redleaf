@@ -14,9 +14,20 @@ h1. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
-Redleaf is an RDF library for Ruby.
+Redleaf is an RDF library for Ruby. It's intended as a high-level, approachable, idiomatic binding to the "Redland library":http://librdf.org/ by Dave Beckett. If you're interested in the who and why of the project, you can read more in the <?link Project Information ?> page.
 
-This manual is still a work in progress, but here's the stuff that's at least done enough to be useful:
+If you just want to get started, it's easy (assuming you "know a little about RDF":http://www.w3.org/2007/02/turtle/primer/ already):
+
+<?example { } ?>
+require 'redleaf'
+
+graph = Redleaf::Graph.new
+graph.load( 'http://www.w3.org/2000/04/mem-news/public-groups.rdf' )
+
+graph[ URI('mailto:semantic-web@w3.org'), nil, nil ].each do |stmt|
+	puts "%s -> %s" % [ stmt.predicate, stmt.object ]
+end
+<?end?>
 
 <ol>
 	<li><?link Project Information ?></li>
