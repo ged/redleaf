@@ -18,19 +18,33 @@ Redleaf is an RDF library for Ruby. It's intended as a high-level, approachable,
 
 If you just want to get started, it's easy (assuming you "know a little about RDF":http://www.w3.org/2007/02/turtle/primer/ already):
 
-<?example { } ?>
+<?example { language: ruby, caption: "Find the mailing-list archives for all the W3C interest groups" } ?>
 require 'redleaf'
 
 graph = Redleaf::Graph.new
 graph.load( 'http://www.w3.org/2000/04/mem-news/public-groups.rdf' )
+CONTACT = Redleaf::Namespace.new( 'http://www.w3.org/2000/10/swap/pim/contact#' )
 
-graph[ URI('mailto:semantic-web@w3.org'), nil, nil ].each do |stmt|
-	puts "%s -> %s" % [ stmt.predicate, stmt.object ]
+puts "The W3C Interest Group mailing list archives: "
+graph[ nil, CONTACT[:archive], nil ].each do |statement|
+	puts "%s: %s" % [ statement.subject.to, statement.object ]
 end
 <?end?>
 
-<ol>
-	<li><?link Project Information ?></li>
-	<li><?link Design Overview ?></li>
-</ol>
+This prints:
+
+<?example { language: r_console, caption: "Output from the example above." } ?>
+www-tag@w3.org: http://lists.w3.org/Archives/Public/www-tag/
+www-smil@w3.org: http://lists.w3.org/Archives/Public/www-smil/
+public-tt@w3.org: http://lists.w3.org/Archives/Public/public-tt/
+www-ws-cg@w3.org: http://lists.w3.org/Archives/Public/www-ws-cg/
+public-exi@w3.org: http://lists.w3.org/Archives/Public/public-exi/
+public-sml@w3.org: http://lists.w3.org/Archives/Public/public-sml/
+[...]
+<?end?>
+
+
+
+# <?link Project Information ?>
+# <?link Design Overview ?>
 

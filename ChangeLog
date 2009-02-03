@@ -1,3 +1,16 @@
+-- Thu, 29 Jan 2009 00:57:54 -0000 by deveiant (r74) -----
+   Changed: docs/manual/lib/examples-filter.rb
+            docs/manual/src/index.page
+            lib/redleaf/statement.rb
+            docs/manual/src/about.page
+            ChangeLog
+            spec/redleaf/statement_spec.rb (and 1 other/s)
+
+    * Made Redleaf::Statement Comparable
+    * Turned off testing for examples by default
+    * Small documentation changes
+
+
 -- Tue, 20 Jan 2009 22:36:59 -0000 by deveiant (r73) -----
    Added:   spec/templates/w3c_rdfa_spec.template (new)
             spec/rdfatest-tasks.rb

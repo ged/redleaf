@@ -1,6 +1,7 @@
 /* @override 
 	http://gont.ljc.laika.com/Redleaf/css/manual.css
 	http://localhost/Redleaf/css/manual.css
+	http://localhost/redleaf/css/manual.css
 */
 
 /* 
@@ -86,6 +87,15 @@ a {
 }
 a + img {
 	border: 0;
+}
+h1 a,
+h2 a,
+h3 a,
+h4 a,
+h5 a,
+h6 a {
+	border: 0;
+	color: inherit;
 }
 
 dl {
@@ -182,6 +192,9 @@ div.example pre {
 pre.deveiate .line-numbers {
 	background-color: #474860;
 	color: #f3f3f3;
+}
+pre.console-output {
+	
 }
 
 /* @end Examples */

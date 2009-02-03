@@ -18,3 +18,5 @@ h2. Class Diagram
 
 The Redleaf classes follow the basic design of the Redland library, from which it derives most of its underlying functionality, with a few minor modifications:
 
+!images/design-overview.png(Design Overview)!
+

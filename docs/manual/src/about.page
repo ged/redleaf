@@ -10,21 +10,11 @@ filters:
 
 h1. <%= page.config['title'] %>
 
-Redleaf is composed of a hand-written C binding to the "Redland RDF Libraries":http://librdf.org/,
-and a high-level, more idiomatic layer written in Ruby that wraps the low-level Redland API
-functions. The high-level layer is intended to make Redland mesh more naturally with the way Ruby
-works, so the objects for working with RDF behave the same as any other Ruby object. The intent is
-to make adding RDF to a Ruby application as simple as possible.
-
-<a href="http://en.wikipedia.org/wiki/Resource_Description_Framework">Wikipedia</a> describes RDF as:
-
-<blockquote>
-[A] family of World Wide Web Consortium (W3C) specifications, originally designed as a metadata data model, which has come to be used as a general method of modeling information through a variety of syntax formats.
-</blockquote>
+Redleaf is an alternative Ruby interface to the "Redland RDF library":http://librdf.org/ by Dave Beckett. It was written to provide the backend for the RDF-backed metastore for the  "ThingFish":http://opensource.laika.com/wiki/ThingFish digital asset management server. 
 
 h2. Other RDF Libraries
 
-I tried out a few other RDF libraries for Ruby, and while each of them is full of great ideas, I ultimately wanted something a little different than what any of them offered.
+In my search for something a little more Rubyish, I tried out a few other RDF libraries, and while each of them is full of great ideas, I ultimately wanted something a little different than what any of them offered.
 
 <dl class="link-catalog">
 	<dt>Redland – "http://librdf.org/":http://librdf.org/</dt>
@@ -36,7 +26,7 @@ I tried out a few other RDF libraries for Ruby, and while each of them is full o
 		adding what I think is a more-natural way of using RDF from Ruby for practical 
 		tasks.</dd>
 	<dt>Semitar – "http://semitar.projects.semwebcentral.org/":http://semitar.projects.semwebcentral.org/</dt>
-	<dd>This was a project that Rich Kilmer described to be in great detail at the 2003
+	<dd>This was a project that Rich Kilmer described to me in great detail at the 2003
 		RubyConf, but it has languished since then due to Rich being perpetually swamped
 		with some other exciting new project or other. Large parts of the high-level interface
 		are heavily influenced by his ideas.</dd>
