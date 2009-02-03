@@ -234,7 +234,7 @@ class Redleaf::Graph
 	end
 	
 
-	### Proxy method -- handle #to_<format> methods by invoking a serializer for the
+	### Proxy method -- handle #to_«format» methods by invoking a serializer for the
 	### specified +format+.
 	def method_missing( sym, *args )
 		super unless sym.to_s =~ /^to_(\w+)$/

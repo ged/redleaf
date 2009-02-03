@@ -269,7 +269,7 @@ rleaf_redleaf_queryresult_formatted_as( VALUE self, VALUE format ) {
 		rb_raise( rb_eArgError, "cannot convert %s to a URI", rb_class2name(CLASS_OF( format )) );
 		
 	rleaf_log_with_context( self, "debug", "Serializing a %s as %s",
-		rb_class2name(CLASS_OF( self )), RSTRING(rb_obj_as_string(format))->ptr );
+		rb_class2name(CLASS_OF( self )), RSTRING_PTR(rb_obj_as_string(format)) );
 	formaturi = rleaf_object_to_librdf_uri( format );
 	result = librdf_query_results_to_counted_string( res, formaturi, NULL, &length );
 	librdf_free_uri( formaturi ); 

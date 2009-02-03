@@ -87,7 +87,7 @@ rleaf_object_to_librdf_uri( VALUE uriobj ) {
 	uri = librdf_new_uri( rleaf_rdf_world, (const unsigned char *)StringValuePtr(uristring) );
 	if ( !uri )
 		rb_raise( rleaf_eRedleafError, "Couldn't make a librdf_uri out of %s", 
-			RSTRING(rb_inspect( uriobj ))->ptr );
+			RSTRING_PTR(rb_inspect( uriobj )) );
 
 	return uri;
 }
@@ -176,7 +176,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 	
 	/* :TODO: how to set language? is_xml flag? */
 
-	rleaf_log( "debug", "Converting %s to a librdf_node.", RSTRING(rb_inspect( object ))->ptr );
+	rleaf_log( "debug", "Converting %s to a librdf_node.", RSTRING_PTR(rb_inspect( object )) );
 	switch( TYPE(object) ) {
 		
 		/* nil -> bnode */
@@ -193,7 +193,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* String -> plain literal */
 		case T_STRING:
-		return librdf_new_node_from_literal( rleaf_rdf_world, (unsigned char *)RSTRING(object)->ptr, NULL, 0 );
+		return librdf_new_node_from_literal( rleaf_rdf_world, (unsigned char *)RSTRING_PTR(object), NULL, 0 );
 		break;
 		
 		/* Float -> xsd:float */
@@ -226,7 +226,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		if ( IsURI(object) ) {
 			rleaf_log( "debug", "Converting URI object to librdf_uri node" );
 			str = rb_obj_as_string( object );
-			return librdf_new_node_from_uri_string( rleaf_rdf_world, (unsigned char*)RSTRING(str)->ptr );
+			return librdf_new_node_from_uri_string( rleaf_rdf_world, (unsigned char*)RSTRING_PTR(str) );
 		}
 		/* fallthrough */
 		
@@ -235,13 +235,13 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		converted_pair = rb_funcall( rleaf_mRedleafNodeUtils, rb_intern("object_to_node"), 1, object );
 		str = rb_ary_entry( converted_pair, 0 );
 		typeuristr = rb_obj_as_string( rb_ary_entry(converted_pair, 1) );
-		typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char*)RSTRING(typeuristr)->ptr );
+		typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char*)RSTRING_PTR(typeuristr) );
 	}
 	
 	return librdf_new_node_from_typed_counted_literal( 
 		rleaf_rdf_world,
-		(unsigned char *)RSTRING(str)->ptr,
-		RSTRING(str)->len,
+		(unsigned char *)RSTRING_PTR(str),
+		RSTRING_LEN(str),
 		NULL,
 		0,
 		typeuri );

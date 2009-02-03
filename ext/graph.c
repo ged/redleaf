@@ -152,7 +152,7 @@ rleaf_redleaf_graph_s_allocate( VALUE klass ) {
  *     Redleaf::Graph.model_types   -> hash
  *
  *  Return a hash describing all model types supported by the underlying Redland 
- *  library (I think?). :TODO: Figure out what this is returning.
+ *  library.
  *
  */
 static VALUE
@@ -421,7 +421,7 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 
 	for ( i = 0; i < argc; i++ ) {
 		statement = argv[i];
-		rleaf_log_with_context( self, "debug", "  adding statement %d: %s", i, RSTRING(rb_inspect(statement))->ptr );
+		rleaf_log_with_context( self, "debug", "  adding statement %d: %s", i, RSTRING_PTR(rb_inspect(statement)) );
 		
 		/* Check argument to see if it's an array or statement, error otherwise */
 		switch ( TYPE(statement) ) {
@@ -479,16 +479,15 @@ rleaf_redleaf_graph_remove( VALUE self, VALUE statement ) {
 	VALUE rval = rb_ary_new();
 
 	rleaf_log_with_context( self, "debug", "removing statements matching %s",
-		RSTRING(rb_inspect(statement))->ptr );
+		RSTRING_PTR(rb_inspect(statement)) );
 	search_statement = rleaf_value_to_librdf_statement( statement );
  	stream = librdf_model_find_statements( ptr->model, search_statement );
 
-	/* FIXME: protect from exceptions so we don't leak search_statement and stream  */
 	if ( !stream ) {
 		librdf_free_statement( search_statement );
 		rb_raise( rleaf_eRedleafError, "could not create a stream when removing %s from %s",
-		 	RSTRING(rb_inspect(statement))->ptr,
-			RSTRING(rb_inspect(self))->ptr );
+		 	RSTRING_PTR(rb_inspect(statement)),
+			RSTRING_PTR(rb_inspect(self)) );
 	}
 
 	while ( ! librdf_stream_end(stream) ) {
@@ -539,9 +538,9 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
 	VALUE rval = rb_ary_new();
 
 	rleaf_log_with_context( self, "debug", "searching for statements matching {%s, %s, %s}",
-		RSTRING(rb_inspect(subject))->ptr,
-		RSTRING(rb_inspect(predicate))->ptr,
-		RSTRING(rb_inspect(object))->ptr );
+		RSTRING_PTR(rb_inspect(subject)),
+		RSTRING_PTR(rb_inspect(predicate)),
+		RSTRING_PTR(rb_inspect(object)) );
 
 	subject_node   = rleaf_value_to_subject_node( subject );
 	predicate_node = rleaf_value_to_predicate_node( predicate );
@@ -550,11 +549,10 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
 	search_statement = librdf_new_statement_from_nodes( rleaf_rdf_world, subject_node, predicate_node, object_node );
 	if ( !search_statement )
 		rb_raise( rleaf_eRedleafError, "could not create a statement from nodes [%s, %s, %s]",
-			RSTRING(rb_inspect(subject))->ptr,
-			RSTRING(rb_inspect(predicate))->ptr,
-			RSTRING(rb_inspect(object))->ptr );
+			RSTRING_PTR(rb_inspect(subject)),
+			RSTRING_PTR(rb_inspect(predicate)),
+			RSTRING_PTR(rb_inspect(object)) );
 
-	/* FIXME: protect from exceptions so we don't leak search_statement and stream  */
  	stream = librdf_model_find_statements( ptr->model, search_statement );
 	if ( !stream ) {
 		librdf_free_statement( search_statement );
@@ -596,7 +594,7 @@ rleaf_redleaf_graph_include_p( VALUE self, VALUE statement ) {
 	VALUE rval = Qfalse;
 
 	rleaf_log_with_context( self, "debug", "checking for statement matching %s",
-		RSTRING(rb_inspect(statement))->ptr );
+		RSTRING_PTR(rb_inspect(statement)) );
 	stmt = rleaf_value_to_librdf_statement( statement );
 
 	/* According to the Redland docs, this is a better way to test this than 
@@ -731,7 +729,7 @@ rleaf_redleaf_graph_contexts( VALUE self ) {
 		context_node = librdf_iterator_get_context( iter );
 		context = rleaf_librdf_uri_node_to_object( context_node );
 		rleaf_log_with_context( self, "debug", "  context %d: %s",
-			count, RSTRING(rb_inspect(context))->ptr );
+			count, RSTRING_PTR(rb_inspect(context)) );
 		
 		rb_ary_push( rval, context );
 		librdf_iterator_next( iter );
@@ -819,17 +817,17 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	
 	else if ( language != Qnil ) {
 		VALUE langstring = rb_obj_as_string( language );
-		qlang_name = (const char *)(RSTRING(langstring)->ptr);
+		qlang_name = (const char *)(RSTRING_PTR(langstring));
 	}
 
 	/* Set the baseuri if one is specified */
 	if ( RTEST(base) ) {
 		VALUE basestr = rb_obj_as_string( base );
-		base_uri = librdf_new_uri( rleaf_rdf_world, (const unsigned char *)(RSTRING(basestr)->ptr) );
+		base_uri = librdf_new_uri( rleaf_rdf_world, (const unsigned char *)(RSTRING_PTR(basestr)) );
 		if ( !base_uri ) {
 			if ( qlang_uri ) librdf_free_uri( qlang_uri );
 			rb_raise( rleaf_eRedleafError, "Couldn't make a librdf_uri out of %s",
-				RSTRING(basestr)->ptr );
+				RSTRING_PTR(basestr) );
 		}
 	}
 	
@@ -841,7 +839,7 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	if ( !query ) {
 		if ( qlang_uri ) librdf_free_uri( qlang_uri );
 		if ( base_uri ) librdf_free_uri( base_uri );
-		rb_raise( rleaf_eRedleafError, "Failed to create query %s", RSTRING(qstring)->ptr );
+		rb_raise( rleaf_eRedleafError, "Failed to create query %s", RSTRING_PTR(qstring) );
 	}
 	
 	/* Check for a non-nil limit and offset, setting them in the query object if they exist. */
@@ -1418,7 +1416,7 @@ rleaf_init_redleaf_graph( void ) {
 
 	/*
 	
-	FUTURE WORK:
+	FUTURE WORK (0.2.x):
 	
 	--------------------------------------------------------------
 	Transactions                                                  

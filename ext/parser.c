@@ -189,13 +189,13 @@ rleaf_redleaf_parser_s_guess_type( int argc, VALUE *argv, VALUE self ) {
 	rb_scan_args( argc, argv, "03", &mimeobj, &bufobj, &uriobj );
 	
 	if ( mimeobj ) {
-		mimetype = (const char *)RSTRING(rb_obj_as_string(mimeobj))->ptr;
+		mimetype = (const char *)RSTRING_PTR(rb_obj_as_string(mimeobj));
 	}
 	if ( bufobj ) {
-		buffer = (unsigned char *)RSTRING(rb_obj_as_string(bufobj))->ptr;
+		buffer = (unsigned char *)RSTRING_PTR(rb_obj_as_string(bufobj));
 	}
 	if ( uriobj ) {
-		uri = (unsigned char *)RSTRING(rb_obj_as_string(uriobj))->ptr;
+		uri = (unsigned char *)RSTRING_PTR(rb_obj_as_string(uriobj));
 	}
 	
 	guess = librdf_parser_guess_name( mimetype, buffer, uri );
@@ -352,7 +352,7 @@ void rleaf_init_redleaf_parser( void ) {
 	
 	/*
 
-	FUTURE WORK:
+	FUTURE WORK (maybe?):
 
 	-- #namespaces_seen_count
 	int librdf_parser_get_namespaces_seen_count( librdf_parser *parser );

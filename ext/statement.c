@@ -147,7 +147,7 @@ rleaf_value_to_librdf_statement( VALUE object ) {
 
 	if ( TYPE(object) == T_ARRAY ) {
 		rleaf_log( "debug", "creating a new librdf_statement from a triple: %s",
-		 	RSTRING(rb_inspect(object))->ptr );
+		 	RSTRING_PTR(rb_inspect(object)) );
 
 		if ( RARRAY(object)->len != 3 )
 			rb_raise( rb_eArgError, "wrong number of elements for triple (%d for 3)",
@@ -416,7 +416,7 @@ rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
 	librdf_statement *other_stmt;
 
 	rleaf_log_with_context( self, "info", "Comparing %s with %s for equality.",
-		RSTRING(rb_inspect(self))->ptr, RSTRING(rb_inspect(other))->ptr );
+		RSTRING_PTR(rb_inspect(self)), RSTRING_PTR(rb_inspect(other)) );
 
 	if ( CLASS_OF(other) != CLASS_OF(self) ) return Qfalse;
 
@@ -537,8 +537,8 @@ rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
 
 		DATA_PTR( self ) = stmt = rleaf_statement_alloc();
 		
-		if ( librdf_statement_decode(stmt, (unsigned char *)RSTRING(datastring)->ptr,
-		     RSTRING(datastring)->len) == 0 )
+		if ( librdf_statement_decode(stmt, (unsigned char *)RSTRING_PTR(datastring),
+		     RSTRING_LEN(datastring)) == 0 )
 			rb_raise( rleaf_eRedleafError, "librdf_statement_decode() failed." );
 	
 	} else {

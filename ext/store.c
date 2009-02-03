@@ -149,10 +149,10 @@ rleaf_get_store( VALUE self ) {
 static char *
 rleaf_optstring_from_rubyhash( VALUE opthash ) {
 	VALUE rb_optstring = rb_funcall( rleaf_cRedleafStore, rb_intern("make_optstring"), 1, opthash );
-	char *optstring = ALLOC_N( char, RSTRING(rb_optstring)->len + 1 );
+	char *optstring = ALLOC_N( char, RSTRING_LEN(rb_optstring) + 1 );
 	
-	strncpy( optstring, (const char *)RSTRING(rb_optstring)->ptr, RSTRING(rb_optstring)->len + 1 );
-	optstring[ RSTRING(rb_optstring)->len ] = '\0';
+	strncpy( optstring, (const char *)RSTRING_PTR(rb_optstring), RSTRING_LEN(rb_optstring) + 1 );
+	optstring[ RSTRING_LEN(rb_optstring) ] = '\0';
 	
 	return optstring;
 }
@@ -245,7 +245,7 @@ rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 
 			case 1:
 			rleaf_log_with_context( self, "debug", "One-arg constructor called: %s.",
-				RSTRING(rb_inspect(name))->ptr );
+				RSTRING_PTR(rb_inspect(name)) );
 			if ( TYPE(name) == T_HASH ) {
 				rleaf_log_with_context( self, "debug", "Argument was a opthash; swapping it." );
 				opthash = name;
@@ -257,7 +257,7 @@ rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 			
 			case 2:
 			rleaf_log_with_context( self, "debug", "Two-arg constructor called: %s, %s.",
-				RSTRING(rb_inspect(name))->ptr, RSTRING(rb_inspect(opthash))->ptr );
+				RSTRING_PTR(rb_inspect(name)), RSTRING_PTR(rb_inspect(opthash)) );
 			break;
 			
 			default:
