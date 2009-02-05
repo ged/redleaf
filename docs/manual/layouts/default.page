@@ -18,23 +18,19 @@
 
 	<div id="header">
 		<h1><a href="<%= @basepath %>/">Redleaf</a></h1>
+
+		<%= page.make_index_html %>
+
+		<div id="tagline"><%= page.config['tagline'] || "This is the best tagline evar." %></div>
 	</div>
 
-	<div id="tagline"><%= page.config['tagline'] || "This is the best tagline evar." %></div>
-
 	<div id="content">
-		<div class="left">
-			<%= page.make_index_html %>
-		</div>
+        <p id="version">Version: <%= metadata.version %></p>
 
-		<div class="right">
-	        <p class="textright">Version: <%= metadata.version %></p>
+		<!-- Generated content -->
+		<%= content %>
+		<!-- end of generated content -->
 
-			<!-- Generated content -->
-			<%= content %>
-			<!-- end of generated content -->
-
-		</div>
 	</div>
  
 	<div id="footer">

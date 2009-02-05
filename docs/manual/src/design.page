@@ -14,9 +14,17 @@ h1. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
-h2. Class Diagram
+h2. Redleaf Library Classes
 
-The Redleaf classes follow the basic design of the Redland library, from which it derives most of its underlying functionality, with a few minor modifications:
+The Redleaf classes follow the basic design of the Redland library, from which it derives most of its underlying functionality, with a few changes.
+
+!images/redland-classes.png(Redland Classes)!
+
+h3. Nodes
+
+The biggest change is that Redleaf is written with the idea that you will want to store regular Ruby objects in the Graph, not instances of a specialized "node" type that you have to wrap around every object before putting it in the graph.
+
+To facilitate this, Redleaf provides a mapping of some of the more common Ruby classes to types in the 
 
 !images/design-overview.png(Design Overview)!
 

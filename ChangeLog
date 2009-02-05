@@ -1,3 +1,34 @@
+-- Tue, 03 Feb 2009 18:18:05 -0000 by deveiant (r76) -----
+   Added:   docs/manual/resources/images/design-overview.png (new)
+   Changed: docs/manual/src/index.page
+            docs/manual/src/design.page
+            docs/Redleaf Design Diagrams.graffle
+            docs/manual/src/about.page
+            ChangeLog
+            docs/manual/resources/css/manual.css (and 1 other/s)
+
+    * Worked on the manual.
+    * Cleaned up the structural diagram a bit.
+
+
+-- Tue, 03 Feb 2009 18:14:07 -0000 by deveiant (r75) -----
+   Changed: README
+            ext/parser.c
+            ext/store.c
+            LICENSE
+            ext/graph.c
+            ext/queryresult.c (and 4 other/s)
+
+    * Release cleanup
+    * Translater all the RSTRING()->ptr and RSTRING()->len statements into the 
+    equivalent RSTRING_* macros.
+    * Updated the LICENSE for 2009
+    * Modified some comments to work around some RDoc weirdness.
+    * Removed Mahlon from the README: QQ
+    * Made the README include the LICENSE instead of duplicating it.
+    * Worked on the manual and its diagrams.
+
+
 -- Thu, 29 Jan 2009 00:57:54 -0000 by deveiant (r74) -----
    Changed: docs/manual/lib/examples-filter.rb
             docs/manual/src/index.page
