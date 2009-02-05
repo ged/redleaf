@@ -1,6 +1,5 @@
 /* @override 
 	http://gont.ljc.laika.com/Redleaf/css/manual.css
-	http://localhost/Redleaf/css/manual.css
 	http://localhost/redleaf/css/manual.css
 */
 
@@ -35,7 +34,6 @@
 
 body {
 	margin: 0;
-	padding: 2em 4em;
 	font: 14px/1.2em "Gill Sans", Helvetica, Tahoma, sans-serif;
 	background: #f3f3f3;
 	color: #333;
@@ -154,6 +152,62 @@ div.screenshot img {
 /* @group IDed Elements */
 #intro-header {
 	text-align: center;
+}
+
+#header {
+	position: relative;
+	padding: 0.25em 0.5em;
+	border-bottom: 1px solid #787890;
+	background: white url(../images/shadows/smallest-50-down.png) repeat-x 0 bottom;
+}
+#header h1 {
+	display: inline;
+	font-size: 1.5em;
+	margin: 0 1em;
+}
+#header div {
+	display: inline;
+}
+#tagline {
+	position: absolute;
+	right: 1em;
+	top: 0.5em;
+	font-size: 0.75em;
+}
+
+#header .index {
+	display: inline;
+}
+#header .index h2 {
+	display: inline;
+	font-size: 1.5em;
+}
+#header .index ul {
+	display: inline;
+	list-style-type: none;
+	padding: 0;
+}
+#header .index ul li {
+	display: inline;
+	padding: 0 0.5em;
+	border-left: 1px solid #ccc;
+}
+#header .index a {
+	color: inherit;
+}
+
+#content {
+	position: relative;
+	margin: 2em;
+}
+
+#content #version {
+	margin: 0;
+	position: absolute;
+	top: 0;
+	right: 0.5em;
+	font-size: 0.75em;
+	color: #999;
 }
 
 #footer {
