@@ -1,6 +1,7 @@
 /* @override 
 	http://gont.ljc.laika.com/Redleaf/css/manual.css
 	http://localhost/redleaf/css/manual.css
+	http://gont.ljc.laika.com/redleaf/css/manual.css
 */
 
 /* 
@@ -32,6 +33,8 @@
  * 
  */
 
+
+/* @group Elements */
 body {
 	margin: 0;
 	font: 14px/1.2em "Gill Sans", Helvetica, Tahoma, sans-serif;
@@ -142,11 +145,7 @@ td, th {
 	border: 1px solid #484860;
 }
 
-div.screenshot {
-	margin: 1em 3em;
-}
-div.screenshot img {
-}
+/* @end */
 
 
 /* @group IDed Elements */
@@ -213,8 +212,13 @@ div.screenshot img {
 #footer {
 	margin-top: 2em;
 	border-top: 1px solid #c0c0d5;
+	padding: 1em;
+	font-size: 0.75em;
 }
 
+#footer p {
+	margin: 0;
+}
 /* @end */
 
 

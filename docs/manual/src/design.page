@@ -7,6 +7,7 @@ filters:
   - erb
   - links
   - examples
+  - api
   - textile
 ---
 
@@ -24,7 +25,29 @@ h3. Nodes
 
 The biggest change is that Redleaf is written with the idea that you will want to store regular Ruby objects in the Graph, not instances of a specialized "node" type that you have to wrap around every object before putting it in the graph.
 
-To facilitate this, Redleaf provides a mapping of some of the more common Ruby classes to types in the 
+To facilitate this, Redleaf provides a mapping of some of the more common Ruby classes to types in the "XML Schema namespace":http://www.w3.org/2001/XMLSchema, and a way to extend the conversion system with your own datatypes.
+
+h3. Blank Nodes
+
+In Redleaf, Symbols are used as blank nodes. If you pass a symbol as the subject or object of a triple, it will be converted to the equivalent blank node on the backend, and then mapped to the appropriate Symbol when it comes back out:
+
+
+
+The special symbol @:_@ is used as an _anonymous blank node_, and will be replaced with a generated id before being stored in the graph.
+
+h3. Other Changes
+
+Beyond that, the changes are pretty minor:
+
+* The Redland @Storage@ class is called <?api Redleaf::Store ?>
+* The Redland @Model@ class is called <?api Redleaf::Graph ?>
+* The Redland @Serializer@ and @Query@ classes don't have a corollary in Redleaf; they are
+  used behind the scenes.
 
 !images/design-overview.png(Design Overview)!
+
+h3. Ruby Idiom
+
+I've tried to make the library easy to use for people who just want to start playing with triples, but also expose as much of Redland's power as possible for people who are more familiar with it. There's still a ways to go in both regards; suggestions for improvement are welcomed!
+
 

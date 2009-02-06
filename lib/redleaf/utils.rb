@@ -15,56 +15,6 @@ module Redleaf # :nodoc:
 	# A collection of node-utility functions
 	module NodeUtils
 		include Redleaf::Constants::CommonNamespaces
-		
-		###############
-		module_function
-		###############
-
-		### Convert the specified Ruby +object+ to a typed literal and return it as a two-element
-		### Array of value and type URI.
-		def object_to_node( object )
-			Redleaf.log.error "Ack! Can't yet convert %p" % [ object ]
-			raise NotImplementedError,
-				"node conversions outside of the XML Schema base types is not yet supported."
-		end
-		
-
-		### Transform the given +string_value+ into a Ruby object based on the datatype
-		### in +typeuri+.
-		def make_typed_literal_object( typeuri, string_value )
-			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
-			Redleaf.logger.debug "Making Ruby object from typed literal %p<%s>" %
-				[ string_value, typeuri ]
-
-			case typeuri
-			when XSD[:string]
-				return string_value
-
-			when XSD[:boolean]
-				return string_value == 'true'
-
-			when XSD[:float]
-				return Float( string_value )
-
-			when XSD[:decimal]
-				return BigDecimal( string_value )
-
-			when XSD[:integer]
-				return Integer( string_value )
-
-			when XSD[:dateTime]
-				return DateTime.parse( string_value )
-
-			when XSD[:duration]
-				duration = parse_iso8601_duration( string_value ) or
-					raise TypeError, "Invalid ISO8601 date %p" % [ string_value ]
-				return duration
-
-			else
-				raise "Unknown typed literal %p (%p)" % [ string_value, typeuri ]
-			end
-		end
-
 
 		# Pattern to match ISO8601 durations
 		ISO8601_DURATION_PATTERN = %r{
@@ -81,11 +31,16 @@ module Redleaf # :nodoc:
 		}x
 
 
+		###############
+		module_function
+		###############
+
 		### Parse the given +string+ containing an ISO8601 duration and return it as
 		### a Hash. Returns +nil+ if the string doesn't appear to contain a valid 
 		### duration.
 		def parse_iso8601_duration( string )
-			match = ISO8601_DURATION_PATTERN.match( string ) or return nil
+			match = ISO8601_DURATION_PATTERN.match( string ) or
+				raise TypeError, "Invalid ISO8601 date %p" % [ string ]
 
 			sign = (match[1] == '-' ? -1 : 1)
 			Redleaf.logger.debug "Got sign %p (%p)" % [ match[1], sign ]
@@ -104,10 +59,89 @@ module Redleaf # :nodoc:
 		end
 
 
+		# Conversion registry defaults for RDF literal -> Ruby object conversion
+		DEFAULT_TYPEURI_REGISTRY = {
+			XSD[:string]   => lambda {|str| str },
+			XSD[:boolean]  => lambda {|str| str == 'true' },
+			XSD[:float]    => lambda {|str| Float(str) },
+			XSD[:decimal]  => lambda {|str| BigDecimal(str) },
+			XSD[:integer]  => lambda {|str| Integer(str) },
+			XSD[:dateTime] => DateTime.method( :parse ),
+			XSD[:duration] => Redleaf::NodeUtils.method( :parse_iso8601_duration ),
+		}
+		DEFAULT_TYPEURI_REGISTRY.freeze
+		@@typeuri_registry = DEFAULT_TYPEURI_REGISTRY.dup
+
+		# Conversion registry defaults for Ruby object -> RDF node conversion
+		DEFAULT_CLASS_REGISTRY = {
+			DateTime => [ XSD[:dateTime], :to_s ],
+		}
+		DEFAULT_CLASS_REGISTRY.freeze
+		@@class_registry = DEFAULT_CLASS_REGISTRY.dup
+
+
+		### Register a new object that knows how to map strings to Ruby objects for the
+		### specified +typeuri+. The +converter+ is any object that responds to #[].
+		def register_new_type( typeuri, converter=nil )
+			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
+			converter ||= Proc.new if block_given?
+			@@typeuri_registry[ typeuri ] = converter
+		end
+		
+		
+		### Register a new class with the type-conversion system. When the _object_ of a
+		### Redleaf::Statement is set to an instance of the specified +classobj+, it will
+		### be converted to its canonical string form by using the given +converter+ and
+		### associated with the specified +typeuri+. The +converter+ should either be an
+		### object that responds to #[] or a Symbol that specifies a method on the object
+		### that should be called.
+		def register_new_class( classobj, typeuri, converter=:to_s )
+			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
+			converter ||= Proc.new if block_given?
+			@@class_registry[ classobj ] = [ typeuri, converter ]
+		end
+		
+		
+		### Clear the datatype registries of all but the default conversions.
+		def clear_custom_types
+			@@typeuri_registry.replace( DEFAULT_TYPEURI_REGISTRY )
+			@@class_registry.replace( DEFAULT_CLASS_REGISTRY )
+		end
+		
+		
+		### Convert the specified Ruby +object+ to a typed literal and return it as a two-element
+		### Array of value and type URI.
 		### Transform the given +object+ into a tuple of [ canonical_string_value, datatype_uri ]
 		### and return it as an Array.
 		def make_object_typed_literal( object )
-			raise NotImplementedError, "Not implemented yet"
+			Redleaf.logger.debug "Making typed literal from object %p" % [ object ]
+
+			if entry = @@class_registry[ object.class ]
+				uri, converter = *entry 
+				if converter.is_a?( Symbol )
+					return [ uri, object.__send__(converter) ]
+				else
+					return [ uri, converter[object] ]
+				end
+			else
+				raise "no typed-literal conversion for %p objects" % [ object.class ]
+			end
+		end
+		alias_method :object_to_node, :make_object_typed_literal
+
+
+		### Transform the given +string_value+ into a Ruby object based on the datatype
+		### in +typeuri+.
+		def make_typed_literal_object( typeuri, string_value )
+			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
+			Redleaf.logger.debug "Making Ruby object from typed literal %p<%s>" %
+				[ string_value, typeuri ]
+
+			if converter = @@typeuri_registry[ typeuri ]
+				return converter[ string_value ]
+			else
+				raise "No object conversion for typed literal %p (%p)" % [ string_value, typeuri ]
+			end
 		end
 
 	end # module NodeUtils

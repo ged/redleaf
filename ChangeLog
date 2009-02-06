@@ -1,3 +1,25 @@
+-- Thu, 05 Feb 2009 22:37:34 -0000 by deveiant (r78) -----
+   Changed: docs/manual/resources/css/manual.css
+
+   Forgot to commit CSS changes in the last changeset.
+
+
+-- Thu, 05 Feb 2009 22:35:31 -0000 by deveiant (r77) -----
+   Added:   docs/manual/resources/images/shadows/smaller-10-down.png (new)
+            docs/manual/resources/images/shadows/tl-down.png (new)
+            docs/manual/resources/images/shadows/smaller-30-down.png (new)
+            docs/manual/resources/images/shadows/medium-down.png (new)
+            docs/manual/resources/images/shadows/smaller-50-down.png (new)
+            docs/manual/resources/images/shadows/smaller-70-down.png (new) (and 22 other/s)
+   Changed: docs/Redleaf Design Diagrams.graffle
+            docs/manual/layouts/default.page
+            lib/redleaf/utils.rb
+            docs/manual/src/design.page
+            ChangeLog
+
+   Manual content and style work
+
+
 -- Tue, 03 Feb 2009 18:18:05 -0000 by deveiant (r76) -----
    Added:   docs/manual/resources/images/design-overview.png (new)
    Changed: docs/manual/src/index.page
