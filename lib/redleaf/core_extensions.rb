@@ -24,7 +24,8 @@ require 'redleaf'
 #
 module Redleaf
 
-	# Add convenience extensions to Arrays so they know how to do statement-ish things.
+	### Container for convenience extensions to Arrays so they know how to do 
+	### statement-ish things.
 	module ArrayExtensions
 		
 		### Case-comparision -- invert the comparison if +other+ is a Redleaf::Statement.
@@ -36,7 +37,7 @@ module Redleaf
 	end
 	
 	
-	# Contains convenience extensions to String for plain literals
+	### Container for convenience extensions to String for plain literals
 	module StringExtensions
 		
 		# langtag       = (language
@@ -77,6 +78,15 @@ module Redleaf
 	end
 
 
+	### Container for convenience casting methods that can be added to Kernel
+	module KernelExtensions
+		def Namespace( uri ) # :doc:
+			Redleaf::Namespace.new( uri )
+		end
+	end
+
+	
+
 	###############
 	module_function
 	###############
@@ -87,6 +97,8 @@ module Redleaf
 		Array.instance_eval { include Redleaf::ArrayExtensions }
 		Redleaf.log.debug "Installing String extensions"
 		String.instance_eval { include Redleaf::StringExtensions }
+		Redleaf.log.debug "Installing Kernel extensions"
+		Kernel.instance_eval { include Redleaf::KernelExtensions }
 	end
 	
 

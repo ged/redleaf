@@ -1,0 +1,17 @@
+---
+title: Guided Tour
+layout: intro
+tagline: I'll be your tour guide this evening...
+index: 1
+filters:
+  - erb
+  - links
+  - examples
+  - textile
+---
+
+h1. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+This is a guided tour of the Redleaf library. It's a work in progress. Suggestions for ways to make this better are greatly appreciated. Especially in the form of patches.

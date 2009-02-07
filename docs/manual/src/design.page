@@ -27,13 +27,12 @@ The biggest change is that Redleaf is written with the idea that you will want t
 
 To facilitate this, Redleaf provides a mapping of some of the more common Ruby classes to types in the "XML Schema namespace":http://www.w3.org/2001/XMLSchema, and a way to extend the conversion system with your own datatypes.
 
+This is covered in greater detail in the <?link "Node Type System":tour/nodetypesystem.page ?> section.
+
 h3. Blank Nodes
 
-In Redleaf, Symbols are used as blank nodes. If you pass a symbol as the subject or object of a triple, it will be converted to the equivalent blank node on the backend, and then mapped to the appropriate Symbol when it comes back out:
+In Redleaf, Symbols are translated into blank nodes; if you pass a symbol as the subject or object of a triple, it will be converted to the equivalent blank node on the backend, and then mapped to the appropriate Symbol when it comes back out:
 
-
-
-The special symbol @:_@ is used as an _anonymous blank node_, and will be replaced with a generated id before being stored in the graph.
 
 h3. Other Changes
 

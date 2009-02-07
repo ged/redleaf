@@ -32,6 +32,16 @@ class Redleaf::Namespace
 	SVNId = %q$Id$
 
 
+	# Add a convenience constructor method
+	class << self
+		alias_method :[], :new
+	end
+
+
+	#################################################################
+	###	I N S T A N C E   M E T H O D S
+	#################################################################
+
 	### Set up a namespace for the specified +uri+.
 	def initialize( uri )
 		@uri = uri.is_a?( URI ) ? uri : URI( uri )
@@ -74,5 +84,4 @@ class Redleaf::Namespace
 	end
 	
 end # class Redleaf::Namespace
-
 

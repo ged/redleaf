@@ -39,11 +39,13 @@ describe Redleaf, " core extensions" do
 	it "doesn't extend core classes unless requested" do
 		Array.included_modules.should_not include( Redleaf::ArrayExtensions )
 		String.included_modules.should_not include( Redleaf::ArrayExtensions )
+		Kernel.included_modules.should_not include( Redleaf::KernelExtensions )
 	end
 
 	it "adds extensions to core classes when install_core_extensions is called" do
 		Array.should_receive( :instance_eval )
 		String.should_receive( :instance_eval )
+		Kernel.should_receive( :instance_eval )
 
 		Redleaf.install_core_extensions
 	end
@@ -90,6 +92,19 @@ describe Redleaf, " core extensions" do
 			@string.language_tag.should == 
 				Redleaf::StringExtensions::LanguageTag.new( :fr, :latn, :ca )
 		end
+	end
+
+	describe Redleaf::KernelExtensions do
+
+		before( :each ) do
+			extend Redleaf::KernelExtensions
+		end
+		
+
+		it "adds a casting method for Redleaf::Namespace" do
+			Namespace( 'http://google.com/' ).should be_an_instance_of( Redleaf::Namespace )
+		end
+
 	end
 
 end

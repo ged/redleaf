@@ -47,6 +47,12 @@ describe Redleaf::Namespace do
 	end
 
 
+	it "provides a shortcut constructor" do
+		Redleaf::Namespace[ 'http://xmlns.com/foaf/0.1/' ].
+			should be_an_instance_of( Redleaf::Namespace )
+	end
+	
+
 	describe "for a directory-style namespace URI" do
 
 		before( :each ) do

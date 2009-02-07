@@ -1,0 +1,135 @@
+---
+title: Working With Graphs
+layout: default
+tagline: Who Knew Directed-Graph Theory Could Be So Fun?
+index: 2
+filters:
+  - erb
+  - links
+  - examples
+  - textile
+---
+
+h1. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+h2. Adding Statements
+
+There are several ways to add statements to a <?api Redleaf::Graph ?>: you can read data in from some pre-existing source, copy them from other graph objects, or create new statements yourself.
+
+h3. The @Redleaf::Graph#load@ Method
+
+(Redland provides its own IO functions, handles all kinds of URI schemes, etc. Also cover the various serialization formats, and what Redland does by default)
+
+h3. Reading RDF Data From Disk
+
+If you have some kind of serialized RDF data on a locally-available fixed storage device, you can load it from disk by just passing a path to @#load@:
+
+<?example {} ?>
+<?end?>
+
+h3. Fetching RDF Data From the Web
+
+If you want to fetch it via HTTP, it can do that too:
+
+<?example {} ?>
+<?end?>
+
+h2. Generating Your Own Statements
+
+You can also generate statements yourself. The easiest way to do this is via the @#append@ method: 
+
+<?example {} ?>
+<?end?>
+
+The append method is also known as the @#<<@ operator, and because it returns the receiving object, you can chain as many statements together as you want:
+
+<?example { language: ruby, caption: "Bnodes <-> Symbols", testable: true } ?>
+
+<?end?>
+
+h3. Appending With Syntax Shortcuts
+
+The @#append@ method (and its sidekick the @#<<@ operator) also support several shortcut syntaxes so you don't have to do all those @Redleaf::Statement.new@ calls. If you want to append one or more simple statements, you can just send in three-element Arrays instead of <?api Redleaf::Statement ?> objects, and they'll be converted on the fly:
+
+<?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
+require 'redleaf'
+
+g = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+g <<
+	[ exstaff["85740"],  exterms[:address   ],  :johnaddress ] <<
+	[ :johnaddress,      exterms[:street    ],  "1501 Grant Avenue" ] <<
+	[ :johnaddress,      exterms[:city      ],  "Bedford" ] <<
+	[ :johnaddress,      exterms[:state     ],  "Massachusetts" ] <<
+	[ :johnaddress,      exterms[:postalCode],  "01730" ]
+
+puts "Graph as NTriples:", g.to_ntriples, ''
+
+puts "Address for %s is: %p" % [
+	exstaff["85740"],
+	g.object( exstaff["85740"], exterms[:address] )
+  ]
+
+# Output:
+#   Graph as NTriples:
+#   _:johnaddress <http://www.example.org/terms/postalCode> "01730" .
+#   <http://www.example.org/staffid/85740> <http://www.example.org/terms/address> _:johnaddress .
+#   _:johnaddress <http://www.example.org/terms/city> "Bedford" .
+#   _:johnaddress <http://www.example.org/terms/street> "1501 Grant Avenue" .
+#   _:johnaddress <http://www.example.org/terms/state> "Massachusetts" .
+#   
+#   Address for http://www.example.org/staffid/85740 is: :johnaddress
+<?end?>
+
+The special symbol @:_@ is used as an _anonymous blank node_, and will be replaced with a generated id before being stored in the graph:
+
+<?example { language: ruby, caption: "Appending a statement with an anonymous blank node.", testable: true } ?>
+require 'redleaf'
+
+g = Redleaf::Graph.new
+
+g << [ exstaff["85740"], exterms[:address], :_ ]
+
+# Append the rest via the anonymous bnode
+generated_symbol = g.object( exstaff["85740"], exterms[:address] )
+g <<
+    [ generated_symbol, exterms[:street    ], "1501 Grant Avenue" ] <<
+    [ generated_symbol, exterms[:city      ], "Bedford" ] <<
+    [ generated_symbol, exterms[:state     ], "Massachusetts" ] <<
+    [ generated_symbol, exterms[:postalCode], "01730" ]
+<?end?>
+
+This is pretty clumsy, but in the next release you'll be able to use Hashes to append node graphs:
+
+<?example { language: ruby, caption: "Appending a statement with an anonymous blank node.", testable: false } ?>
+require 'redleaf'
+
+g = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+g << {
+	exstaff["85740"] => {
+		exterms[:address] => {
+			exterms[:street] => "1501 Grant Avenue",
+			exterms[:city]   => "Bedford",
+			exterms[:state]  => "Massachusetts",
+			exterms[:postalCode] => "01730",
+		},
+		exterms[:position] => "Comptroller",
+	},
+	exstaff["18116"] => {
+		exterms[:address] => {
+			exterms[:street] => "74 W Elm Street",
+			exterms[:city]   => "Bedford",
+			exterms[:state]  => "Massachusetts",
+			exterms[:postalCode] => "01732",
+		},
+		exterms[:position] => "Assistant",
+	}
+}
+<?end?>

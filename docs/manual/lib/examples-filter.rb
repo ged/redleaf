@@ -56,11 +56,11 @@ class ExamplesFilter < Manual::Page::Filter
 			example				# Instruction Target
 			(?:					# Optional instruction body
 			\s+
-			(					# [$1]
-				[^?]*			# Anything but a question mark
+			((?:				# [$1]
+				[^?]*			# Run of anything but a question mark
 				|				# -or-
 				\?(?!>)			# question mark not followed by a closing angle bracket
-			)
+			)*)
 			)?
 		\?>
 	  }x
@@ -121,7 +121,7 @@ class ExamplesFilter < Manual::Page::Filter
 				contentpos = scanner.pos
 				scanner.skip_until( EndPI ) or
 					raise "Unterminated example at line %d" % 
-						[ scanner[0..scanner.pos].count("\n") ]
+						[ scanner.string[0..scanner.pos].count("\n") ]
 				
 				# Now build the example and append to the buffer
 				if ( scanner.pos - contentpos > scanner.matched.length )
@@ -129,7 +129,7 @@ class ExamplesFilter < Manual::Page::Filter
 					contents = scanner.string[ contentpos..offset ]
 				end
 
-				#$stderr.puts "Processing with params: %p, contents: %p" % [ params, contents ]
+				trace "Processing with params: %p, contents: %p" % [ params, contents ]
 				buffer << self.process_example( params, contents )
 			else
 				break

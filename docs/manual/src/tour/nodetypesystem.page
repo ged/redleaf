@@ -1,0 +1,34 @@
+---
+title: The Node Type System
+layout: default
+index: 3
+filters:
+  - erb
+  - links
+  - examples
+  - editorial
+  - textile
+---
+
+h1. <%= page.config['title'] %>
+
+As mentioned in the <?link "Design Overview":design.page ?>, Redleaf is intended to be used naturally from within Ruby, and to do so provides conversion of regular Ruby objects to equivalent nodes in RDF and vice-versa. This type system is extensible, meaning you can add translations for your own object classes. For instance, if you wanted to store employees in the graph, but wanted to do so as instances of an already-existing domain class called @Company::Employee@, you could do so like this:
+
+<?example { language: ruby, caption: "Declare a custom mapping from a literal datatype to a Ruby class", testable: true } ?>
+require 'redleaf'
+company = Redleaf::Namespace[ 'http://company.com/ns/' ]
+
+# Make employees serialize correctly when appended to the graph as objects
+Redleaf::NodeUtils.register_new_class( Company::Employee, company[:employee] ) do |employee|
+	employee.name
+end
+
+# Make literal nodes in the graph with the type 'http://company.com/ns/employee'
+# generate the equivalent Ruby object when fetched from the graph
+Redleaf::NodeUtils.register_new_type( company[:employee] ) do |literal_string|
+	Company::Employee.find_by_name( literal_string )
+end
+<?end ?>
+
+This assumes that each employee's @name@ attribute is unique, but you can use anything you like as the string representation in the graph, <?ed verify:"as long as it is canonical" ?>.
+
