@@ -27,7 +27,7 @@ require 'redleaf/mixins'
 # 
 # :include: LICENSE
 #
-#---
+#--
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
@@ -341,6 +341,14 @@ class Redleaf::Graph
 	
 
 end # class Redleaf::Graph
+
+
+#--
+# Provide an alias for people that *really* want it to be called 'Model'.
+module Redleaf # :nodoc:
+	Model = Graph
+end
+
 
 # vim: set nosta noet ts=4 sw=4:
 

@@ -1,42 +1,44 @@
 ---
 title: Working With Graphs
 layout: default
-tagline: Who Knew Directed-Graph Theory Could Be So Fun?
+tagline: Who Knew Graph Theory Could Be So Fun?
 index: 2
 filters:
   - erb
   - links
   - examples
+  - editorial
+  - api
   - textile
 ---
 
-h1. <%= page.config['title'] %>
+h2. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
-h2. Adding Statements
+h3. Adding Statements
 
 There are several ways to add statements to a <?api Redleaf::Graph ?>: you can read data in from some pre-existing source, copy them from other graph objects, or create new statements yourself.
 
-h3. The @Redleaf::Graph#load@ Method
+h4. The @Redleaf::Graph#load@ Method
 
 (Redland provides its own IO functions, handles all kinds of URI schemes, etc. Also cover the various serialization formats, and what Redland does by default)
 
-h3. Reading RDF Data From Disk
+h4. Reading RDF Data From Disk
 
 If you have some kind of serialized RDF data on a locally-available fixed storage device, you can load it from disk by just passing a path to @#load@:
 
 <?example {} ?>
 <?end?>
 
-h3. Fetching RDF Data From the Web
+h4. Fetching RDF Data From the Web
 
 If you want to fetch it via HTTP, it can do that too:
 
 <?example {} ?>
 <?end?>
 
-h2. Generating Your Own Statements
+h3. Generating Your Own Statements
 
 You can also generate statements yourself. The easiest way to do this is via the @#append@ method: 
 
@@ -49,7 +51,7 @@ The append method is also known as the @#<<@ operator, and because it returns th
 
 <?end?>
 
-h3. Appending With Syntax Shortcuts
+h4. Appending With Syntax Shortcuts
 
 The @#append@ method (and its sidekick the @#<<@ operator) also support several shortcut syntaxes so you don't have to do all those @Redleaf::Statement.new@ calls. If you want to append one or more simple statements, you can just send in three-element Arrays instead of <?api Redleaf::Statement ?> objects, and they'll be converted on the fly:
 

@@ -41,6 +41,7 @@ body {
 	background: #f3f3f3;
 	color: #333;
 	border-left: 5px solid #ca2f1b;
+	min-width: 800px;
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -153,16 +154,42 @@ td, th {
 	text-align: center;
 }
 
+#auto-toc {
+	margin: 0;
+	margin-left: 2em;
+	margin-bottom: 2em;
+	float: right;
+	border: 1px solid #484860;
+	background: white;
+	-webkit-box-shadow: #ccc 3px 3px 5px;
+}
+#auto-toc ul:before {
+	content: "Table of Contents";
+}
+#auto-toc ul {
+	margin: 0;
+	padding: 0.5em 1em;
+}
+#auto-toc li {
+	line-height: 1em;
+	padding: 0;
+	margin-left: 1.5em;
+}
+
 #header {
 	position: relative;
-	padding: 0.25em 0.5em;
+	padding: 0.25em 15em 0.25em 0;
 	border-bottom: 1px solid #787890;
-	background: white url(../images/shadows/smallest-50-down.png) repeat-x 0 bottom;
+	background: #484860 url(../images/shadows/smallest-30-down.png) repeat-x 0 bottom;
 }
 #header h1 {
 	display: inline;
-	font-size: 1.5em;
-	margin: 0 1em;
+	font-size: 1.75em;
+	padding: 0.2em 1em;
+	background: #f3f3f3;
+	font-weight: bold;
+	-webkit-border-top-right-radius: 1em;
+	-moz-border-radius-topright: 1em;
 }
 #header div {
 	display: inline;
@@ -172,6 +199,7 @@ td, th {
 	right: 1em;
 	top: 0.5em;
 	font-size: 0.75em;
+	color: #f3f3f3;
 }
 
 #header .index {
@@ -180,16 +208,33 @@ td, th {
 #header .index h2 {
 	display: inline;
 	font-size: 1.5em;
+	color: white;
+	text-shadow: none;
+	padding: 2px 0.5em;
 }
+
 #header .index ul {
-	display: inline;
 	list-style-type: none;
 	padding: 0;
+	display: none;
+}
+
+#header .index ul.current-index-section {
+	position: absolute;
+	display: inline;
+	left: 0;
+	top: 1em;
+	margin-left: 11em;
+	font-weight: bold;
 }
 #header .index ul li {
+	font-size: 0.8em;
 	display: inline;
 	padding: 0 0.5em;
-	border-left: 1px solid #ccc;
+}
+#header .index ul li + li {
+	border-left: 1px solid #999;
+	padding-left: 0.75em;
 }
 #header .index a {
 	color: inherit;
@@ -197,7 +242,7 @@ td, th {
 
 #content {
 	position: relative;
-	margin: 2em;
+	margin: 3em 2em;
 }
 
 #content #version {
@@ -225,12 +270,25 @@ td, th {
 /* @group Generic Classes */
 .todo {
 }
+
+p.diagram {
+	text-align: center;
+	margin-bottom: 0;
+	clear: both;
+}
+p.caption {
+	text-align: center;
+	margin-top: 0;
+	font-size: 0.9em;
+	background: #ccc;
+}
 /* @end Generic Classes */
 
 
 /* @group Examples */
 div.caption {
 	font-size: 12px;
+	width: 50%;
 	text-align: center;
 	padding: 0.25em 0;
 	border-top: 1px solid #787890;

@@ -5,24 +5,10 @@ require 'pathname'
 
 require 'redleaf'
 
-
+#--
 # A module of core class convenience extensions.
 # 
-# == Subversion Id
-#
-#  $Id$
-# 
-# == Authors
-# 
-# * Michael Granger <ged@FaerieMUD.org>
-# 
-# :include: LICENSE
-#
-#---
-#
-# Please see the file LICENSE in the BASE directory for licensing details.
-#
-module Redleaf
+module Redleaf # :nodoc:
 
 	### Container for convenience extensions to Arrays so they know how to do 
 	### statement-ish things.

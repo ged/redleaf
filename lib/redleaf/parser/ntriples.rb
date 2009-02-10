@@ -15,7 +15,7 @@ require 'redleaf/parser'
 # 
 # :include: LICENSE
 #
-#---
+#--
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #

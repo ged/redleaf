@@ -4,6 +4,15 @@ require 'logger'
 
 
 # An RDF library for Ruby. See the README for more details.
+#
+# == Starting Points
+# 
+# [Redleaf::Graph]
+#   The main RDF container class.
+# [Redleaf::Statement]
+#   The RDF "triple" class -- graphs contain zero or more of these.
+# [Redleaf::QueryResult]
+#   Call Redleaf::Graph#query with a valid SPARQL query returns one of these. 
 # 
 # == Subversion Id
 #
@@ -15,7 +24,7 @@ require 'logger'
 # 
 # :include: LICENSE
 #
-#---
+#--
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #

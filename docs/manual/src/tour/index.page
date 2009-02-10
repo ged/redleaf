@@ -1,16 +1,18 @@
 ---
 title: Guided Tour
-layout: intro
+layout: default
 tagline: I'll be your tour guide this evening...
 index: 1
 filters:
   - erb
   - links
   - examples
+  - editorial
+  - api
   - textile
 ---
 
-h1. <%= page.config['title'] %>
+h2. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 

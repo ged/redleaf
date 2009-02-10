@@ -186,7 +186,6 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
  * -------------------------------------------------------------- */
 
 void Init_redleaf_ext( void ) {
-	/* Load the Redleaf and Redleaf::NodeUtils modules from the Ruby source */
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 	rleaf_mRedleafNodeUtils = rb_define_module_under( rleaf_mRedleaf, "NodeUtils" );
 

@@ -1,3 +1,33 @@
+-- Sat, 07 Feb 2009 01:35:40 -0000 by deveiant (r80) -----
+   Added:   examples/bnode-symbols.rb (new)
+            docs/manual/src/tour/graphs.page (new)
+            docs/manual/src/tour (new)
+            examples/anon-bnode-symbols.rb (new)
+            docs/manual/src/tour/index.page (new)
+            examples/bnode.rb (new) (and 3 other/s)
+   Changed: docs/manual/lib/examples-filter.rb
+            docs/manual/src/index.page
+            spec/redleaf/core_extensions_spec.rb
+            docs/manual/src/design.page
+            lib/redleaf/core_extensions.rb
+            spec/redleaf/namespace_spec.rb (and 2 other/s)
+
+    * More work on the manual
+    * Added Redleaf::Namespace[] and an optional Kernel function for convenient syntax sugar.
+    * Added an initial version of an editorial manual filter.
+
+
+-- Fri, 06 Feb 2009 18:49:24 -0000 by deveiant (r79) -----
+   Changed: docs/manual/src/design.page
+            ChangeLog
+            spec/redleaf/utils_spec.rb
+            lib/redleaf/utils.rb
+            docs/manual/resources/css/manual.css
+
+    * Added user-extensible type-conversion to and from RDF literal nodes.
+    * More work on the manual
+
+
 -- Thu, 05 Feb 2009 22:37:34 -0000 by deveiant (r78) -----
    Changed: docs/manual/resources/css/manual.css
 

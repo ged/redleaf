@@ -249,7 +249,7 @@ rleaf_redleaf_statement_clear( VALUE self ) {
 
 /*
  *  call-seq:
- *     statement.subject   -> URI or nil
+ *     statement.subject   -> URI, Symbol, or nil
  *
  *  Return the subject (node) of the statement.
  *
@@ -268,7 +268,7 @@ rleaf_redleaf_statement_subject( VALUE self ) {
 
 /*
  *  call-seq:
- *     statement.subject= uri_or_nil
+ *     statement.subject= uri_symbol_or_nil
  *
  *  Set the subject (node) of the statement.
  *
@@ -325,7 +325,7 @@ rleaf_redleaf_statement_predicate_eq( VALUE self, VALUE new_predicate ) {
 
 /*
  *  call-seq:
- *     statement.object   -> URI or nil
+ *     statement.object   -> object
  *
  *  Return the object (node) of the statement.
  *
@@ -344,7 +344,7 @@ rleaf_redleaf_statement_object( VALUE self ) {
 
 /*
  *  call-seq:
- *     statement.object= uri_or_nil
+ *     statement.object= object
  *
  *  Set the object (node) of the statement.
  *

@@ -7,10 +7,11 @@ filters:
   - links
   - examples
   - editorial
+  - api
   - textile
 ---
 
-h1. <%= page.config['title'] %>
+h2. <%= page.config['title'] %>
 
 As mentioned in the <?link "Design Overview":design.page ?>, Redleaf is intended to be used naturally from within Ruby, and to do so provides conversion of regular Ruby objects to equivalent nodes in RDF and vice-versa. This type system is extensible, meaning you can add translations for your own object classes. For instance, if you wanted to store employees in the graph, but wanted to do so as instances of an already-existing domain class called @Company::Employee@, you could do so like this:
 

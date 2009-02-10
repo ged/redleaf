@@ -165,7 +165,7 @@ module Redleaf # :nodoc:
 	#
 	# :include: LICENSE
 	#
-	#---
+	#--
 	#
 	# Please see the file LICENSE in the 'docs' directory for licensing details.
 	#
@@ -242,7 +242,7 @@ module Redleaf # :nodoc:
 	#
 	# :include: LICENSE
 	#
-	#---
+	#--
 	#
 	# Please see the file LICENSE in the 'docs' directory for licensing details.
 	#

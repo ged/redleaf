@@ -8,7 +8,7 @@ require 'logger'
 require 'redleaf'
 
 
-# 
+#--
 # A collection of mixins shared between Redleaf classes. Stolen mostly from ThingFish.
 #
 module Redleaf # :nodoc:
@@ -26,7 +26,7 @@ module Redleaf # :nodoc:
 	#
 	# :include: LICENSE
 	#
-	#---
+	# --
 	#
 	# Please see the file LICENSE in the 'docs' directory for licensing details.
 	#

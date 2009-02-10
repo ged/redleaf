@@ -16,7 +16,7 @@ require 'redleaf/exceptions'
 # 
 # :include: LICENSE
 #
-#---
+#--
 #
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
@@ -35,7 +35,14 @@ class Redleaf::Store
 	#################################################################
 
 	@derivatives = {}
-	class << self; attr_reader :derivatives; end
+	class << self
+		# Class attribute: a Hash of loaded concrete Redleaf::Store classes keyed by
+		# name. E.g,. the Redleaf::HashesStore would be associated with the 'hashes' 
+		# key. See the Redleaf::Store.backends hash for storage types supported in
+		# the current environment.
+		attr_reader :derivatives
+	end
+
 	
 	### Register the given +subclass+ as being implemented by the specified +backend+.
 	def self::register( subclass, backend )

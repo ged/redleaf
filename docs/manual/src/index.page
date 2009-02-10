@@ -7,14 +7,16 @@ filters:
   - erb
   - links
   - examples
+  - editorial
+  - api
   - textile
 ---
 
-h1. <%= page.config['title'] %>
+h2. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
-Redleaf is an RDF library for Ruby. It's intended as a high-level, approachable, idiomatic binding to the "Redland library":http://librdf.org/ by Dave Beckett. If you're interested in the who and why of the project, that's covered in <?link Project Information ?>.
+Redleaf is an RDF library for Ruby. It's intended as a high-level, approachable, Ruby-idiomatic binding to the "Redland library":http://librdf.org/ by Dave Beckett. If you're interested in the who and why of the project, that's covered in <?link Project Information ?>.
 
 If you just want to get started, it's easy (assuming you "know a little about RDF":http://www.w3.org/2007/02/turtle/primer/ already):
 
@@ -43,6 +45,14 @@ public-sml@w3.org: http://lists.w3.org/Archives/Public/public-sml/
 [...]
 <?end?>
 
-# <?link Project Information ?>
-# <?link Design Overview ?>
+h3. Getting Started
+
+If you don't already know a little RDF, I'd highly recommend at least skimming one of the RDF Primers; I prefer "the one that uses Turtle examples":http://www.w3.org/2007/02/turtle/primer/, as I find the XML syntax to be cluttered and unnecessarily awkward, but you may prefer "the regular XML one":http://www.w3.org/TR/rdf-primer/.
+
+The <?link Design Overview ?> is a high-level introduction to the basic design philosophy behind Redleaf, how it relates to Redland and RDF, with links into the <?link Guided Tour ?> for the classes it mentions in case you want more detail about a particular part.
+
+If you'd rather just start with a roadmap of classes, you should review the <?link Guided Tour ?>, which is an examples-based look at each class in a cookbook-style format. 
+
+Finally, there's the <?api "API documentation":README ?> generated from the source code itself.
+
 

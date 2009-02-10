@@ -1,0 +1,20 @@
+---
+title: Serializing a Graph
+layout: default
+tagline: 
+index: 6
+filters:
+  - erb
+  - links
+  - examples
+  - editorial
+  - api
+  - textile
+---
+
+h2. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+This page will cover the serializers, how to find out which ones are supported, how to serialize to various formats, how to build an appropriate @Accept@ header from a web service, and more.
+

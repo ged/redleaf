@@ -8,13 +8,13 @@ filters:
   - textile
 ---
 
-h1. <%= page.config['title'] %>
+h2. <%= page.config['title'] %>
 
-Redleaf is an alternative Ruby interface to the "Redland RDF library":http://librdf.org/ by Dave Beckett. It was written to provide the backend for the RDF-backed metastore for the  "ThingFish":http://opensource.laika.com/wiki/ThingFish digital asset management server. 
+Redleaf is an alternative Ruby interface to the "Redland RDF library":http://librdf.org/ by Dave Beckett. It was written to serve as the backend for an RDF-based metadata component for the ThingFish digital asset management server. I explored several other existing RDF libraries and found nothing that was both complete and matched the familiar Ruby idioms.
 
-h2. Other RDF Libraries
+h3. Other RDF Libraries
 
-In my search for something a little more Rubyish, I tried out a few other RDF libraries, and while each of them is full of great ideas, I ultimately wanted something a little different than what any of them offered.
+Some other libraries I tried:
 
 <dl class="link-catalog">
 	<dt>Redland – "http://librdf.org/":http://librdf.org/</dt>
@@ -26,31 +26,40 @@ In my search for something a little more Rubyish, I tried out a few other RDF li
 		adding what I think is a more-natural way of using RDF from Ruby for practical 
 		tasks.</dd>
 	<dt>Semitar – "http://semitar.projects.semwebcentral.org/":http://semitar.projects.semwebcentral.org/</dt>
-	<dd>This was a project that Rich Kilmer described to me in great detail at the 2003
-		RubyConf, but it has languished since then due to Rich being perpetually swamped
-		with some other exciting new project or other. Large parts of the high-level interface
-		are heavily influenced by his ideas.</dd>
+	<dd>This was a project that Rich Kilmer described to me in great detail at the 2003 RubyConf, 
+		but it has languished since then due to Rich being perpetually swamped with some other
+		exciting new project or other. While it doesn't appear to be useable in its current state, 
+		large parts of the high-level interface are heavily influenced by the ideas expressed in 
+		it..</dd>
 	<dt>Rena — "http://www.tom.sfc.keio.ac.jp/~sakai/hiki/?Rena":http://www.tom.sfc.keio.ac.jp/~sakai/hiki/?Rena</dt>
 	<dd>A pure-Ruby RDF library, originally written by Masahiro Sakai, Rena provides some of
 		the same low-level functionality that is (more completely) addressed by Redland, but
 		it hasn't been maintained since 2004 and is a bit sparse and depends on a @hyperset@ 
-		library which seems to have disappeared. There's also another more-recent project 
-		called "Rena" by Tim Morris (http://github.com/tommorris/rena/new) that claims
-		some ancestry with Sakai's code, but seems in reality to share only the name[1].
+		library which seems to have disappeared. 
+	<dt>Reddy – "http://github.com/tommorris/reddy/tree":http://github.com/tommorris/reddy/tree
+	<dd>A newish libxml-based library that seems to have started out as a fork of Rena. I didn't
+		find it complete enough to use for what I need it to do.
 	</dd>
 	<dt>Others</dt>
-	<dd>There are a few other libraries for doing RDF stuff on Rubyforge, but nothing that
-		is as feature-complete or flexible as Redland, and nothing that presents a 
+	<dd>There are a few other libraries for doing RDF stuff on Rubyforge and Github, but nothing 
+		that is as feature-complete or flexible as Redland, and nothing that presents a 
 		more-Rubyish interface. That's not to say that they're bad, of course, just not
-		my cup of tea.</dd>
+		compelling enough to want to use them instead of my own.</dd>
 </dl>
 
-h2. Authors
+h3. Project Resources
+
+A bug tracker, a wiki with developer notes and ideas, and other such resources are available on "the project's Trac site":http://deveiate.org/projects/Redleaf.
+
+You can check out the latest source via subversion at: "svn://deveiate.org/Redleaf/trunk":svn://deveiate.org/Redleaf/trunk
+
+
+h3. Authors
 
 * Michael Granger <"ged@FaerieMUD.org":mailto:ged@FaerieMUD.org>
 
 
-h2. License
+h3. License
 
 Copyright © 2008, 2009  Michael Granger <ged@FaerieMUD.org>
 
@@ -84,11 +93,4 @@ The content of this manual, including images, video, and any example source code
 licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative 
 	Commons Attribution 3.0 License</a>.
 </div>
-
-
-fn1. I base this assertion on the fact that the two projects share only two like-named files in
-common, each of which share only blank lines and <code>end</code>s. Tom's version is under a
-different copyright which makes no mention of the "original" code, is under a different license, and
-behaves very differently than the original Rena. That said, what code there is is well-tested, seems
-pretty clean, and seems to be actively worked on. -MG
 

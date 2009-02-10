@@ -1,0 +1,19 @@
+---
+title: Persistant Graphs
+layout: default
+tagline: The More Things Change, The More They Stay the Same
+index: 4
+filters:
+  - erb
+  - links
+  - examples
+  - editorial
+  - api
+  - textile
+---
+
+h2. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+Okay, so now you've built up your graph with a collection of statements, and you can 
