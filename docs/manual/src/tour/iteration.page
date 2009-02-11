@@ -2,7 +2,7 @@
 title: Graph Iteration
 layout: default
 tagline: It's all about the blocks, baby.
-index: 5
+index: 6
 filters:
   - erb
   - links

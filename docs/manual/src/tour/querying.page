@@ -2,7 +2,7 @@
 title: Querying a Graph
 layout: default
 tagline: Finding Stuff
-index: 5
+index: 7
 filters:
   - erb
   - links

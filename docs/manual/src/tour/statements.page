@@ -1,0 +1,36 @@
+---
+title: Statements
+layout: default
+tagline: 
+index: 1
+filters:
+  - erb
+  - links
+  - examples
+  - editorial
+  - api
+  - textile
+---
+
+h2. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+h3. What's In A Statement?
+
+Statements are the basic building-block of RDF, and are also known as _triples_, as they have three parts: a _subject_, a _predicate_, and an _object_. Each statement is a way of asserting some fact about the statement's _subject_, namely that the _object_ of the statement is related to the _subject_ via the relationship described by the _predicate_.
+
+You can construct a Statement via the usual means:
+
+<?example { language: ruby, caption: "Create a new, empty statement" } ?>
+st = Redleaf::Statement.new
+<?end?>
+
+This statement has @nil@ as its subject, predicate, and object, so it's not _complete_. A complete statement is one which has a valid value for all three. You can ask a statement if it's complete in the usual Ruby way:
+
+<?example { language: ruby, caption: "Is this statement complete?" } ?>
+st = Redleaf::Statement.new
+st.complete?
+# => false
+<?end?>
+

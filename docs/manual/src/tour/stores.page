@@ -2,7 +2,7 @@
 title: Persistant Graphs
 layout: default
 tagline: The More Things Change, The More They Stay the Same
-index: 4
+index: 5
 filters:
   - erb
   - links

@@ -2,7 +2,7 @@
 title: Serializing a Graph
 layout: default
 tagline: 
-index: 6
+index: 4
 filters:
   - erb
   - links
