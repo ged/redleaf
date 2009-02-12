@@ -28,11 +28,17 @@ p(caption). The classes that make up the Redland library.
 
 h3. Redleaf Library Classes
 
-If you're familiar with the Redland library, or with the SWIG-generated Ruby binding distributed alongside it, there are a few changes in Redleaf's API:
+Redleaf simplifies the view of the library somewhat, hiding @Stream@ and the collection classes behind more-familiar Ruby interfaces, removing the need to construct intermediate instances of @Query@ and @Serializer@, and mapping @Node@ and @URI@ objects to and from native Ruby objects:
 
 p(diagram). !images/redleaf-classes.png(Redleaf vs. Redland)!
 
 p(caption). How Redland classes map to Redleaf ones.
+
+A simplified view of the classes you'll use in Redleaf looks something like this:
+
+p(diagram). !images/design-overview.png(Redleaf Design Overview)!
+
+p(caption). Redleaf classes.
 
 h4. Nodes
 
@@ -46,25 +52,21 @@ Type-conversion and blank nodes are covered in the <?link "Node Type System":tou
 
 h4. Other Changes
 
-Beyond that, the changes are pretty minor. A simplified view of the classes you'll use in Redleaf looks something like this:
-
-p(diagram). !images/design-overview.png(Redleaf Design Overview)!
-
-p(caption). Redleaf classes.
+Beyond that, the changes are pretty minor. 
 
 * The Redland @Model@ class is called <?api Redleaf::Graph ?> (though there's an alias to @Redleaf::Model@ if you really want it). <?link Working With Graphs ?> in the guided tour covers most of what you need to know to get started.
 * The Redland @Storage@ class is called <?api Redleaf::Store ?>, and is covered in the <?link Persistant Graphs ?> section of the tour.
 * Most of the Redland "Support Classes", and the @Stream@, @Serializer@, and @Query@ classes don't have corollaries in Redleaf; they are used behind the scenes.
-** The @Query@ class is used by the @#query@ method of the Graph class, but it does the conversion to the appropriate Query object for you from a String, and returns a <?api Redleaf::QueryResult ?> object that encapsulates the results of your query. This is covered by the <?link Querying a Graph ?> section of the tour.
-** The Redland @URI@ class and the @Node@ class and its subclasses are all converted to and from Ruby objects as mentioned above (covered in <?link The Node Type System ?>).
+** The Redland @Query@ class is used by the @#query@ method of the Graph class, but it doesn't have a corollary in Redleaf; the conversion to the appropriate struct is done for you from a @String@, and @#query@ returns a <?api Redleaf::QueryResult ?> object that encapsulates the results. This is covered by the <?link Querying a Graph ?> section of the tour.
+** The Redland @URI@ class, and the @Node@ class and its subclasses are all converted to and from Ruby objects as mentioned above (covered in <?link The Node Type System ?>).
 ** Iteration uses Ruby's @Enumerable@ interface, so there's no need for an explicit @Iterator@ class. Some fancy things you can do with iteration are highlighted in the <?link Graph Iteration ?> section.
-** Serialization is all handled behind the scenes; see the <?link Serializing a Graph ?> section for more.
+** Serialization is all handled behind the scenes, so there's no Redleaf @Serializer@ class; see the <?link Serializing a Graph ?> section for more.
 
 h3. Higher-Level Abstractions
 
-I've tried to make the basic library easy to use for people who just want to start playing with triples, and also expose as much of Redland's power as possible for people who are more familiar with it. There's still a ways to go in both regards, but Redleaf is also intended to be a way that you can integrate RDF into your class libraries without having to necessarily know or care about the particulars of Graphs and Stores, and it provides several _experimental_ higher-level utilities to help with this.
+I've tried to make the basic library easy to use for people who just want to start playing with triples, and also expose as much of Redland's power as possible for people who are more familiar with it. There's still a ways to go in both regards, but Redleaf is also intended to be a way that you can integrate RDF into your class libraries without having to necessarily know or care about the particulars of Graphs and Stores, and several _experimental_ higher-level utilities are planned to help with this.
 
 h4. Archetypes
 
-_More about this when it's closer to being done_
+Archetypes are a way to build up functionality in Ruby classes by allowing you to mix in "RDF Vocabularies":http://www.schemaweb.info/. It's still experimental, and the implementation is subject to change, but there's "a page on the project site":http://deveiate.org/projects/Redleaf/wiki/Archetypes that will eventually be merged with this manual that you can read if you're interested.
 

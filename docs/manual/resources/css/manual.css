@@ -255,15 +255,31 @@ td, th {
 }
 
 #footer {
-	margin-top: 2em;
+	margin: 2em 0 0;
 	border-top: 1px solid #c0c0d5;
-	padding: 1em;
+	padding: 0;
 	font-size: 0.75em;
+	position: relative;
 }
 
 #footer p {
 	margin: 0;
 }
+#footer .copyright {
+	position: absolute;
+	left: 0;
+	top: 0.5em;
+}
+#footer .svnid {
+	margin: 0.5em auto;
+	text-align: center;
+}
+#footer .timestamp {
+	position: absolute;
+	right: 0;
+	top: 0.5em;
+}
+
 /* @end */
 
 
@@ -278,9 +294,10 @@ p.diagram {
 }
 p.caption {
 	text-align: center;
-	margin-top: 0;
+	margin: 0 auto 1.5em;
 	font-size: 0.9em;
-	background: #ccc;
+	width: 50%;
+	font-weight: bold;
 }
 /* @end Generic Classes */
 

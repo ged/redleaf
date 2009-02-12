@@ -1,3 +1,30 @@
+-- Wed, 11 Feb 2009 17:11:52 -0000 by deveiant (r82) -----
+   Added:   docs/manual/src/tour/statements.page (new)
+   Changed: docs/manual/src/tour/iteration.page
+            docs/manual/src/tour/stores.page
+            docs/manual/src/tour/serializing.page
+            docs/manual/src/tour/querying.page
+            docs/manual/src/tour/index.page
+
+   More manual work.
+
+
+-- Tue, 10 Feb 2009 02:28:28 -0000 by deveiant (r81) -----
+   Added:   docs/manual/src/tour/querying.page (new)
+            docs/manual/resources/images/redleaf-classes.png (new)
+            docs/manual/src/tour/serializing.page (new)
+            docs/manual/src/tour/iteration.page (new)
+            docs/manual/src/tour/stores.page (new)
+   Changed: lib/redleaf/parser/grddl.rb
+            lib/redleaf/parser/ntriples.rb
+            lib/redleaf/namespace.rb
+            docs/manual/src/tour/index.page
+            lib/redleaf/store/sqlite.rb
+            lib/redleaf/store/mysql.rb (and 36 other/s)
+
+   Manual work.
+
+
 -- Sat, 07 Feb 2009 01:35:40 -0000 by deveiant (r80) -----
    Added:   examples/bnode-symbols.rb (new)
             docs/manual/src/tour/graphs.page (new)
