@@ -26,7 +26,7 @@ You can construct a Statement via the usual means:
 st = Redleaf::Statement.new
 <?end?>
 
-This statement has @nil@ as its subject, predicate, and object, so it's not _complete_. A complete statement is one which has a valid value for all three. You can ask a statement if it's complete in the usual Ruby way:
+This statement has @nil@ as its nodes — subject, predicate, and object — so it's not _complete_. A complete statement is one which has a valid value for all three. You can ask a statement if it's complete in the usual Ruby way:
 
 <?example { language: ruby, caption: "Is this statement complete?" } ?>
 st = Redleaf::Statement.new
@@ -34,3 +34,23 @@ st.complete?
 # => false
 <?end?>
 
+Incomplete statements are useful for situations in which you want to use one statement to match other complete ones in a Graph; any nodes which are @nil@ will match any value. This will be covered more in the <?link Graph Iteration ?> section, but for now we'll just make all our statements complete.
+
+h3. Setting the Statement's Nodes
+
+The _subject_ of a node can be set via the @#subject=@ method, and likewise the _predicate_ and _object_ can be set via their accessors, too:
+
+<?example { language: ruby, caption: "Completing the statement." } ?>
+st = Redleaf::Statement.new
+st.subject   = URI('http://example.com/')
+st.predicate = URI('http://purl.org/dc/elements/1.1/author')
+st.object    = "Barry Ludlow"
+st.complete?
+# => true
+<?end?>
+
+In this example, the subject and predicate are both explicitly-created URIs, but when working with a lot of URIs, this can lead to a lot of repetition. Redleaf borrows the idea of namespaces from many of the RDF serialization syntaxes to make the construction of such URIs easier to read and type.
+
+h4. Namespaces
+
+A namespace is an object that is constructed with a URI prefix, and then used over and over to create variants of that URI. It's used typically to construct URIs for 
