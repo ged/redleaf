@@ -223,16 +223,19 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		
 		/* URI -> librdf_uri */
 		case T_OBJECT:
-		if ( IsURI(object) ) {
-			rleaf_log( "debug", "Converting URI object to librdf_uri node" );
+		if ( IsURI(object) || IsNamespace(object) ) {
+			rleaf_log( "debug", "Converting %s object to librdf_uri node", 
+			           RSTRING_PTR(CLASS_OF(object)) );
 			str = rb_obj_as_string( object );
-			return librdf_new_node_from_uri_string( rleaf_rdf_world, (unsigned char*)RSTRING_PTR(str) );
+			return librdf_new_node_from_uri_string( rleaf_rdf_world, 
+				(unsigned char*)RSTRING_PTR(str) );
 		}
 		/* fallthrough */
 		
-		/* Delegate anything else to Redleaf::object_to_node */
+		/* Delegate anything else to Redleaf::NodeUtils.make_object_typed_literal */
 		default:
-		converted_pair = rb_funcall( rleaf_mRedleafNodeUtils, rb_intern("object_to_node"), 1, object );
+		converted_pair = rb_funcall( rleaf_mRedleafNodeUtils, 
+			rb_intern("make_object_typed_literal"), 1, object );
 		str = rb_ary_entry( converted_pair, 0 );
 		typeuristr = rb_obj_as_string( rb_ary_entry(converted_pair, 1) );
 		typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char*)RSTRING_PTR(typeuristr) );
@@ -260,9 +263,16 @@ librdf_node *
 rleaf_value_to_subject_node( VALUE subject ) {
 	librdf_node *node = NULL;
 	
-	if ( subject == Qnil || TYPE(subject) == T_SYMBOL || rb_obj_is_kind_of(subject, rleaf_rb_cURI) ) {
+	if ( subject == Qnil || TYPE(subject) == T_SYMBOL || IsURI(subject) || IsNamespace(subject) ) {
 		node = rleaf_value_to_librdf_node( subject );
-	} else {
+	} 
+	
+	else if ( TYPE(subject) == T_STRING ) {
+		node = librdf_new_node_from_uri_string( rleaf_rdf_world,
+			(unsigned char *)RSTRING_PTR(subject) );
+	}
+	
+	else {
 		rb_raise( rb_eArgError, "Subject must be blank or a URI" );
 	}
 
@@ -282,9 +292,16 @@ librdf_node *
 rleaf_value_to_predicate_node( VALUE predicate ) {
 	librdf_node *node = NULL;
 
-	if ( predicate == Qnil || rb_obj_is_kind_of(predicate, rleaf_rb_cURI) ) {
+	if ( predicate == Qnil || IsURI(predicate) || IsNamespace(predicate) ) {
 		node = rleaf_value_to_librdf_node( predicate );
-	} else {
+	} 
+	
+	else if ( TYPE(predicate) == T_STRING ) {
+		node = librdf_new_node_from_uri_string( rleaf_rdf_world,
+			(unsigned char *)RSTRING_PTR(predicate) );
+	}
+
+	else {
 		rb_raise( rb_eArgError, "Predicate must be a URI" );
 	}
 

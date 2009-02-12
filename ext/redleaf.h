@@ -60,7 +60,9 @@ extern VALUE rleaf_cRedleafGraph;
 extern VALUE rleaf_cRedleafStatement;
 extern VALUE rleaf_cRedleafParser;
 extern VALUE rleaf_cRedleafStore;
+extern VALUE rleaf_cRedleafNamespace;
 extern VALUE rleaf_cRedleafHashesStore;
+
 extern VALUE rleaf_mRedleafNodeUtils;
 
 extern VALUE rleaf_cRedleafQueryResult;
@@ -112,6 +114,7 @@ typedef struct rleaf_graph_object {
 #define IsStore( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafStore )
 #define IsParser( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafParser )
 #define IsQueryResult( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafQueryResult )
+#define IsNamespace( obj ) rb_obj_is_kind_of( (obj), rleaf_cRedleafNamespace )
 
 #define IsURI( obj ) rb_obj_is_kind_of( (obj), rleaf_rb_cURI )
 

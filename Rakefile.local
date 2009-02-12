@@ -39,6 +39,25 @@ namespace :spec do
 	task :text  => [ :build ]
 end
 
+namespace :spec do
+	desc "Run specs under gdb"
+	task :gdb do |task|
+		require 'tempfile'
+
+	    cmd_parts = ['run']
+	    cmd_parts << '-Ilib:ext'
+	    cmd_parts << '/usr/bin/spec'
+	    cmd_parts += SPEC_FILES.collect { |fn| %["#{fn}"] }
+	    cmd_parts += COMMON_SPEC_OPTS
+
+		script = Tempfile.new( 'spec-gdbscript' )
+		script.puts( cmd_parts.join(' ') )
+		script.flush
+
+		run 'gdb', '-x', script.path, RUBY
+	end
+end
+
 desc "Make the Makefile for the C extension"
 file EXT_MAKEFILE.to_s => EXT_SOURCES do
 	log "Configuring Redleaf C extension"

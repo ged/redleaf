@@ -83,6 +83,19 @@ describe Redleaf::Statement do
 		end
 
 
+		it "allows its subject to be set to a URI string" do
+			@statement.subject = 'http://example.org/'
+			@statement.subject.should == URI('http://example.org/')
+		end
+		
+
+		it "allows its subject to be set to a Redleaf::Namespace" do
+			ns = Redleaf::Namespace.new( 'http://example.org/' )
+			@statement.subject = ns
+			@statement.subject.should == URI('http://example.org/')
+		end
+		
+
 		it "does not allow its subject to be set to a literal" do
 			lambda {
 				@statement.subject = 11.411
@@ -103,6 +116,18 @@ describe Redleaf::Statement do
 			@statement.predicate.should == TEST_FAVORITE_BOOK_URI
 		end
 
+		it "allows its predicate to be set to a URI string" do
+			@statement.predicate = TEST_FAVORITE_BOOK_URI.to_s
+			@statement.predicate.should == TEST_FAVORITE_BOOK_URI
+		end
+		
+
+		it "allows its subject to be set to a Redleaf::Namespace" do
+			ns = Redleaf::Namespace.new( TEST_FAVORITE_BOOK_URI )
+			@statement.predicate = ns
+			@statement.predicate.should == TEST_FAVORITE_BOOK_URI
+		end
+
 		it "does not allow its predicate to be set to a blank node" do
 			lambda {
 				@statement.predicate = :glar
@@ -111,7 +136,7 @@ describe Redleaf::Statement do
 
 		it "does not allow its predicate to be set to a literal" do
 			lambda {
-				@statement.predicate = "some literal value"
+				@statement.predicate = Time.now
 			}.should raise_error( ArgumentError, /predicate must be a URI/i )
 		end
 

@@ -44,6 +44,8 @@
 VALUE rleaf_mRedleaf;
 VALUE rleaf_mRedleafNodeUtils;
 
+VALUE rleaf_cRedleafNamespace;
+
 VALUE rleaf_eRedleafError;
 VALUE rleaf_eRedleafFeatureError;
 VALUE rleaf_eRedleafParseError;
@@ -188,6 +190,7 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
 void Init_redleaf_ext( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
 	rleaf_mRedleafNodeUtils = rb_define_module_under( rleaf_mRedleaf, "NodeUtils" );
+	rleaf_cRedleafNamespace = rb_define_class_under( rleaf_mRedleaf, "Namespace", rb_cObject );
 
 	rleaf_eRedleafError = 
 		rb_define_class_under( rleaf_mRedleaf, "Error", rb_eRuntimeError );

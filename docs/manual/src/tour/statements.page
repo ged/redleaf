@@ -10,6 +10,8 @@ filters:
   - editorial
   - api
   - textile
+example_prelude: |-
+  require 'redleaf'
 ---
 
 h2. <%= page.config['title'] %>
@@ -20,18 +22,17 @@ h3. What's In A Statement?
 
 Statements are the basic building-block of RDF, and are also known as _triples_, as they have three parts: a _subject_, a _predicate_, and an _object_. Each statement is a way of asserting some fact about the statement's _subject_, namely that the _object_ of the statement is related to the _subject_ via the relationship described by the _predicate_.
 
-You can construct a Statement via the usual means:
+You can construct a Statement object via the usual means:
 
-<?example { language: ruby, caption: "Create a new, empty statement" } ?>
-st = Redleaf::Statement.new
+<?example { language: ruby, testable: true, caption: "Create a new, empty statement" } ?>
+Redleaf::Statement.new  # => 
 <?end?>
 
-This statement has @nil@ as its nodes — subject, predicate, and object — so it's not _complete_. A complete statement is one which has a valid value for all three. You can ask a statement if it's complete in the usual Ruby way:
+This statement has @nil@ as its nodes — subject, predicate, and object — so it's not _complete_. A complete statement is one which has a valid value for all three. You can ask a statement if it's complete via the @#complete?@ predicate method:
 
-<?example { language: ruby, caption: "Is this statement complete?" } ?>
+<?example { language: ruby, testable: true, caption: "Is this statement complete?" } ?>
 st = Redleaf::Statement.new
-st.complete?
-# => false
+st.complete?  # =>
 <?end?>
 
 Incomplete statements are useful for situations in which you want to use one statement to match other complete ones in a Graph; any nodes which are @nil@ will match any value. This will be covered more in the <?link Graph Iteration ?> section, but for now we'll just make all our statements complete.
@@ -40,17 +41,46 @@ h3. Setting the Statement's Nodes
 
 The _subject_ of a node can be set via the @#subject=@ method, and likewise the _predicate_ and _object_ can be set via their accessors, too:
 
-<?example { language: ruby, caption: "Completing the statement." } ?>
+<?example { language: ruby, testable: true, caption: "Completing the statement." } ?>
 st = Redleaf::Statement.new
 st.subject   = URI('http://example.com/')
 st.predicate = URI('http://purl.org/dc/elements/1.1/author')
-st.object    = "Barry Ludlow"
-st.complete?
-# => true
+st.object    = "Barry J. Example"
+st.complete?  # =>
 <?end?>
 
 In this example, the subject and predicate are both explicitly-created URIs, but when working with a lot of URIs, this can lead to a lot of repetition. Redleaf borrows the idea of namespaces from many of the RDF serialization syntaxes to make the construction of such URIs easier to read and type.
 
 h4. Namespaces
 
-A namespace is an object that is constructed with a URI prefix, and then used over and over to create variants of that URI. It's used typically to construct URIs for 
+A namespace is an object that is constructed with a URI prefix, which can then used to create variants of that URI. It's used typically to construct URIs for elements of an RDF vocabulary such as the Dublin Core Metadata Element Set (http://purl.org/dc/elements/1.1/):
+
+<?example { language: ruby, testable: true, caption: "Making a namespace for Dublin Core." } ?>
+dc = Redleaf::Namespace.new( 'http://purl.org/dc/elements/1.1/' )
+dc[:creator]       # => 
+dc[:description]   # => 
+dc[:format]        # => 
+<?end?>
+
+<?api Redleaf::Constants ?> has a <?api "CommonNamespaces":Redleaf::Constants::CommonNamespaces ?> module which you can include that defines several namespaces which you'll probably run across if you find yourself working much with RDF.
+
+h4. Creating Complete Statements
+
+Statements can also be created with some or all of their nodes defined; let's create a few using the Dublin Core namespace (defined as @DC@) imported from @CommonNamespaces@ and one of our own:
+
+<?example { language: ruby, testable: true, caption: "Creating several complete nodes." } ?>
+require 'redleaf/constants'
+include Redleaf::Constants::CommonNamespaces
+
+ex = Redleaf::Namespace.new( 'http://example.org/' )
+
+st = Redleaf::Statement.new( ex, DC[:creator], "Barry J. Example" )
+st  # => 
+
+st2 = Redleaf::Statement.new( ex, DC[:description], "Barry's Awesome Example Emporium" )
+st2  # => 
+
+st3 = Redleaf::Statement.new( ex['index.html'], DC[:format], "text/html" )
+st3  # => 
+<?end?>
+
