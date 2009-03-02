@@ -113,12 +113,12 @@ rleaf_store_gc_free( rleaf_STORE *ptr ) {
  */
 static rleaf_STORE *
 check_store( VALUE self ) {
-	// rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_class2name(CLASS_OF(self)), self );
+	// rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_obj_classname(self), self );
 	Check_Type( self, T_DATA );
 
     if ( !IsStore(self) ) {
 		rb_raise( rb_eTypeError, "wrong argument type %s (expected a Redleaf::Store)",
-				  rb_class2name(CLASS_OF( self )) );
+				  rb_obj_classname( self ) );
     }
 	
 	return DATA_PTR( self );
@@ -265,7 +265,7 @@ rleaf_redleaf_store_initialize( int argc, VALUE *argv, VALUE self ) {
 		}
 		
 		if ( TYPE(opthash) != T_HASH )
-			rb_raise( rb_eArgError, "cannot convert %s to Hash", rb_class2name(CLASS_OF(opthash)) );
+			rb_raise( rb_eArgError, "cannot convert %s to Hash", rb_obj_classname(opthash) );
 
 		/* Get the backend name */
 		backend = rb_funcall( CLASS_OF(self), rb_intern("validated_backend"), 0 );
@@ -317,7 +317,7 @@ rleaf_redleaf_store_has_contexts_p( VALUE self ) {
 		rb_raise( rleaf_eRedleafError, "Storage has not yet been associated with a graph." );
 	
 	rleaf_log_with_context( self, "debug", "Checking for contexts in %s:%p", 
-		rb_class2name(CLASS_OF(self)), store );
+		rb_obj_classname(self), store );
 	
 	/* Suggested by laalto on irc://freenode.net/#redland */
 	if ( (contexts = librdf_storage_get_contexts( store->storage )) == NULL ) {
@@ -367,7 +367,7 @@ rleaf_redleaf_store_graph_eq( VALUE self, VALUE graphobj ) {
 	   is going away and break the association. */
 	if ( store->graph != Qnil ) {
 		rleaf_log_with_context( self, "info", "disassociating current graph <0x%x> from %s <0x%x>",
-			store->graph, rb_class2name(CLASS_OF(self)), self );
+			store->graph, rb_obj_classname(self), self );
 		rb_funcall( store->graph, rb_intern("store="), 1, Qnil );
 		store->graph = Qnil;
 

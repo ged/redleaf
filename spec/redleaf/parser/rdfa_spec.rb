@@ -66,7 +66,7 @@ describe Redleaf::RDFaParser do
 		it_should_behave_like "A Parser"
 
 
-		it "requires that #parse be called with a baseuri to avoid segfaulting" do
+		it "requires that #parse be called with a baseuri" do
 			lambda {
 				@parser.parse( "something" )
 			}.should raise_error( ArgumentError, /baseuri/ )

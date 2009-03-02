@@ -144,7 +144,7 @@ describe Redleaf::Graph do
 		
 		it "can load URIs that point to RDF data" do
 			rdfxml_file = @specdatadir + 'mgranger-foaf.xml'
-			uri = URI( 'file:' + rdfxml_file )
+			uri = URI( 'file:' + rdfxml_file.to_s )
 			@graph.load( uri.to_s ).should == TEST_FOAF_TRIPLES.length
 		end
 		

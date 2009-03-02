@@ -81,7 +81,7 @@ check_queryresult( VALUE self ) {
 
     if ( !IsQueryResult(self) ) {
 		rb_raise( rb_eTypeError, "wrong argument type %s (expected a Redleaf::QueryResult)",
-				  rb_class2name(CLASS_OF( self )) );
+				  rb_obj_classname( self ) );
     }
 	
 	return DATA_PTR( self );
@@ -241,7 +241,7 @@ rleaf_redleaf_queryresult_s_formatters( VALUE klass ) {
 static VALUE
 rleaf_redleaf_queryresult_each( VALUE self ) {
 	rb_raise( rb_eNotImpError, "no implementation of #each defined for %s", 
-		rb_class2name(CLASS_OF(self)) );
+		rb_obj_classname(self) );
 	return Qnil;
 }
 
@@ -266,10 +266,10 @@ rleaf_redleaf_queryresult_formatted_as( VALUE self, VALUE format ) {
 	VALUE rval;
 
 	if ( !IsURI(format) )
-		rb_raise( rb_eArgError, "cannot convert %s to a URI", rb_class2name(CLASS_OF( format )) );
+		rb_raise( rb_eArgError, "cannot convert %s to a URI", rb_obj_classname( format ) );
 		
 	rleaf_log_with_context( self, "debug", "Serializing a %s as %s",
-		rb_class2name(CLASS_OF( self )), RSTRING_PTR(rb_obj_as_string(format)) );
+		rb_obj_classname( self ), RSTRING_PTR(rb_obj_as_string(format)) );
 	formaturi = rleaf_object_to_librdf_uri( format );
 	result = librdf_query_results_to_counted_string( res, formaturi, NULL, &length );
 	librdf_free_uri( formaturi ); 

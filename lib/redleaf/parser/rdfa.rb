@@ -51,7 +51,7 @@ class Redleaf::RDFaParser < Redleaf::Parser
 	###   #8  0x000da14c in rb_eval_string_wrap ()
 	###   #9  0x000dad2a in rb_eval_string_wrap ()
 	def parse( content, baseuri=nil )
-		raise ArgumentError, "the RDFa parser currently requires a baseuri" if baseuri.nil?
+		raise ArgumentError, "the RDFa parser requires a baseuri" if baseuri.nil?
 		super
 	end
 	

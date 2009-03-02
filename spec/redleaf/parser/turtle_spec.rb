@@ -58,15 +58,43 @@ describe Redleaf::TurtleParser do
 	describe "instance" do
 		
 		before( :each ) do
-			setup_logging( :fatal )
 			@parser = Redleaf::TurtleParser.new
+			@baseuri = 'file://' + __FILE__
+			@turtle = <<-EOF
+			@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+			@prefix dc:      <http://purl.org/dc/elements/1.1/>.
+			@prefix exterms: <http://www.example.org/terms/>.
+			
+			<http://www.w3.org/TR/rdf-syntax-grammar> 
+			    dc:title "RDF/XML Syntax Specification (Revised)";
+			    exterms:editor [
+			        exterms:fullName "Dave Beckett";
+			        exterms:homePage <http://purl.org/net/dajobe/>
+			    ] .
+			EOF
 		end
 		
 		
 		it_should_behave_like "A Parser"
 		
+		
+		it "requires that #parse be called with a baseuri" do
+			lambda {
+				@parser.parse( @turtle )
+			}.should raise_error( ArgumentError, /baseuri/i )
+		end
+		
 
-		it "parses valid Turtle content and returns a graph"
+		it "parses valid Turtle content and returns a graph" do
+			exterms = Redleaf::Namespace.new( 'http://www.example.org/terms/' )
+			
+			graph = @parser.parse( @turtle, @baseuri )
+			graph.should be_an_instance_of( Redleaf::Graph )
+			graph.size.should == 4
+			graph.statements.map {|st| st.predicate }.
+				should include( DC[:title], exterms[:editor], exterms[:fullName], exterms[:homePage] )
+		end
+		
 		it "raises an error when asked to parse invalid input"
 
 	end

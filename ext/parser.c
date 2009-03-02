@@ -313,7 +313,7 @@ rleaf_redleaf_parser_parse( int argc, VALUE *argv, VALUE self ) {
 	if ( baseuri ) librdf_free_uri( baseuri );
 
 	if ( error_count ) {
-		rb_raise( rleaf_eRedleafParseError, "%d errors", error_count );
+		rb_raise( rleaf_eRedleafParseError, "%ld errors", error_count );
 	} else {
 		return graphobj;
 	}

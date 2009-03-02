@@ -31,6 +31,13 @@ class Redleaf::TurtleParser < Redleaf::Parser
 
 	# Use the 'turtle' Redland parser
 	parser_type :turtle
+
+
+	### Overridden to check for the +baseuri+ argument, which is required by the Turtle parser.
+	def parse( source, baseuri=nil )
+		raise ArgumentError, "the baseuri is required by the Turtle parser" if baseuri.nil?
+		super
+	end
 	
 
 end # class Redleaf::TurtleParser

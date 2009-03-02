@@ -98,7 +98,7 @@ check_statement( VALUE self ) {
 
     if ( !IsStatement(self) ) {
 		rb_raise( rb_eTypeError, "wrong argument type %s (expected Redleaf::Statement)",
-				  rb_class2name(CLASS_OF( self )) );
+				  rb_obj_classname( self ) );
     }
 	
 	return DATA_PTR( self );
@@ -149,13 +149,13 @@ rleaf_value_to_librdf_statement( VALUE object ) {
 		rleaf_log( "debug", "creating a new librdf_statement from a triple: %s",
 		 	RSTRING_PTR(rb_inspect(object)) );
 
-		if ( RARRAY(object)->len != 3 )
-			rb_raise( rb_eArgError, "wrong number of elements for triple (%d for 3)",
-			          RARRAY(object)->len );
+		if ( RARRAY_LEN(object) != 3 )
+			rb_raise( rb_eArgError, "wrong number of elements for triple (%ld for 3)",
+			          RARRAY_LEN(object) );
 
-		subject_node   = rleaf_value_to_subject_node( RARRAY(object)->ptr[0] );
-		predicate_node = rleaf_value_to_predicate_node( RARRAY(object)->ptr[1] );
-		object_node    = rleaf_value_to_object_node( RARRAY(object)->ptr[2] );
+		subject_node   = rleaf_value_to_subject_node( RARRAY_PTR(object)[0] );
+		predicate_node = rleaf_value_to_predicate_node( RARRAY_PTR(object)[1] );
+		object_node    = rleaf_value_to_object_node( RARRAY_PTR(object)[2] );
 
 		stmt_copy = librdf_new_statement_from_nodes( rleaf_rdf_world, 
 			subject_node, predicate_node, object_node );
@@ -163,14 +163,14 @@ rleaf_value_to_librdf_statement( VALUE object ) {
 	
 	else if ( rb_obj_is_kind_of(object, rleaf_cRedleafStatement) ) {
 		rleaf_log( "debug", "extracting a copy of a librdf_statement from a %s",
-		           rb_class2name(CLASS_OF(object)) );
+		           rb_obj_classname(object) );
 
 		stmt_copy = librdf_new_statement_from_statement( check_statement(object) );
 	}
 	
 	else {
 		rb_raise( rb_eArgError, "can't convert a %s to a statement", 
-		          rb_class2name(CLASS_OF(object)) );
+		          rb_obj_classname(object) );
 	}
 	
 	if ( stmt_copy == NULL )
@@ -468,7 +468,7 @@ rleaf_obj_to_librdf_statement( VALUE rbobj ) {
 	}
 
 	else {
-		rb_raise( rb_eArgError, "can't convert %s to a Redleaf::Statement", rb_class2name(CLASS_OF(rbobj)) );
+		rb_raise( rb_eArgError, "can't convert %s to a Redleaf::Statement", rb_obj_classname(rbobj) );
 	}
 
 	return ptr;

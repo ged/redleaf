@@ -225,7 +225,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		case T_OBJECT:
 		if ( IsURI(object) || IsNamespace(object) ) {
 			rleaf_log( "debug", "Converting %s object to librdf_uri node", 
-			           RSTRING_PTR(CLASS_OF(object)) );
+			           rb_obj_classname(object) );
 			str = rb_obj_as_string( object );
 			return librdf_new_node_from_uri_string( rleaf_rdf_world, 
 				(unsigned char*)RSTRING_PTR(str) );

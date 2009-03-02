@@ -4,7 +4,7 @@
 #
 # Based on various other Rakefiles, especially one by Ben Bleything
 #
-# Copyright (c) 2009 The FaerieMUD Consortium
+# Copyright (c) 2007-2009 The FaerieMUD Consortium
 #
 # Authors:
 #  * Michael Granger <ged@FaerieMUD.org>
@@ -21,15 +21,13 @@ BEGIN {
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
 }
 
-require 'rubygems'
-gem 'rake', '>= 0.8.3'
-
 require 'rbconfig'
 require 'rake'
 require 'rake/rdoctask'
 require 'rake/testtask'
 require 'rake/packagetask'
 require 'rake/clean'
+require 'rake/191_compat.rb'
 
 $dryrun = false
 

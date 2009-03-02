@@ -1,3 +1,40 @@
+-- Thu, 12 Feb 2009 19:39:39 -0000 by deveiant (r85) -----
+   Changed: docs/manual/lib/examples-filter.rb
+            docs/Redleaf Design Diagrams.graffle
+            ext/redleaf.c
+            ext/node.c
+            docs/manual/src/tour/statements.page
+            ext/redleaf.h (and 3 other/s)
+
+    * Support auto-URIifying of subject/predicate from String/Redleaf::Namespace.
+    * Added the beginnings of a Statement/Node diagram
+    * More work on the manual
+    * Added an optional 'example_prelude' to the page config that defines a chunk of
+    code that is inserted before each testable example before running it.
+    * Added a 'spec:gdb' task that runs specs under GDB.
+
+
+-- Thu, 12 Feb 2009 14:30:35 -0000 by deveiant (r84) -----
+   Added:   examples/foaf-with-archetypes.rb (new)
+   Changed: docs/manual/src/tour/index.page
+            docs/manual/src/tour/statements.page
+            experiments/tagsoup.rb
+
+    * More work on the manual
+
+
+-- Thu, 12 Feb 2009 03:59:12 -0000 by deveiant (r83) -----
+   Added:   docs/manual/resources/images/redleaf-tiny.png (new)
+   Changed: docs/manual/src/tour/iteration.page
+            docs/Redleaf Design Diagrams.graffle
+            docs/manual/src/tour/querying.page
+            docs/manual/layouts/default.page
+            docs/manual/src/tour/index.page
+            docs/manual/resources/css/manual.css (and 12 other/s)
+
+   More manual work.
+
+
 -- Wed, 11 Feb 2009 17:11:52 -0000 by deveiant (r82) -----
    Added:   docs/manual/src/tour/statements.page (new)
    Changed: docs/manual/src/tour/iteration.page

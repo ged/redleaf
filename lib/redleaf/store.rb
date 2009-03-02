@@ -87,8 +87,9 @@ class Redleaf::Store
 	end
 
 
-	### Make a Redland-style opthash pair String out of the specified +key+ and +value+.
-	def self::make_optpair( key, value )
+	### Make a Redland-style opthash pair String out of the specified key/value +pair+.	
+	def self::make_optpair( *pair )
+		key, value = *(pair.flatten)
 		name = key.to_s.gsub( /_/, '-' )
 		value = case value
 		        when FalseClass

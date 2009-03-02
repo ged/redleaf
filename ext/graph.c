@@ -59,8 +59,8 @@ rleaf_graph_alloc( VALUE storeobj ) {
 	
 	/* :TODO: Figure out what the options argument of librdf_new_model does and support it. */
 	if ( !store->storage )
-		rb_raise( rb_eArgError, "Ack! Tried to create a graph with an uninitialized %s 0x%x", 
-		          rb_class2name(CLASS_OF(storeobj)), storeobj );
+		rb_raise( rb_eArgError, "Ack! Tried to create a graph with an uninitialized %s", 
+		          rb_obj_classname(storeobj) );
 
 	ptr->store = storeobj;
 	ptr->model = librdf_new_model( rleaf_rdf_world, store->storage, NULL );
@@ -108,7 +108,7 @@ check_graph( VALUE self ) {
 
     if ( !IsGraph(self) ) {
 		rb_raise( rb_eTypeError, "wrong argument type %s (expected Redleaf::Graph)",
-				  rb_class2name(CLASS_OF( self )) );
+				  rb_obj_classname( self ) );
     }
 	
 	return DATA_PTR( self );
@@ -227,8 +227,6 @@ rleaf_redleaf_graph_s_serializers( VALUE klass ) {
  */
 static VALUE 
 rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
-	rleaf_log_with_context( self, "debug", "Initializing %s 0x%x", rb_class2name(CLASS_OF(self)), self );
-
 	if ( !check_graph(self) ) {
 		rleaf_GRAPH *graph;
 		VALUE store = Qnil;
@@ -241,7 +239,7 @@ rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
 
 		if ( !IsStore(store) )
 			rb_raise( rb_eTypeError, "wrong argument type %s (expected a Redleaf::Store)",
-				rb_class2name(CLASS_OF(store)) );
+				rb_obj_classname(store) );
 
 		DATA_PTR( self ) = graph = rleaf_graph_alloc( store );
 		
@@ -268,7 +266,7 @@ rleaf_redleaf_graph_dup( VALUE self ) {
 	rleaf_GRAPH *dup_ptr = ALLOC( rleaf_GRAPH );
 	librdf_stream *statements = librdf_model_as_stream( ptr->model );
 	
-	rleaf_log_with_context( self, "debug", "Duping %s 0x%x", rb_class2name(CLASS_OF(self)), self );
+	rleaf_log_with_context( self, "debug", "Duping %s 0x%x", rb_obj_classname(self), self );
 	
 	dup_ptr->store = ptr->store;
 	dup_ptr->model = librdf_new_model_from_model( ptr->model );
@@ -327,11 +325,11 @@ rleaf_redleaf_graph_store_eq( VALUE self, VALUE storeobj ) {
 
 	if ( rb_obj_is_kind_of(storeobj, rleaf_cRedleafStore) ) {
 		rleaf_log_with_context( self, "info", "Graph <0x%x>'s store is now %s <0x%x>", 
-			self, rb_class2name(CLASS_OF(storeobj)), storeobj );
+			self, rb_obj_classname(storeobj), storeobj );
 		rb_funcall( storeobj, rb_intern("graph="), 1, self );
 	} else {
 		rb_raise( rb_eArgError, "cannot convert %s to Redleaf::Store", 
-			rb_class2name(CLASS_OF(storeobj)) );
+			rb_obj_classname(storeobj) );
 	}
 	
 	ptr->store = storeobj;
@@ -421,7 +419,8 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 
 	for ( i = 0; i < argc; i++ ) {
 		statement = argv[i];
-		rleaf_log_with_context( self, "debug", "  adding statement %d: %s", i, RSTRING_PTR(rb_inspect(statement)) );
+		rleaf_log( "debug", "  adding statement %d: %s", i,
+		           RSTRING_PTR(rb_inspect(statement)) );
 		
 		/* Check argument to see if it's an array or statement, error otherwise */
 		switch ( TYPE(statement) ) {
@@ -434,13 +433,13 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 			case T_DATA:
 			if ( CLASS_OF(statement) != rleaf_cRedleafStatement )
 				rb_raise( rb_eArgError, "can't convert %s into Redleaf::Statement", 
-					rb_class2name(CLASS_OF(statement)) );
+					rb_obj_classname(statement) );
 			stmt_ptr = rleaf_get_statement( statement );
 			break;
 		
 			default:
 			rb_raise( rb_eArgError, "can't convert %s into Redleaf::Statement",
-				rb_class2name(CLASS_OF(statement)) );
+				rb_obj_classname(statement) );
 		}
 	
 		if ( librdf_model_add_statement(ptr->model, stmt_ptr) != 0 )
@@ -670,8 +669,8 @@ rleaf_redleaf_graph_load( VALUE self, VALUE uri ) {
 	rdfuri = rleaf_object_to_librdf_uri( uri );
 	
 	if ( librdf_parser_parse_into_model(parser, rdfuri, NULL, ptr->model) != 0 )
-		rb_raise( rleaf_eRedleafError, "failed to load %s into Model <0x%x>",
-		librdf_uri_as_string(rdfuri), self );
+		rb_raise( rleaf_eRedleafError, "failed to load %s into %s",
+		librdf_uri_as_string(rdfuri), RSTRING_PTR(rb_inspect( self )) );
 
 	return INT2FIX( librdf_model_size(ptr->model) - statement_count );
 }
@@ -1097,7 +1096,8 @@ rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
 	
 	if ( !iter ) {
 		librdf_free_node( source );
-		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s", rb_inspect(subject) );
+		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s", 
+		          RSTRING_PTR(rb_inspect(subject)) );
 	}
 	
 	while ( ! librdf_iterator_end(iter) ) {
@@ -1173,7 +1173,8 @@ rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
 	
 	if ( !iter ) {
 		librdf_free_node( target );
-		rb_raise( rleaf_eRedleafError, "could not get arcs in for %s", rb_inspect(object) );
+		rb_raise( rleaf_eRedleafError, "could not get arcs in for %s",
+		          RSTRING_PTR(rb_inspect(object)) );
 	}
 	
 	while ( ! librdf_iterator_end(iter) ) {
@@ -1250,7 +1251,8 @@ rleaf_redleaf_graph_include_subject_p( VALUE self, VALUE subject ) {
 	
 	if ( !iter ) {
 		librdf_free_node( source );
-		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s", rb_inspect(subject) );
+		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s",
+		          RSTRING_PTR(rb_inspect(subject)) );
 	}
 
 	/* If it's not empty, there was at least one matching statement. */
@@ -1285,7 +1287,8 @@ rleaf_redleaf_graph_include_object_p( VALUE self, VALUE object ) {
 	
 	if ( !iter ) {
 		librdf_free_node( target );
-		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s", rb_inspect(object) );
+		rb_raise( rleaf_eRedleafError, "could not get arcs out for %s",
+		          RSTRING_PTR(rb_inspect(object)) );
 	}
 
 	/* If it's not empty, there was at least one matching statement. */

@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# coding: utf-8
 
 BEGIN {
 	require 'pathname'
@@ -167,7 +168,7 @@ class Spec::Runner::Formatter::HtmlFormatter
 		end
 		
 		unless @example_group_red
-			css_class = 'example_group_%d' % [current_example_group_number]
+			css_class = 'example_group_%d' % [current_example_group_number||0]
 			@output.puts "    <script type=\"text/javascript\">makeRed('#{css_class}');</script>"
 			@example_group_red = true
 		end
@@ -195,7 +196,7 @@ class Spec::Runner::Formatter::HtmlFormatter
 	end
 
 
-	if instance_methods.include?( 'global_styles' )
+	if instance_methods.include?( 'global_styles' ) || instance_methods.include?( :global_styles )
 		alias_method :default_global_styles, :global_styles
 	else
 		def default_global_styles

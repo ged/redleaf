@@ -79,7 +79,7 @@ class Redleaf::HashesStore < Redleaf::Store
 		
 		self.log.debug "Constructing a %p with name = %p, options = %p" % 
 			[ self.class.name, name, opthash ]
-		return super( name, opthash )
+		return super( name.to_s, opthash )
 	end
 
 
