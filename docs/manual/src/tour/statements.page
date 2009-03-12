@@ -72,15 +72,15 @@ Statements can also be created with some or all of their nodes defined; let's cr
 require 'redleaf/constants'
 include Redleaf::Constants::CommonNamespaces
 
-ex = Redleaf::Namespace.new( 'http://example.org/' )
+# Reference Roy T. Fielding's dissertation on REST
+rest = Redleaf::Namespace.new( 'http://www.ics.uci.edu/~fielding/pubs/dissertation/' )
 
-st = Redleaf::Statement.new( ex, DC[:creator], "Barry J. Example" )
-st  # => 
+# Make some statements about the PDF version
+paper = rest['fielding_dissertation.pdf']
 
-st2 = Redleaf::Statement.new( ex, DC[:description], "Barry's Awesome Example Emporium" )
-st2  # => 
-
-st3 = Redleaf::Statement.new( ex['index.html'], DC[:format], "text/html" )
-st3  # => 
+st = Redleaf::Statement.new( paper, DC[:creator], "Roy T. Fielding" )
+st2 = Redleaf::Statement.new( paper, DC[:title], "Architectural Styles and the Design " +
+ 	"of Network-based Software Architectures" )
+st3 = Redleaf::Statement.new( paper, DC[:format], "application/pdf" )
 <?end?>
 

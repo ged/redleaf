@@ -250,9 +250,10 @@ $dryrun = Rake.application.options.dryrun ? true : false
 
 # Load any remaining task libraries
 RAKE_TASKLIBS.each do |tasklib|
-	next if tasklib =~ %r{/(helpers|svn|verifytask)\.rb$}
+	next if tasklib.to_s =~ %r{/(helpers|svn|verifytask)\.rb$}
 	begin
-		require tasklib
+		trace "Adding tasks from #{tasklib}..."
+		import tasklib
 	rescue ScriptError => err
 		fail "Task library '%s' failed to load: %s: %s" %
 			[ tasklib, err.class.name, err.message ]
