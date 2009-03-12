@@ -893,7 +893,6 @@ rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE object ) {
 	while ( ! librdf_iterator_end(iter) ) {
 		librdf_node *source = librdf_iterator_get_object( iter );
 		VALUE subject = rleaf_librdf_node_to_value( source );
-		librdf_free_node( source );
 		
 		rb_ary_push( rval, subject );
 		librdf_iterator_next( iter );
@@ -963,7 +962,6 @@ rleaf_redleaf_graph_predicates( VALUE self, VALUE subject, VALUE object ) {
 	while ( ! librdf_iterator_end(iter) ) {
 		librdf_node *source = librdf_iterator_get_object( iter );
 		VALUE predicate = rleaf_librdf_node_to_value( source );
-		librdf_free_node( source );
 		
 		rb_ary_push( rval, predicate );
 		librdf_iterator_next( iter );
@@ -1033,7 +1031,6 @@ rleaf_redleaf_graph_objects( VALUE self, VALUE subject, VALUE predicate ) {
 	while ( ! librdf_iterator_end(iter) ) {
 		librdf_node *source = librdf_iterator_get_object( iter );
 		VALUE object = rleaf_librdf_node_to_value( source );
-		librdf_free_node( source );
 		
 		rb_ary_push( rval, object );
 		librdf_iterator_next( iter );
@@ -1112,7 +1109,6 @@ rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
 
 		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
 		predicate = rleaf_librdf_node_to_value( arc );
-		librdf_free_node( arc );
 		
 		rb_ary_push( rval, predicate );
 		librdf_iterator_next( iter );
@@ -1188,7 +1184,6 @@ rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
 
 		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
 		predicate = rleaf_librdf_node_to_value( arc );
-		librdf_free_node( arc );
 		
 		rb_ary_push( rval, predicate );
 		librdf_iterator_next( iter );

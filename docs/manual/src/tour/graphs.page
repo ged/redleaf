@@ -1,7 +1,6 @@
 ---
 title: Working With Graphs
 layout: default
-tagline: Who Knew Graph Theory Could Be So Fun?
 index: 2
 filters:
   - erb

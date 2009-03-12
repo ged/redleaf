@@ -88,7 +88,7 @@ check_parser( VALUE self ) {
 
     if ( !IsParser(self) ) {
 		rb_raise( rb_eTypeError, "wrong argument type %s (expected Redleaf::Parser)",
-				  rb_class2name(CLASS_OF( self )) );
+				  rb_obj_classname( self ) );
     }
 	
 	return DATA_PTR( self );
@@ -219,7 +219,7 @@ rleaf_redleaf_parser_s_guess_type( int argc, VALUE *argv, VALUE self ) {
  */
 static VALUE 
 rleaf_redleaf_parser_initialize( VALUE self ) {
-	rleaf_log_with_context( self, "debug", "Initializing %s 0x%x", rb_class2name(CLASS_OF(self)), self );
+	rleaf_log_with_context( self, "debug", "Initializing %s 0x%x", rb_obj_classname(self), self );
 
 	if ( !check_parser(self) ) {
 		librdf_parser *parser;

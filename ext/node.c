@@ -55,8 +55,8 @@ rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 		rb_raise( rleaf_eRedleafError, "cannot convert a non-resource (%s) to a URI", 
 			librdf_node_to_string(node) );
 
-	rleaf_log( "debug", "trying to convert node %s to a URI object", 
-		librdf_node_to_string(node) );
+	// rleaf_log( "debug", "trying to convert node %s to a URI object", 
+	// 	librdf_node_to_string(node) );
 
 	if ( (uri = librdf_node_get_uri( node )) == NULL )
 		rb_raise( rleaf_eRedleafError, "unable to fetch a uri from resource node %s",
@@ -107,7 +107,7 @@ rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 
 	/* Plain literal -> String */
 	if ( uri == NULL ) {
-		rleaf_log( "debug", "Converting plain literal %s to a String.", literalstring );
+		// rleaf_log( "debug", "Converting plain literal %s to a String.", literalstring );
 		node_object = literalstring;
 	}
 	
@@ -176,7 +176,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 	
 	/* :TODO: how to set language? is_xml flag? */
 
-	rleaf_log( "debug", "Converting %s to a librdf_node.", RSTRING_PTR(rb_inspect( object )) );
+	// rleaf_log( "debug", "Converting %s to a librdf_node.", RSTRING_PTR(rb_inspect( object )) );
 	switch( TYPE(object) ) {
 		
 		/* nil -> bnode */
@@ -224,8 +224,8 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		/* URI -> librdf_uri */
 		case T_OBJECT:
 		if ( IsURI(object) || IsNamespace(object) ) {
-			rleaf_log( "debug", "Converting %s object to librdf_uri node", 
-			           rb_obj_classname(object) );
+			// rleaf_log( "debug", "Converting %s object to librdf_uri node", 
+			//            rb_obj_classname(object) );
 			str = rb_obj_as_string( object );
 			return librdf_new_node_from_uri_string( rleaf_rdf_world, 
 				(unsigned char*)RSTRING_PTR(str) );

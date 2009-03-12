@@ -99,62 +99,6 @@ module Redleaf::SpecHelpers
 end
 
 
-### Make Logger output stuff in a form that looks nice(er) in SpecMate output.
-class HtmlLogFormatter < Logger::Formatter
-	include ERB::Util  # for html_escape()
-
-	unless defined?( HTML_LOG_FORMAT )
-		HTML_LOG_FORMAT = %q{
-		<dd class="log-message %5$s">
-			<span class="log-time">%1$s.%2$06d</span>
-			[
-				<span class="log-pid">%3$d</span>
-				/
-				<span class="log-tid">%4$s</span>
-			]
-			<span class="log-level">%5$s</span>
-			:
-			<span class="log-name">%6$s</span>
-			<span class="log-message-text">%7$s</span>
-		</dd>
-		}
-	end
-
-	### Override the logging formats with ones that generate HTML fragments
-	def initialize( logger, format=HTML_LOG_FORMAT ) # :notnew:
-		@logger = logger
-		@format = format
-		super()
-	end
-
-
-	######
-	public
-	######
-
-	# The HTML fragment that will be used as a format() string for the log
-	attr_accessor :format
-	
-
-	### Return a log message composed out of the arguments formatted using the
-	### formatter's format string
-	def call( severity, time, progname, msg )
-		args = [
-			time.strftime( '%Y-%m-%d %H:%M:%S' ),                         # %1$s
-			time.usec,                                                    # %2$d
-			Process.pid,                                                  # %3$d
-			Thread.current == Thread.main ? 'main' : Thread.object_id,    # %4$s
-			severity,                                                     # %5$s
-			progname,                                                     # %6$s
-			html_escape( msg ).gsub(/\n/, '<br />')                       # %7$s
-		]
-
-		return self.format % args
-	end
-	
-end
-
-
 # Override the badly-structured output of the RSpec HTML formatter
 require 'spec/runner/formatter/html_formatter'
 

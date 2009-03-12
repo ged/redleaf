@@ -146,14 +146,14 @@ module SKOS
 
 		### Find Concepts that are 'narrower' than the receiver and return them. If a block
 		### is given, each Concept will be yielded to it as it is found.
-		def narrower
-			return @scheme.related_concepts( self, :narrower )
+		def narrower( &block )
+			return @scheme.related_concepts( self, :narrower, &block )
 		end
 
 		### Find Concepts that are 'broader' than the receiver and return them. If a block
 		### is given, each Concept will be yielded to it as it is found.
-		def broader
-			return @scheme.related_concepts( self, :broader )
+		def broader( &block )
+			return @scheme.related_concepts( self, :broader, &block )
 		end
 
 	end
@@ -173,12 +173,12 @@ if __FILE__ == $0
 	
 	agronomy = scheme[ test_concept ] or
 		raise "Couldn't find test concept %p" % [ test_concept ]
-	puts "test concept is %p" % [ agronomy ]
+	puts "test concept is %s" % [ agronomy ]
 
 	agronomy.narrower do |concept|
-		puts "\tnarrower: %s" % [ concept ]
+		puts "  narrower: %s" % [ concept ]
 		concept.narrower do |subconcept|
-			puts "\t\tnarrower: %s" % [ subconcept ]
+			puts "    narrower: %s" % [ subconcept ]
 		end
 	end
 
