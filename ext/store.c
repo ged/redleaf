@@ -186,16 +186,14 @@ rleaf_redleaf_store_s_allocate( VALUE klass ) {
  *
  *  Return a Hash of supported backends from the underlying Redland library.
  *
- *     Redleaf::Parser.features
- *     # => {"raptor"=>"", 
- *           "grddl"=>"Gleaning Resource Descriptions from Dialects of Languages", 
- *           "rdfxml"=>"RDF/XML",
- *           "guess"=>"Pick the parser to use using content type and URI", 
- *           "rdfa"=>"RDF/A via librdfa",
- *           "trig"=>"TriG - Turtle with Named Graphs", 
- *           "turtle"=>"Turtle Terse RDF Triple Language",
- *           "ntriples"=>"N-Triples", 
- *           "rss-tag-soup"=>"RSS Tag Soup"}
+ *     Redleaf::Store.backends
+ *     # => {"uri"=>"URI store (read-only)",
+ *     #     "memory"=>"In memory",
+ *     #     "trees"=>"Balanced trees",
+ *     #     "sqlite"=>"SQLite",
+ *     #     "postgresql"=>"postgresql database store",
+ *     #     "file"=>"Local file based store",
+ *     #     "hashes"=>"Indexed hashes"}
  */
 static VALUE
 rleaf_redleaf_store_s_backends( VALUE klass ) {

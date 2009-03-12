@@ -165,6 +165,8 @@ if __FILE__ == $0
 	Redleaf.logger.level = Logger::DEBUG
 	test_concept = "http://www.ukat.org.uk/thesaurus/concept/1366"
 
+	# You can grab the RDF/XML file from:
+	#   http://www.ukat.org.uk/downloads/skos.zip
 	scheme = SKOS::ConceptScheme.new
 	scheme.read_from_source( "file:skos_ukatdata_20040822.xml" ) unless
 		scheme.graph.include_object?( SKOS::NS[:Concept] )
