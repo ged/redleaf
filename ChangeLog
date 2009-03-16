@@ -1,3 +1,43 @@
+-- Thu, 12 Mar 2009 16:31:45 -0000 by deveiant (r88) -----
+   Changed: ext/store.c
+            examples/redleaf_skos.rb
+
+    * Fixed the docs for Redleaf::Store.backends.
+    * Added a URL for the data file to the SKOS example
+
+
+-- Thu, 12 Mar 2009 13:33:01 -0000 by deveiant (r87) -----
+   Changed: ext/parser.c
+            examples/redleaf_skos.rb
+            ext/graph.c
+            docs/manual/src/tour/graphs.page
+            spec/lib/helpers.rb
+            ext/node.c (and 2 other/s)
+
+    * Fixed a segfault problem caused by freeing a shared node returned by an iterator. Dumb.
+    * Commented out the more-spammy debugging in the node utilities.
+    * More rb_class2name(CLASS_OF()) -> rb_obj_classname() conversion.
+    * Removed duplicate logging code in the spec helpers.
+    * Fixed the Ruby-SKOS example
+
+
+-- Mon, 02 Mar 2009 21:10:23 -0000 by deveiant (r86) -----
+   Added:   examples/redleaf_skos.rb (new)
+   Changed: spec/lib/helpers.rb
+            project.yml
+            lib/redleaf/store.rb
+            ext/node.c
+            spec/redleaf/graph_spec.rb
+            ext/parser.c (and 12 other/s)
+
+    * A bunch of fixes for 1.9.1.
+    * Cleaned up some debugging messages.
+    * Exchanged rb_class2name(CLASS_OF()) for rb_obj_classname()
+    * Updated the build system to work under 1.9.1
+    * Added the beginnings of an experimental port of Dan Brickley's SKOS jRuby library
+    to use Redleaf.
+
+
 -- Thu, 12 Feb 2009 19:39:39 -0000 by deveiant (r85) -----
    Changed: docs/manual/lib/examples-filter.rb
             docs/Redleaf Design Diagrams.graffle

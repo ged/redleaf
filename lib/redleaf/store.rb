@@ -13,6 +13,7 @@ require 'redleaf/exceptions'
 # == Authors
 # 
 # * Michael Granger <ged@FaerieMUD.org>
+# * Mahlon E. Smith <mahlon@martini.nu>
 # 
 # :include: LICENSE
 #
@@ -82,8 +83,15 @@ class Redleaf::Store
 
 	### Returns +true+ if the Redland backend required by the receiving store class is
 	### supported by the local installation.
-	def self::is_supported?
-		return self.backends.include?( self.backend.to_s )
+	def self::is_supported?( storetype=nil )
+		if storetype
+			return self.backends.include?( storetype.to_s )
+		else
+			return self.backends.include?( self.backend.to_s )
+		end
+	end
+	class << self
+		alias_method :supported?, :is_supported?
 	end
 
 

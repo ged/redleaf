@@ -55,7 +55,7 @@ describe Redleaf::Store do
 	end
 
 
-	it "is an abtract class" do
+	it "is an abstract class" do
 		lambda {
 			Redleaf::Store.new
 		}.should raise_error( RuntimeError, /cannot allocate/ )
@@ -73,6 +73,11 @@ describe Redleaf::Store do
 		}.should raise_error( Redleaf::FeatureError, /unsupported/ )
 	end
 
+	it "can check for support for a specified backend" do
+		Redleaf::Store.should_receive( :backends ).
+			and_return({ 'memory' => "...since I can't remember triples without a computer" })
+		Redleaf::Store.is_supported?( :memory ).should == true
+	end
 
 	it "can load its derivatives by name" do
 		Redleaf::Store.should_receive( :require ).with( 'redleaf/store/giraffe' )
@@ -87,20 +92,28 @@ describe Redleaf::Store do
 
 		Redleaf::Store.create( :giraffe, 'name' ).should == :the_triplestore
 	end
-	
+
 
 	describe "concrete subclass" do
-		
-		it "can set which Redland backend to use declaratively" do
-			storeclass = Class.new( Redleaf::Store ) do
+
+		before( :each ) do
+			@storeclass = Class.new( Redleaf::Store ) do
 				backend :memory
 			end
-			
-			storeclass.backend.should == :memory
-			Redleaf::Store.derivatives.should have(1).member
-			Redleaf::Store.derivatives.should include( :memory => storeclass )
 		end
-		
+
+		it "can set which Redland backend to use declaratively" do
+			@storeclass.backend.should == :memory
+			Redleaf::Store.derivatives.should have(1).member
+			Redleaf::Store.derivatives.should include( :memory => @storeclass )
+		end
+
+		it "can check for support for the declared backend" do
+			@storeclass.should_receive( :backends ).
+				and_return({ 'memory' => "...since I can't remember triples without a computer" })
+
+			@storeclass.should be_supported
+		end
 	end
 
 end
