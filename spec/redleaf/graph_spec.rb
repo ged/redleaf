@@ -130,7 +130,7 @@ describe Redleaf::Graph do
 			@graph.statements.should include( *stmts )
 		end
 
-		it "can have statements appended to it as simple triples" do
+		it "can have statements appended to it as simple array triples" do
 			stmt = Redleaf::Statement.new( ME, FOAF[:knows], :mahlon )
 			stmt2 = Redleaf::Statement.new( :mahlon, FOAF[:knows], ME )
 
@@ -140,6 +140,43 @@ describe Redleaf::Graph do
 			
 			@graph.statements.should have( 2 ).members
 			@graph.statements.should include( stmt, stmt2 )
+		end
+		
+		# <file:spec/data/mgranger-foaf.xml#me>
+		#     a <http://xmlns.com/foaf/0.1/Person> ;
+		#     <http://xmlns.com/foaf/0.1/family_name> "Granger" ;
+		#     <http://xmlns.com/foaf/0.1/givenname> "Michael" ;
+		#     <http://xmlns.com/foaf/0.1/homepage> <http://deveiate.org/> ;
+		#     <http://xmlns.com/foaf/0.1/knows> [
+		#         a <http://xmlns.com/foaf/0.1/Person> ;
+		#         <http://xmlns.com/foaf/0.1/mbox_sha1sum> "fd2b68f1f42cf523276824cb93261b0de58621b6" ;
+		#         <http://xmlns.com/foaf/0.1/name> "Mahlon E Smith"
+		#     ] ;
+		#     <http://xmlns.com/foaf/0.1/mbox_sha1sum> "8680b054d586d747a6fcb7046e9ce7cb39554404" ;
+		#     <http://xmlns.com/foaf/0.1/name> "Michael Granger" ;
+		#     <http://xmlns.com/foaf/0.1/phone> <tel:971.645.5490> ;
+		#     <http://xmlns.com/foaf/0.1/workplaceHomepage> <http://laika.com/> .
+		it "can have statements appended to it as hashes" do
+			@graph << {
+				ME => {
+					RDF[:type] => FOAF[:Person],  # No equivalent 'a' shortcut yet...
+					FOAF[:family_name] => "Granger",
+					FOAF[:givenname] => "Michael",
+					FOAF[:homepage] => URI('http://deveiate.org/'),
+					FOAF[:knows] => {
+						RDF[:type] => FOAF[:Person],
+						FOAF[:mbox_sha1sum] => "fd2b68f1f42cf523276824cb93261b0de58621b6",
+						FOAF[:name] => "Mahlon E Smith",
+					},
+					FOAF[:mbox_sha1sum] => "8680b054d586d747a6fcb7046e9ce7cb39554404",
+					FOAF[:name] => "Michael Granger",
+					FOAF[:phone] => URI('tel:971.645.5490'),
+					FOAF[:workplaceHomepage] => URI('http://laika.com/'),
+				},
+			}
+			
+			@graph.statements.should have( 12 ).members
+			@graph.subjects( RDF[:type], FOAF[:Person] ).should have( 2 ).members
 		end
 		
 		it "can load URIs that point to RDF data" do
@@ -481,48 +518,64 @@ describe Redleaf::Graph do
 	describe "tsort interface" do
 
 		before( :all ) do
-			@test_triples = [
-				 [ DOAP[:Project], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:Project], RDFS[:isDefinedBy], DOAP.uri ],
-				 [ DOAP[:Project], RDFS[:label], "Project@en" ],
-				 [ DOAP[:Project], RDFS[:comment], "A project.@en" ],
-				 [ DOAP[:Project], RDFS[:subClassOf], URI('http://xmlns.com/wordnet/1.6/Project') ],
-				 [ DOAP[:Project], RDFS[:subClassOf], FOAF[:Project] ],
-				 [ DOAP[:Version], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:Version], RDFS[:isDefinedBy], DOAP.uri ],
-				 [ DOAP[:Version], RDFS[:label], "Version@en" ],
-				 [ DOAP[:Version], RDFS[:comment], "Version information of a project release.@en" ],
-				 [ DOAP[:SVNRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:SVNRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:SVNRepository], RDFS[:label], "Subversion Repository@en" ],
-				 [ DOAP[:SVNRepository], RDFS[:comment], "Subversion source code repository.@en" ],
-				 [ DOAP[:SVNRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:BKRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:BKRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:BKRepository], RDFS[:label], "BitKeeper Repository@en" ],
-				 [ DOAP[:BKRepository], RDFS[:comment], "BitKeeper source code repository.@en" ],
-				 [ DOAP[:BKRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:CVSRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:CVSRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:CVSRepository], RDFS[:label], "CVS Repository@en" ],
-				 [ DOAP[:CVSRepository], RDFS[:comment], "CVS source code repository.@en" ],
-				 [ DOAP[:CVSRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:ArchRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:ArchRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:ArchRepository], RDFS[:label], "GNU Arch repository@en" ],
-				 [ DOAP[:ArchRepository], RDFS[:comment], "GNU Arch source code repository.@en" ],
-				 [ DOAP[:ArchRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:Repository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:Repository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:Repository], RDFS[:label], "Repository@en" ],
-				 [ DOAP[:Repository], RDFS[:comment], "Source code repository.@en" ],
-			]
+			@test_triples = {
+				 DOAP[:Project] => {
+					RDF[:type]         => RDFS[:Class],
+				 	RDFS[:isDefinedBy] => DOAP.uri,
+				 	RDFS[:label]       => "Project@en",
+				 	RDFS[:comment]     => "A project.@en",
+				 	RDFS[:subClassOf]  => [
+						URI('http://xmlns.com/wordnet/1.6/Project'),
+				 		FOAF[:Project],
+					],
+				},
+				DOAP[:Version] => {
+					RDF[:type]         => RDFS[:Class],
+					RDFS[:isDefinedBy] => DOAP.uri,
+					RDFS[:label]       => "Version@en",
+					RDFS[:comment]     => "Version information of a project release.@en",
+				},
+				DOAP[:SVNRepository] => {
+					RDF[:type]         => RDFS[:Class],
+					RDFS[:isDefinedBy] => DOAP.uri,
+					RDFS[:label]       => "Subversion Repository@en",
+					RDFS[:comment]     => "Subversion source code repository.@en",
+					RDFS[:subClassOf]  => DOAP[:Repository],
+				},
+				DOAP[:BKRepository] => {
+					RDF[:type]         => RDFS[:Class],
+					RDFS[:isDefinedBy] => DOAP.uri,
+					RDFS[:label]       => "BitKeeper Repository@en",
+					RDFS[:comment]     => "BitKeeper source code repository.@en",
+					RDFS[:subClassOf]  => DOAP[:Repository],
+				},
+				DOAP[:CVSRepository] => {
+					RDF[:type]         => RDFS[:Class],
+					RDFS[:isDefinedBy] => DOAP.uri,
+					RDFS[:label]       => "CVS Repository@en",
+					RDFS[:comment]     => "CVS source code repository.@en",
+					RDFS[:subClassOf]  => DOAP[:Repository],
+				},
+				DOAP[:ArchRepository] => {
+					RDF[:type]         => RDFS[:Class],
+					RDFS[:isDefinedBy] => DOAP.uri,
+					RDFS[:label]       => "GNU Arch repository@en",
+					RDFS[:comment]     => "GNU Arch source code repository.@en",
+					RDFS[:subClassOf]  => DOAP[:Repository],
+				},
+				DOAP[:Repository] => {
+					RDF[:type]         => RDFS[:Class],
+					RDFS[:isDefinedBy] => DOAP.uri,
+					RDFS[:label]       => "Repository@en",
+					RDFS[:comment]     => "Source code repository.@en",
+				},
+			}
 			setup_logging( :fatal )
 		end
 
 		before( :each ) do
 			@graph = Redleaf::Graph.new
-			@graph.append( *@test_triples )
+			@graph.append( @test_triples )
 		end
 
 		after( :all ) do

@@ -389,24 +389,33 @@ rleaf_redleaf_graph_statements( VALUE self ) {
  *     graph.append( *statements )   -> Redleaf::Graph
  *     graph << statement            -> Redleaf::Graph
  *
- *  Append statements to the graph, either as Redleaf::Statements, or valid
- *  triples in Arrays.
+ *  Append statements to the graph, either as Redleaf::Statements, valid
+ *  triples in Arrays, or a subgraph of nodes expressed in a Hash.
  *
  *     require 'redleaf/constants'
  *     incude Redleaf::Constants::CommonNamespaces # (for the FOAF namespace constant)
  *     
  *     MY_FOAF = Redleaf::Namspace.new( 'http://deveiate.org/foaf.xml#' )
  *     michael = MY_FOAF[:me]
- *     knows   = FOAF[:knows]
  *
  *     graph = Redleaf::Graph.new
  *
- *     statement1 = Redleaf::Statement.new( :mahlon, knows, michael )
- *     statement2 = [ michael, knows, :mahlon ]
+ *     statement1 = Redleaf::Statement.new( michael, FOAF[:family_name], 'Granger' )
+ *     statement2 = [ michael, FOAF[:givenname], 'Michael' ]
  *     graph.append( statement1, statement2 )
  *     
- *     statement3 = [ michael, RDF[:type], FOAF[:Person] ]
- *     graph << statement3
+ *     graph << [ michael, FOAF[:homepage], URI('http://deveiate.org/') ]
+ *     
+ *     graph << {
+ *       michael => {
+ *         RDF[:type] => FOAF[:Person],
+ *         FOAF[:knows] => {
+ *           RDF[:type] => FOAF[:Person],
+ *           FOAF[:givenname] => "Mahlon",
+ *           FOAF[:family_name] => "Smith",
+ *         }
+ *     }
+ *     
  */
 static VALUE
 rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
@@ -429,6 +438,9 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 				rb_raise( rb_eArgError, "Statement must have three elements." );
 			statement = rb_class_new_instance( 3, RARRAY_PTR(statement), rleaf_cRedleafStatement );
 			/* fallthrough */
+		
+			case T_HASH:
+			
 		
 			case T_DATA:
 			if ( CLASS_OF(statement) != rleaf_cRedleafStatement )
