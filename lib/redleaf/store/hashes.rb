@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'pathname'
- 
+
 require 'redleaf'
 require 'redleaf/store'
 
@@ -9,16 +9,17 @@ require 'redleaf/store'
 # indexed storage using Redland Triple stores to store various combinations of
 # subject, predicate and object for faster access."
 #
-# This store comes in two flavors: the in-memory store, and 
-# 
+# This store comes in two flavors: the in-memory store, and bdb file storage.
+#
 # == Subversion Id
 #
 #  $Id$
-# 
+#
 # == Authors
-# 
+#
 # * Michael Granger <ged@FaerieMUD.org>
-# 
+# * Mahlon E. Smith <mahlon@martini.nu>
+#
 # :include: LICENSE
 #
 #--
@@ -26,6 +27,7 @@ require 'redleaf/store'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::HashesStore < Redleaf::Store
+	include Redleaf::Loggable
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -53,32 +55,46 @@ class Redleaf::HashesStore < Redleaf::Store
 		options.merge!( :new => false )
 		return new( path, options )
 	end
-	
-	
+
+	### Normalize +options+ into a options has that is appropriate for Redland
+	### given an optional +name+ path.
+	### Returns an array of +name+ and a normalized +options+ hash.
+	def self::normalize_options( name=nil, options={} )
+		if name.is_a?( Hash )
+			options.merge!( name )
+			name = nil
+		end
+
+		if name.nil?
+			raise Redleaf::Error, "You must specify a name argument for the bdb hash type." if
+				options[:hash_type] == :bdb
+			options[:hash_type] = :memory
+
+		elsif options[:hash_type] != :memory
+			path = Pathname.new( options[:dir] || '.' ) + Pathname.new( name )
+
+			options[:dir] = path.dirname.to_s
+			options[:hash_type] = :bdb
+			name = path.basename.to_s
+		end
+
+		Redleaf.logger.debug "Constructing a %p with name = %p, options = %p" % 
+			[ self.class.name, name, options ]
+		return name, options
+	end
+
+
 	#################################################################
 	###	I N S T A N C E   M E T H O D S
 	#################################################################
 
 	### Create a new Redleaf::HashesStore, optionally enabling contexts.
 	def initialize( name=nil, options={} )
-		opthash = DEFAULT_OPTIONS.merge( options )
+		name, opts = self.class.normalize_options( name, options )
+		opthash = DEFAULT_OPTIONS.merge( opts )
 
-		if name.is_a?( Hash )
-			opthash.merge!( name )
-			name = nil
-		end
-		
-		if name.nil?
-			opthash[:hash_type] = @hash_type = :memory
-		else
-			path = Pathname.new( name )
-			opthash[:dir] = path.dirname
-			opthash[:hash_type] = @hash_type = :bdb
-			name = path.basename
-		end
-		
-		self.log.debug "Constructing a %p with name = %p, options = %p" % 
-			[ self.class.name, name, opthash ]
+		@hash_type = opthash[:hash_type]
+
 		return super( name.to_s, opthash )
 	end
 
@@ -95,7 +111,7 @@ class Redleaf::HashesStore < Redleaf::Store
 	def persistent?
 		return self.hash_type == :bdb
 	end
-	
+
 
 end # class Redleaf::MemoryStore
 

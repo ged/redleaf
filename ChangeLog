@@ -1,3 +1,28 @@
+-- Mon, 16 Mar 2009 16:16:25 -0000 by mahlon (r91) -----
+   Changed: spec/redleaf/store_spec.rb
+            lib/redleaf/store.rb
+            ChangeLog
+
+   * Alias Redleaf::Store#is_supported? to Redleaf::Store#supported?.
+   * Add optional argument to Redleaf::Store#is_supported? to explicitly check for a certain type of store.
+   * Put my name back because I finally contributed something besides verbal abuse  :D
+
+
+-- Fri, 13 Mar 2009 23:44:04 -0000 by deveiant (r90) -----
+   Changed: Rakefile
+
+   Updated build system.
+
+
+-- Thu, 12 Mar 2009 17:14:17 -0000 by deveiant (r89) -----
+   Changed: Rakefile
+            docs/manual/src/tour/statements.page
+            docs/manual/resources/css/manual.css
+
+    * Updated the build system
+    * Tweaked the examples CSS
+
+
 -- Thu, 12 Mar 2009 16:31:45 -0000 by deveiant (r88) -----
    Changed: ext/store.c
             examples/redleaf_skos.rb

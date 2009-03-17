@@ -80,7 +80,7 @@ class Redleaf::PostgreSQLStore < Redleaf::Store
 	end
 	
 
-end # class Redleaf::MemoryStore
+end # class Redleaf::PostgreSQLStore
 
 # vim: set nosta noet ts=4 sw=4:
 
