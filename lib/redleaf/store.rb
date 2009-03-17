@@ -136,6 +136,17 @@ class Redleaf::Store
 	end
 	
 	
+	### Attempt to load the Redleaf::Store concrete class that wraps the given +backend+, load
+	### one (via its ::load method) with the specified +args+, and return it.
+	def self::load( backend, *args )
+		require "redleaf/store/#{backend}"
+		subclass = self.derivatives[ backend.to_sym ] or
+			raise "Ack! Loading the %p backend didn't register a subclass." % [ backend ]
+		
+		return subclass.load( *args )
+	end
+	
+	
 	#################################################################
 	###	I N S T A N C E   M E T H O D S
 	#################################################################
