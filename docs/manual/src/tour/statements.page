@@ -22,20 +22,19 @@ h3. What's In A Statement?
 
 Statements are the basic building-block of RDF, and are also known as _triples_, as they have three parts: a _subject_, a _predicate_, and an _object_. Each statement is a way of asserting some fact about the statement's _subject_, namely that the _object_ of the statement is related to the _subject_ via the relationship described by the _predicate_.
 
-You can construct a Statement object via the usual means:
+You can construct a Statement object via the usual Ruby constructor:
 
 <?example { language: ruby, testable: true, caption: "Create a new, empty statement" } ?>
 Redleaf::Statement.new  # => 
 <?end?>
 
-This statement has @nil@ as its nodes — subject, predicate, and object — so it's not _complete_. A complete statement is one which has a valid value for all three. You can ask a statement if it's complete via the @#complete?@ predicate method:
+This statement has three null nodes — subject, predicate, and object — so it's not _complete_. A complete statement is one which has a valid value for all three. You can ask a statement if it's complete via the @#complete?@ predicate method:
 
 <?example { language: ruby, testable: true, caption: "Is this statement complete?" } ?>
-st = Redleaf::Statement.new
-st.complete?  # =>
+Redleaf::Statement.new.complete?  # =>
 <?end?>
 
-Incomplete statements are useful for situations in which you want to use one statement to match other complete ones in a Graph; any nodes which are @nil@ will match any value. This will be covered more in the <?link Graph Iteration ?> section, but for now we'll just make all our statements complete.
+Incomplete statements are useful for situations in which you want to use one statement to match other complete ones in a <?api Redleaf::Graph ?>; any nodes which are @nil@ will match any value. This will be covered more in the <?link Searching A Graph ?> section, but for now we'll just make all our statements complete.
 
 h3. Setting the Statement's Nodes
 
@@ -49,11 +48,13 @@ st.object    = "Barry J. Example"
 st.complete?  # =>
 <?end?>
 
-In this example, the subject and predicate are both explicitly-created URIs, but when working with a lot of URIs, this can lead to a lot of repetition. Redleaf borrows the idea of namespaces from many of the RDF serialization syntaxes to make the construction of such URIs easier to read and type.
+In this example, the subject and predicate are both explicitly-created URIs, and the object is a string _literal_. Instances of Core Ruby classes are mapped to their RDF equivalent representation and back for you by Redleaf's node translation system. See <?link The Node Type System ?> section for more details. For now I'll just use Strings and you can take me at my word that under the hood, Redleaf is doing the right thing.
 
 h4. Namespaces
 
-A namespace is an object that is constructed with a URI prefix, which can then used to create variants of that URI. It's used typically to construct URIs for elements of an RDF vocabulary such as the Dublin Core Metadata Element Set (http://purl.org/dc/elements/1.1/):
+When working with a lot of URIs, you can find yourself repeating the same prefix over and over. Rubyists hate to repeat themselves, so Redleaf borrows the idea of namespaces from many of the RDF serialization syntaxes to make the construction of URIs with the same prefix easier to read and type.
+
+A namespace is an object that is constructed with a URI prefix, which can then used to create variants of that URI. It's used typically to construct URIs for elements of an RDF vocabulary. Let's use the Dublin Core Metadata Element Set (http://purl.org/dc/elements/1.1/) and create a few:
 
 <?example { language: ruby, testable: true, caption: "Making a namespace for Dublin Core." } ?>
 dc = Redleaf::Namespace.new( 'http://purl.org/dc/elements/1.1/' )
@@ -62,7 +63,7 @@ dc[:description]   # =>
 dc[:format]        # => 
 <?end?>
 
-<?api Redleaf::Constants ?> has a <?api "CommonNamespaces":Redleaf::Constants::CommonNamespaces ?> module which you can include that defines several namespaces which you'll probably run across if you find yourself working much with RDF.
+<?api Redleaf::Constants ?> has a <?api "CommonNamespaces":Redleaf::Constants::CommonNamespaces ?> module which you can include that defines several namespaces that you'll probably run across if you find yourself working much with RDF.
 
 h4. Creating Complete Statements
 
@@ -72,15 +73,14 @@ Statements can also be created with some or all of their nodes defined; let's cr
 require 'redleaf/constants'
 include Redleaf::Constants::CommonNamespaces
 
-# Reference Roy T. Fielding's dissertation on REST
-rest = Redleaf::Namespace.new( 'http://www.ics.uci.edu/~fielding/pubs/dissertation/' )
-
-# Make some statements about the PDF version
-paper = rest['fielding_dissertation.pdf']
+paper = URI( 'http://www.ics.uci.edu/~fielding/pubs/dissertation/' )
 
 st = Redleaf::Statement.new( paper, DC[:creator], "Roy T. Fielding" )
 st2 = Redleaf::Statement.new( paper, DC[:title], "Architectural Styles and the Design " +
  	"of Network-based Software Architectures" )
-st3 = Redleaf::Statement.new( paper, DC[:format], "application/pdf" )
 <?end?>
+
+Eventually, you'll probably tire of creating nodes, rejoicing in their three-ness, and want to save them off somewhere so you can take them with you on picnics. To do that, you'll need a <?link "Graph":Working With Graphs ?>.
+
+
 

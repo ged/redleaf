@@ -1,8 +1,8 @@
 ---
-title: Graph Iteration
+title: Searching A Graph
 layout: default
 tagline: It's all about the blocks, baby.
-index: 6
+index: 3
 filters:
   - erb
   - links

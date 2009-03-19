@@ -95,9 +95,10 @@ module Redleaf # :nodoc:
 		### associated with the specified +typeuri+. The +converter+ should either be an
 		### object that responds to #[] or a Symbol that specifies a method on the object
 		### that should be called.
-		def register_new_class( classobj, typeuri, converter=:to_s )
+		def register_new_class( classobj, typeuri, converter=nil )
 			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
 			converter ||= Proc.new if block_given?
+			converter ||= :to_s
 			@@class_registry[ classobj ] = [ typeuri, converter ]
 		end
 		

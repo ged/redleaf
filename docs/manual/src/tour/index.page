@@ -19,7 +19,7 @@ This is a guided tour of the Redleaf library. It's a work in progress. Suggestio
 * <?link Statements ?> covers the creation and use of RDF statements.
 * <?link The Node Type System ?> covers the particulars of what gets stored in RDF when you use a Ruby object as part of a statement.
 * <?link Working With Graphs ?> covers Graph operations: loading and saving, serialization, querying, and interation, etc.
-* <?link Serializing a Graph ?> presents some ways you can export your triples in various useful ways for consumption by others.
 * <?link Persistant Graphs ?> is all about how to efficiently save graphs and load them later.
-* <?link Graph Iteration ?> gives some examples of the various simple matching and iteration mechanisms you can use to find the statements you want.
-* <?link Querying a Graph ?> covers more-advanced queries using "SPARQL":http://www.w3.org/TR/rdf-sparql-query/.
+* <?link Searching Graphs ?> gives some examples of the various simple matching and iteration mechanisms you can use to find the statements you want.
+* <?link Advanced Querying: SPARQL ?> covers more-advanced queries using the "Simple Protocol And RDF Query Language":http://www.w3.org/TR/rdf-sparql-query/.
+* <?link Serializing a Graph ?> presents some ways you can export your triples in various useful ways for consumption by others.

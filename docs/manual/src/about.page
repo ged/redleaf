@@ -10,7 +10,7 @@ filters:
 
 h2. <%= page.config['title'] %>
 
-Redleaf is an alternative Ruby interface to the "Redland RDF library":http://librdf.org/ by Dave Beckett. It was written to serve as the backend for an RDF-based metadata component for the ThingFish digital asset management server. I explored several other existing RDF libraries and found nothing that was both complete and matched the familiar Ruby idioms.
+Redleaf is an alternative Ruby interface to the "Redland RDF library":http://librdf.org/ by Dave Beckett. It was written to serve as the backend for an RDF-based metadata component for the ThingFish digital asset management server. I explored several other existing RDF libraries and found nothing that was both complete *and* followed familiar Ruby idioms.
 
 h3. Other RDF Libraries
 
@@ -43,8 +43,8 @@ Some other libraries I tried:
 	<dt>Others</dt>
 	<dd>There are a few other libraries for doing RDF stuff on Rubyforge and Github, but nothing 
 		that is as feature-complete or flexible as Redland, and nothing that presents a 
-		more-Rubyish interface. That's not to say that they're bad, of course, just not
-		compelling enough to want to use them instead of my own.</dd>
+		more-Rubyish interface. That's not to say that they're bad, of course, they just didn't
+		scratch my itch.</dd>
 </dl>
 
 h3. Project Resources

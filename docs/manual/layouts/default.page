@@ -21,7 +21,7 @@
 
 		<%= page.make_index_html %>
 
-		<div id="tagline"><%= page.config['tagline'] || "This is the best tagline evar." %></div>
+		<div id="tagline"><%= page.config['tagline'] || "" %></div>
 	</div>
 
 	<div id="content">

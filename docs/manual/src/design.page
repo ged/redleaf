@@ -46,7 +46,7 @@ The biggest change is that Redleaf is written with the idea that you will want t
 
 To facilitate this, Redleaf provides a mapping of some of the more common Ruby classes to types in the "XML Schema namespace":http://www.w3.org/2001/XMLSchema, and a way to extend the conversion system with your own datatypes.
 
-Blank node are represented in Ruby-space as Symbols and vice-versa; if you pass a Symbol as the subject or object of a triple, it will be converted to the equivalently-named blank node on the backend, and then mapped to the appropriate Symbol when it comes back out.
+Blank nodes are represented in Ruby-space as @Symbol@ objects and vice-versa; if you pass a @Symbol@ as the subject or object of a triple, it will be converted to the equivalently-named blank node on the backend, and then mapped to the appropriate @Symbol@ when it comes back out.
 
 Type-conversion and blank nodes are covered in the <?link "Node Type System":tour/nodetypesystem.page ?> section.
 
@@ -57,9 +57,9 @@ Beyond that, the changes are pretty minor.
 * The Redland @Model@ class is called <?api Redleaf::Graph ?> (though there's an alias to @Redleaf::Model@ if you really want it). <?link Working With Graphs ?> in the guided tour covers most of what you need to know to get started.
 * The Redland @Storage@ class is called <?api Redleaf::Store ?>, and is covered in the <?link Persistant Graphs ?> section of the tour.
 * Most of the Redland "Support Classes", and the @Stream@, @Serializer@, and @Query@ classes don't have corollaries in Redleaf; they are used behind the scenes.
-** The Redland @Query@ class is used by the @#query@ method of the Graph class, but it doesn't have a corollary in Redleaf; the conversion to the appropriate struct is done for you from a @String@, and @#query@ returns a <?api Redleaf::QueryResult ?> object that encapsulates the results. This is covered by the <?link Querying a Graph ?> section of the tour.
+** The Redland @Query@ class is used by the @#query@ method of the Graph class, but it doesn't have a corollary in Redleaf; the conversion to the appropriate struct is done for you from a @String@, and @#query@ returns a <?api Redleaf::QueryResult ?> object that encapsulates the results. This is covered by the <?link Advanced Querying: SPARQL ?> section of the tour.
 ** The Redland @URI@ class, and the @Node@ class and its subclasses are all converted to and from Ruby objects as mentioned above (covered in <?link The Node Type System ?>).
-** Iteration uses Ruby's @Enumerable@ interface, so there's no need for an explicit @Iterator@ class. Some fancy things you can do with iteration are highlighted in the <?link Graph Iteration ?> section.
+** Iteration uses Ruby's @Enumerable@ interface, so there's no need for an explicit @Iterator@ class. Some fancy things you can do with iteration are highlighted in the <?link Searching A Graph ?> section.
 ** Serialization is all handled behind the scenes, so there's no Redleaf @Serializer@ class; see the <?link Serializing a Graph ?> section for more.
 
 h3. Higher-Level Abstractions

@@ -1,3 +1,5 @@
+/* @override http://tenar.home.faeriemud.org/Redleaf/css/manual.css */
+
 /* 
  *	Redleaf Manual Stylesheet
  *	$Id$
@@ -236,7 +238,7 @@ td, th {
 
 #content {
 	position: relative;
-	margin: 3em 2em;
+	margin: 3em 3em 6em;
 }
 
 #content #version {
@@ -304,6 +306,7 @@ div.caption {
 	border-top: 1px solid #787890;
 }
 div.example {
+	max-width: 60em;
 	border: 3px solid #787890;
 	margin: 0.5em 1em;
 	padding: 0;

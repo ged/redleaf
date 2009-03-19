@@ -21,6 +21,8 @@ BEGIN {
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
 }
 
+require 'rubygems'
+
 require 'rbconfig'
 require 'rake'
 require 'rake/rdoctask'
@@ -132,7 +134,7 @@ SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
 RDOCDIR = DOCSDIR + 'api'
 RDOC_OPTIONS = [
 	'-w', '4',
-	'-SHN',
+	'-HN',
 	'-i', '.',
 	'-m', 'README',
 	'-t', PKG_NAME,

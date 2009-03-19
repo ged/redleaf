@@ -9,45 +9,64 @@ filters:
   - editorial
   - api
   - textile
+example_prelude: |-
+  require 'redleaf'
 ---
 
 h2. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
+<?api Redleaf::Graph ?> is the workhorse of Redleaf, the thing which you use to actually *do stuff* with statements.
+
+h3. Creating A Graph
+
+You can create a simple in-memory graph via the usual Ruby constructor:
+
+<?example { language: ruby, testable: true, caption: Create an empty graph} ?>
+Redleaf::Graph.new  # => 
+<?end?>
+
+It accepts a _store_ argument, too, but that'll come up when we get to <?link Persistant Graphs ?>, so just create them without an argument for a bit.
+
+Once you've created a new @Graph@, you're ready to add some statements to it.
+
 h3. Adding Statements
 
-There are several ways to add statements to a <?api Redleaf::Graph ?>: you can read data in from some pre-existing source, copy them from other graph objects, or create new statements yourself.
-
-h4. The @Redleaf::Graph#load@ Method
-
-(Redland provides its own IO functions, handles all kinds of URI schemes, etc. Also cover the various serialization formats, and what Redland does by default)
-
-h4. Reading RDF Data From Disk
-
-If you have some kind of serialized RDF data on a locally-available fixed storage device, you can load it from disk by just passing a path to @#load@:
-
-<?example {} ?>
-<?end?>
-
-h4. Fetching RDF Data From the Web
-
-If you want to fetch it via HTTP, it can do that too:
-
-<?example {} ?>
-<?end?>
+There are several ways to add statements to a @Graph@: you can read data in from some pre-existing source, copy them from other graph objects, or create new statements yourself. You've probably already seen how to create statements in the chapter on <?link Statements ?>, so let's do that first.
 
 h3. Generating Your Own Statements
 
-You can also generate statements yourself. The easiest way to do this is via the @#append@ method: 
+The way to add statements to a @Graph@ is via its @#append@ method:
 
-<?example {} ?>
+<?example { language: ruby, caption: "Appending with #append", testable: true } ?>
+include Redleaf::Constants::CommonNamespaces
+
+myfoaf = Redleaf::Namespace.new( 'http://deveiate.org/foaf.xml#' )
+st1 = Redleaf::Statement.new( myfoaf[:me], RDF[:type], FOAF[:Person] )
+st2 = Redleaf::Statement.new( myfoaf[:me], FOAF[:name], "Michael Granger" )
+st3 = Redleaf::Statement.new( myfoaf[:me], FOAF[:homepage], URI('http://deveiate.org/') )
+
+graph = Redleaf::Graph.new
+graph.append( st1, st2, st3 )
+# => 
 <?end?>
 
-The append method is also known as the @#<<@ operator, and because it returns the receiving object, you can chain as many statements together as you want:
+The append method is also known as the @#<<@ operator, and because it returns the receiving object, you can chain as many statements together as you want. The above example could be written like this instead:
 
-<?example { language: ruby, caption: "Bnodes <-> Symbols", testable: true } ?>
+<?example { language: ruby, caption: "Appending with the << operator", testable: true } ?>
+include Redleaf::Constants::CommonNamespaces
 
+myfoaf = Redleaf::Namespace.new( 'http://deveiate.org/foaf.xml#' )
+
+graph = Redleaf::Graph.new
+graph <<
+	Redleaf::Statement.new( myfoaf[:me], RDF[:type], FOAF[:Person] ) <<
+	Redleaf::Statement.new( myfoaf[:me], FOAF[:name], "Michael Granger" ) <<
+	Redleaf::Statement.new( myfoaf[:me], FOAF[:homepage], URI('http://deveiate.org/') )
+
+graph
+# => 
 <?end?>
 
 h4. Appending With Syntax Shortcuts
@@ -55,82 +74,44 @@ h4. Appending With Syntax Shortcuts
 The @#append@ method (and its sidekick the @#<<@ operator) also support several shortcut syntaxes so you don't have to do all those @Redleaf::Statement.new@ calls. If you want to append one or more simple statements, you can just send in three-element Arrays instead of <?api Redleaf::Statement ?> objects, and they'll be converted on the fly:
 
 <?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
-require 'redleaf'
-
-g = Redleaf::Graph.new
+graph = Redleaf::Graph.new
 exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
 exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
 
-g <<
-	[ exstaff["85740"],  exterms[:address   ],  :johnaddress ] <<
-	[ :johnaddress,      exterms[:street    ],  "1501 Grant Avenue" ] <<
-	[ :johnaddress,      exterms[:city      ],  "Bedford" ] <<
-	[ :johnaddress,      exterms[:state     ],  "Massachusetts" ] <<
-	[ :johnaddress,      exterms[:postalCode],  "01730" ]
+graph <<
+	[ exstaff["85740"],  exterms[:address],    :johnaddress ] <<
+	[ :johnaddress,      exterms[:street],     "1501 Grant Avenue" ] <<
+	[ :johnaddress,      exterms[:city],       "Bedford" ] <<
+	[ :johnaddress,      exterms[:state],      "Massachusetts" ] <<
+	[ :johnaddress,      exterms[:postalCode], "01730" ]
 
-puts "Graph as NTriples:", g.to_ntriples, ''
-
-puts "Address for %s is: %p" % [
-	exstaff["85740"],
-	g.object( exstaff["85740"], exterms[:address] )
-  ]
-
-# Output:
-#   Graph as NTriples:
-#   _:johnaddress <http://www.example.org/terms/postalCode> "01730" .
-#   <http://www.example.org/staffid/85740> <http://www.example.org/terms/address> _:johnaddress .
-#   _:johnaddress <http://www.example.org/terms/city> "Bedford" .
-#   _:johnaddress <http://www.example.org/terms/street> "1501 Grant Avenue" .
-#   _:johnaddress <http://www.example.org/terms/state> "Massachusetts" .
-#   
-#   Address for http://www.example.org/staffid/85740 is: :johnaddress
+graph
+# =>
 <?end?>
 
-The special symbol @:_@ is used as an _anonymous blank node_, and will be replaced with a generated id before being stored in the graph:
+h4. The @Redleaf::Graph#load@ Method
 
-<?example { language: ruby, caption: "Appending a statement with an anonymous blank node.", testable: true } ?>
-require 'redleaf'
+Chances are you'll quickly grow bored of inserting all those example statements, and will want to load a useful set of triples to work with. Redleaf can load statements from remote resources via the @Redleaf::Graph#load@ method:
 
-g = Redleaf::Graph.new
-
-g << [ exstaff["85740"], exterms[:address], :_ ]
-
-# Append the rest via the anonymous bnode
-generated_symbol = g.object( exstaff["85740"], exterms[:address] )
-g <<
-    [ generated_symbol, exterms[:street    ], "1501 Grant Avenue" ] <<
-    [ generated_symbol, exterms[:city      ], "Bedford" ] <<
-    [ generated_symbol, exterms[:state     ], "Massachusetts" ] <<
-    [ generated_symbol, exterms[:postalCode], "01730" ]
+<?example { language: ruby, caption: "Loading some statements from a URI", testable: true } ?>
+graph = Redleaf::Graph.new
+graph.load( 'http://deveiate.org/foaf.xml' )  # => 
+graph
+# => 
 <?end?>
 
-This is pretty clumsy, but in the next release you'll be able to use Hashes to append node graphs:
 
-<?example { language: ruby, caption: "Appending a statement with an anonymous blank node.", testable: false } ?>
-require 'redleaf'
+(Redland provides its own IO functions, handles all kinds of URI schemes, etc. Also cover the various serialization formats, and what Redland does by default)
 
-g = Redleaf::Graph.new
-exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
-exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+h4. Reading RDF Data From Disk
 
-g << {
-	exstaff["85740"] => {
-		exterms[:address] => {
-			exterms[:street] => "1501 Grant Avenue",
-			exterms[:city]   => "Bedford",
-			exterms[:state]  => "Massachusetts",
-			exterms[:postalCode] => "01730",
-		},
-		exterms[:position] => "Comptroller",
-	},
-	exstaff["18116"] => {
-		exterms[:address] => {
-			exterms[:street] => "74 W Elm Street",
-			exterms[:city]   => "Bedford",
-			exterms[:state]  => "Massachusetts",
-			exterms[:postalCode] => "01732",
-		},
-		exterms[:position] => "Assistant",
-	}
-}
+If you have some kind of serialized RDF data in a local file, you can load it from disk by passing either a path or a @file@ URI to @#load@:
+
+<?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
+graph = Redleaf::Graph.new
+graph.load( 'file:spec/data/mgranger-foaf.xml' )
+graph
+# =>
 <?end?>
+
+Now that you can load statements into a @Graph@, you're probably wondering how you can go about finding them again. Have no fear, all that and more are covered in the next section, <?link Searching A Graph ?>.
