@@ -31,23 +31,30 @@ graph = {
 
 triples = []
 
-graph.each do |subj, pairs|
-	pairs.each do |pred, obj|
-		
-	end
+def unwrap_object( tuple )
+	 
+end
+
+def unwrap_subgraph( tuple )
+	
+	
+end
+
+graph.each do |subj, tuple|
+	
 end
 
 # Cases:
 # { s => { p => o } }
 # 	[ s, p, o ]
- 
-# { s => { p => { p1 => o1 } } }
-# 	[ s, p, :anon ]
-# 	[ :anon, p1, o1 ]
 # 
 # { s => { p => [o, o1] } }
 # 	[ s, p, o ]
 # 	[ s, p, o1 ]
+# 
+# { s => { p => { p1 => o1 } } }
+# 	[ s, p, :anon ]
+# 	[ :anon, p1, o1 ]
 # 
 # { s => { p => [{p1 => o1}, {p2 => o2}] } }
 # 	[ s, p, :anon1 ]
