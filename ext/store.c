@@ -5,6 +5,7 @@
  * Authors
  * 
  * - Michael Granger <ged@FaerieMUD.org>
+ * - Mahlon E. Smith <mahlon@martini.nu>
  * 
  * Copyright (c) 2008, 2009 Michael Granger
  * 
@@ -71,7 +72,7 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
 	ptr->storage = storage;
 	ptr->graph   = Qnil;
 
-	// rleaf_log( "debug", "alloc'ed a rleaf_STORE <%p> with storage <%p>", ptr, ptr->storage );
+	/* rleaf_log( "debug", "alloc'ed a rleaf_STORE <%p> with storage <%p>", ptr, ptr->storage ); */
 	return ptr;
 }
 
@@ -95,7 +96,7 @@ rleaf_store_gc_free( rleaf_STORE *ptr ) {
 
 		/* Not sure if I need to break the graph<->storage link here, and if I do, how. [MG] */
 		if ( ptr->storage ) {
-			librdf_storage_close( ptr->storage );
+			/* librdf_storage_close( ptr->storage ); */
 			librdf_free_storage( ptr->storage );
 		}
 		
@@ -113,7 +114,7 @@ rleaf_store_gc_free( rleaf_STORE *ptr ) {
  */
 static rleaf_STORE *
 check_store( VALUE self ) {
-	// rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_obj_classname(self), self );
+	/* rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_obj_classname(self), self ); */
 	Check_Type( self, T_DATA );
 
     if ( !IsStore(self) ) {
