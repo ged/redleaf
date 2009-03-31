@@ -54,6 +54,9 @@ module Redleaf::Constants
 		# The XML Schema namespace
 		XSD        = Redleaf::Namespace.new( 'http://www.w3.org/2001/XMLSchema#' )
 		
+		# The W3C 'vcard' namespace (http://www.w3.org/TR/vcard-rdf)
+		VCARD  = Redleaf::Namespace.new( 'http://www.w3.org/2001/vcard-rdf/3.0#' )
+
 		# The Creative Commons licensing vocabulary
 		CC         = Redleaf::Namespace.new( 'http://creativecommons.org/ns#' )
 		

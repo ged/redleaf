@@ -354,7 +354,7 @@ rleaf_redleaf_store_graph( VALUE self ) {
  *  call-seq:
  *     store.graph = newgraph
  *
- *  Set the store's graph to +newgraph+.
+ *  Set the store's graph to +newgraph+, discarding any previous graph.
  *
  */
 static VALUE

@@ -362,6 +362,20 @@ describe Redleaf::Graph do
 			@graph.sync.should be_true()
 		end
 		
+		it "can swap out its store with another one and carry its triples with it" do
+			oldstore = @graph.store
+			newstore = Redleaf::Store.create( :hashes )
+
+			@graph.store = newstore
+			@graph.store.should == newstore
+			@graph.store.should_not == oldstore
+			@graph.statements.should have( TEST_FOAF_TRIPLES.length ).members
+			
+			newstore.graph.should == @graph
+			oldstore.graph.should_not == @graph
+			oldstore.graph.statements.should have( TEST_FOAF_TRIPLES.length ).members
+		end
+		
 	end
 
 
@@ -457,17 +471,26 @@ describe Redleaf::Graph do
 		end
 
 		it "can be queried with a DESCRIBE SPARQL statement" do
-			@graph <<
-				[:_a, FOAF[:givenname],   'Alice' ] <<
-				[:_a, FOAF[:family_name], 'Hacker' ] <<
-				[:_b, FOAF[:firstname],   'Bob' ] <<
-				[:_b, FOAF[:surname],     'Hacker' ]
-			
+			# setup_logging( :debug )
+			exOrg  = Redleaf::Namespace.new( 'http://org.example.com/employees#' )
 
+			# :FIXME:
+			# This example is taken from:
+			#   http://www.w3.org/TR/rdf-sparql-query/#descriptionsOfResources
+			# The query returns an empty graph, however, so I'm pretty sure I'm 
+			# missing something.
+			@graph <<
+				[ :_a, exOrg[:employeeId],    "1234"     ] <<
+				[ :_a, FOAF[:mbox_sha1sum],   "ABCD1234" ] <<
+				[ :_a, VCARD[:N],             :_b        ] <<
+				[ :_b, VCARD[:Family],        "Smith"    ] <<
+				[ :_b, VCARD[:Given],         "John"     ] <<
+
+				[ FOAF[:mbox_sha1sum], RDF[:type], OWL[:InverseFunctionalProperty] ]
+			
 			sparql = %{
-				PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
-				DESCRIBE ?x
-				WHERE    { ?x foaf:family_name "Hacker" }
+				PREFIX ent:  <http://org.example.com/employees#>
+				DESCRIBE ?x WHERE { ?x ent:employeeId "1234" }
 			}
 			
 			pending "figuring out what the hell I'm doing wrong" do

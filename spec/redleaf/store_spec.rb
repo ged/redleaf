@@ -128,6 +128,7 @@ describe Redleaf::Store do
 
 			@storeclass.should be_supported
 		end
+		
 	end
 
 end

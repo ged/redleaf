@@ -58,6 +58,8 @@ describe Redleaf::TurtleParser do
 	describe "instance" do
 		
 		before( :each ) do
+			@subject = URI( 'http://www.w3.org/TR/rdf-syntax-grammar' )
+			
 			@parser = Redleaf::TurtleParser.new
 			@baseuri = 'file://' + __FILE__
 			@turtle = <<-EOF
@@ -65,7 +67,7 @@ describe Redleaf::TurtleParser do
 			@prefix dc:      <http://purl.org/dc/elements/1.1/>.
 			@prefix exterms: <http://www.example.org/terms/>.
 			
-			<http://www.w3.org/TR/rdf-syntax-grammar> 
+			<#{subject}> 
 			    dc:title "RDF/XML Syntax Specification (Revised)";
 			    exterms:editor [
 			        exterms:fullName "Dave Beckett";
@@ -93,9 +95,24 @@ describe Redleaf::TurtleParser do
 			graph.size.should == 4
 			graph.statements.map {|st| st.predicate }.
 				should include( DC[:title], exterms[:editor], exterms[:fullName], exterms[:homePage] )
+			bnode = graph.object( @subject, exterms[:editor] )
+			
+			bnode.should be_a( Symbol )
+			graph[ bnode, nil, nil ].should have(2).members
+			graph.object( bnode, exterms[:fullName] ).should == 'Dave Beckett'
+			graph.object( bnode, exterms[:homePage] ).should == URI('http://purl.org/net/dajobe/')
 		end
 		
-		it "raises an error when asked to parse invalid input"
+		it "raises an error when asked to parse invalid input" do
+			turtle = <<-EOF
+			# prefix name must end in a :
+			@prefix a <#> .
+			EOF
+			
+			lambda {
+				@parser.parse( turtle, @baseuri )
+			}.should raise_error( Redleaf::ParseError, /1 errors/ )
+		end
 
 	end
 
