@@ -129,7 +129,8 @@ rleaf_log( const char *level, const char *fmt, va_dcl )
 /* 
  * Give Redland a chance to clean up all of its stuff.
  */
-static void rleaf_redleaf_finalizer( VALUE unused ) {
+static void 
+rleaf_redleaf_finalizer( VALUE unused ) {
 	if ( rleaf_rdf_world ) {
 		rleaf_log( "debug", "Freeing librdf world." );
 		// librdf_free_world( rleaf_rdf_world );
@@ -143,7 +144,8 @@ static void rleaf_redleaf_finalizer( VALUE unused ) {
 /* 
  * Map a librdf log level enum value onto a level name suitable for passing to the Logger.
  */
-static const char *rleaf_message_level_name( librdf_log_level level ) {
+static const char *
+rleaf_message_level_name( librdf_log_level level ) {
 	switch( level ) {
 		case LIBRDF_LOG_NONE:
 		case LIBRDF_LOG_DEBUG:
@@ -170,7 +172,8 @@ static const char *rleaf_message_level_name( librdf_log_level level ) {
 /* 
  * Log handler function for transforming rdflib log messages into Redleaf ones.
  */
-static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *message ) {
+static int
+rleaf_rdflib_log_handler( void *user_data, librdf_log_message *message ) {
 	librdf_log_level level = librdf_log_message_level( message );
 	/* librdf_log_facility facility = librdf_log_message_facility( message ); */
 	const char *msg = librdf_log_message_message( message );
@@ -178,6 +181,22 @@ static int rleaf_rdflib_log_handler( void *user_data, librdf_log_message *messag
 	rleaf_log( rleaf_message_level_name(level), msg );
 
 	return 1;
+}
+
+
+/*
+ *
+ */
+static VALUE
+rleaf_redleaf_make_literal_string( VALUE mod, VALUE obj ) {
+	librdf_node *node = rleaf_value_to_librdf_node( obj );
+	unsigned char *literal = librdf_node_to_string( node );
+	VALUE literal_string = rb_str_new2( (char *)literal );
+	
+	xfree( literal );
+	OBJ_INFECT( literal_string, obj );
+
+	return literal_string;
 }
 
 
@@ -235,6 +254,10 @@ void Init_redleaf_ext( void ) {
 	
 	/* Define some constants */
 	rb_define_const( rleaf_mRedleaf, "DEFAULT_STORE_CLASS", DEFAULT_STORE_CLASS );
+
+	/* Add Redleaf module functions */
+	rb_define_module_function( rleaf_mRedleaf, "make_literal_string", 
+		rleaf_redleaf_make_literal_string, 1 );
 
 	rb_require( "redleaf" );
 	rb_require( "redleaf/exceptions" );

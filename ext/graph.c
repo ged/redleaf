@@ -887,7 +887,8 @@ rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE object ) {
 		librdf_free_node( arc );
 		librdf_free_node( target );
 		rb_raise( rleaf_eRedleafError, "failed to get sources for {? -%s-> %s}",
-			librdf_node_to_string(arc), librdf_node_to_string(target) );
+			RSTRING_PTR(rb_inspect(predicate)),
+			RSTRING_PTR(rb_inspect(object)) );
 	}
 
 	while ( ! librdf_iterator_end(iter) ) {
@@ -956,7 +957,8 @@ rleaf_redleaf_graph_predicates( VALUE self, VALUE subject, VALUE object ) {
 		librdf_free_node( source );
 		librdf_free_node( target );
 		rb_raise( rleaf_eRedleafError, "failed to get arcs for: {%s -?-> %s}",
-			librdf_node_to_string(source), librdf_node_to_string(target) );
+			RSTRING_PTR(rb_inspect(subject)),
+			RSTRING_PTR(rb_inspect(object)) );
 	}
 
 	while ( ! librdf_iterator_end(iter) ) {
@@ -1025,7 +1027,8 @@ rleaf_redleaf_graph_objects( VALUE self, VALUE subject, VALUE predicate ) {
 		librdf_free_node( source );
 		librdf_free_node( arc );
 		rb_raise( rleaf_eRedleafError, "failed to get targets for: {%s -?-> %s}",
-			librdf_node_to_string(source), librdf_node_to_string(arc) );
+			RSTRING_PTR(rb_inspect(subject)),
+			RSTRING_PTR(rb_inspect(predicate)) );
 	}
 
 	while ( ! librdf_iterator_end(iter) ) {
@@ -1107,7 +1110,6 @@ rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
 			rb_raise( rleaf_eRedleafError, "iterator returned NULL arc" );
 		}
 
-		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
 		predicate = rleaf_librdf_node_to_value( arc );
 		
 		rb_ary_push( rval, predicate );
@@ -1182,7 +1184,6 @@ rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
 			rb_raise( rleaf_eRedleafError, "iterator returned NULL arc" );
 		}
 
-		rleaf_log_with_context( self, "debug", "got an arc: %s", librdf_node_to_string(arc) );
 		predicate = rleaf_librdf_node_to_value( arc );
 		
 		rb_ary_push( rval, predicate );

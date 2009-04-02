@@ -2,7 +2,7 @@
 title: Statements
 layout: default
 tagline: 
-index: 1
+index: 2
 filters:
   - erb
   - links

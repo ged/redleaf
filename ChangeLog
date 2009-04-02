@@ -1,3 +1,56 @@
+-- Fri, 27 Mar 2009 15:26:13 -0000 by mahlon (r99) -----
+   Changed: ext/store.c
+
+    * Changed some comments to get my name in this file. I rule!
+    * librdf_storage_close() was causing a segfault.  We *think*
+    that the problem is a double close on the storage backend.
+
+
+-- Fri, 20 Mar 2009 12:57:42 -0000 by deveiant (r98) -----
+   Added:   docs/sync-to-deveiate.sh (new)
+   Changed: /trunk
+            docs/Redleaf Design Diagrams.graffle
+            spec/data
+
+    * Manual diagram work
+    * Added my online manual rsync script to docs/
+
+
+-- Thu, 19 Mar 2009 17:20:27 -0000 by deveiant (r97) -----
+   Added:   docs/manual/src/tour/parsing.page (new)
+   Changed: docs/manual/src/index.page
+            docs/manual/src/tour/iteration.page
+            docs/manual/src/design.page
+            docs/manual/src/about.page
+            Rakefile
+            docs/manual/src/tour/querying.page (and 8 other/s)
+
+    * Updated build system
+    * Fixed the block-style Redleaf::Utils.register_new_class, which was ignoring
+    the block.
+    * Manual work
+
+
+-- Tue, 17 Mar 2009 16:53:12 -0000 by mahlon (r95) -----
+   Changed: spec/redleaf/store/hashes_spec.rb
+            lib/redleaf/store/hashes.rb
+            ChangeLog
+            lib/redleaf/store/postgresql.rb
+
+    * Small whitespace fixes.
+    * Add Redleaf::Loggable to the Redleaf::HashesStore.
+    * Break the option normalization into a class method, that better matches
+    idiomatic behaviors for Redland bdb instantiation in ruby.
+
+
+-- Tue, 17 Mar 2009 16:49:04 -0000 by deveiant (r94) -----
+   Changed: spec/redleaf/store_spec.rb
+            lib/redleaf/store.rb
+
+    * Added a ::load method to Redleaf::Store that's analogous to its ::create method, but creates
+    the instance via the subordinate class's ::load method instead of ::new.
+
+
 -- Mon, 16 Mar 2009 16:16:25 -0000 by mahlon (r91) -----
    Changed: spec/redleaf/store_spec.rb
             lib/redleaf/store.rb

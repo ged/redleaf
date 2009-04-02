@@ -14,7 +14,7 @@ module Redleaf # :nodoc:
 	### statement-ish things.
 	module ArrayExtensions
 		
-		### Case-comparision -- invert the comparison if +other+ is a Redleaf::Statement.
+		### Case-comparison -- invert the comparison if +other+ is a Redleaf::Statement.
 		def ===( other )
 			super unless other.is_a?( Redleaf::Statement )
 			return other === self

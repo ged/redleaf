@@ -1,7 +1,7 @@
 ---
 title: Working With Graphs
 layout: default
-index: 2
+index: 3
 filters:
   - erb
   - links
@@ -114,4 +114,29 @@ graph
 # =>
 <?end?>
 
-Now that you can load statements into a @Graph@, you're probably wondering how you can go about finding them again. Have no fear, all that and more are covered in the next section, <?link Searching A Graph ?>.
+Now that you can load statements into a @Graph@, you're probably wondering how you can go about finding them again. Have no fear, you can ask a graph to give you back your statements in a number of ways.
+
+h3. Searching A Graph
+
+* @#each_statement@ (aka @#each@)
+* Topological Sorting (@#tsort@)
+* The node-match iterators (@#subjects@, @#objects@, @#predicates@, @#predicates_entailing@, @#predicates_about@, etc.)
+
+
+h3. Advanced Searching With SPARQL
+
+This page will cover the SPARQL query interface, and mention RQL.
+
+
+h3. Persistent Graphs via Redleaf::Store
+
+How to use Redleaf::Store.
+
+
+h3. Persistent Graphs via Serialization
+
+Serializers, how to find out which ones are supported, how to serialize to various formats, how to build an appropriate @Accept@ header for content-negotiation, and more.
+
+
+h3. 
+

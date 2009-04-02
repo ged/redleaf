@@ -307,6 +307,7 @@ rleaf_redleaf_parser_parse( int argc, VALUE *argv, VALUE self ) {
 	   is currently. Need to ask dajobe for advice. */
 	error_count_string = librdf_node_to_string( error_count_node );
 	error_count = strtol( (char *)error_count_string, NULL, 0 );
+	xfree( error_count_string );
 
 	librdf_free_node( error_count_node );
 	librdf_free_uri( error_count_feature );

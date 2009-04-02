@@ -57,6 +57,18 @@ describe Redleaf do
 		Redleaf.version_string(true).should =~ /\w+ [\d.]+ \(build \d+\)/
 	end
 	
+	
+	it "can convert a Ruby String into its equivalent literal string" do
+		Redleaf.make_literal_string( "foo" ).should == 'foo'
+	end
+	
+	it "can convert a Ruby String with a language tag into its equivalent literal string" do
+		str = "foo"
+		str.extend( Redleaf::StringExtensions )
+		str.lang = 'de'
+		Redleaf.make_literal_string( str ).should == 'foo'
+	end
+	
 
 	describe " logging subsystem" do
 		before(:each) do
