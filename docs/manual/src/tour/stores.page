@@ -1,0 +1,22 @@
+---
+title: Triple Stores
+layout: default
+index: 4
+filters:
+  - erb
+  - links
+  - examples
+  - editorial
+  - api
+  - textile
+example_prelude: |-
+  require 'redleaf'
+---
+
+h2. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+This page will be all about <?api Redleaf::Store ?> objects.
+
+

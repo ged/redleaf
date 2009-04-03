@@ -1,3 +1,18 @@
+-- Fri, 03 Apr 2009 19:15:06 -0000 by deveiant (r102) -----
+   Changed: /trunk
+            docs/manual/lib/links-filter.rb
+            docs/manual/src/design.page
+            Rakefile
+            docs/manual/src/tour/parsing.page
+            docs/manual/src/tour/graphs.page (and 6 other/s)
+
+    * Updated the build system to hopefully fix the CC build.
+    * Manual:
+    * Fixed links to reflect the reorg/consolidation.
+    * Started a chapter for triple stores.
+    * Added an optional target-fragment to the links filter.
+
+
 -- Thu, 02 Apr 2009 05:06:16 -0000 by deveiant (r101) -----
    Changed: ext/node.c
             docs/manual/src/tour/index.page
