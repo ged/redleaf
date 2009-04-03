@@ -34,7 +34,7 @@ This statement has three null nodes — subject, predicate, and object — so it
 Redleaf::Statement.new.complete?  # =>
 <?end?>
 
-Incomplete statements are useful for situations in which you want to use one statement to match other complete ones in a <?api Redleaf::Graph ?>; any nodes which are @nil@ will match any value. This will be covered more in the <?link Searching A Graph ?> section, but for now we'll just make all our statements complete.
+Incomplete statements are useful for situations in which you want to use one statement to match other complete ones in a <?api Redleaf::Graph ?>; any nodes which are @nil@ will match any value. This will be covered more in the <?link Working With Graphs#searching ?> section, but for now we'll just make all our statements complete.
 
 h3. Setting the Statement's Nodes
 

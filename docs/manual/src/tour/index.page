@@ -16,10 +16,9 @@ h2. <%= page.config['title'] %>
 
 This is a guided tour of the Redleaf library. It's a work in progress. Suggestions for ways to make this better are greatly appreciated. Especially in the form of patches.
 
-* <?link Statements ?> covers the creation and use of RDF statements.
 * <?link The Node Type System ?> covers the particulars of what gets stored in RDF when you use a Ruby object as part of a statement.
+* <?link Statements ?> covers the creation and use of RDF statements.
 * <?link Working With Graphs ?> covers Graph operations: loading and saving, serialization, querying, and interation, etc.
-* <?link Persistant Graphs ?> is all about how to efficiently save graphs and load them later.
-* <?link Searching A Graph ?> gives some examples of the various simple matching and iteration mechanisms you can use to find the statements you want.
-* <?link Advanced Querying: SPARQL ?> covers more-advanced queries using the "Simple Protocol And RDF Query Language":http://www.w3.org/TR/rdf-sparql-query/.
-* <?link Serializing a Graph ?> presents some ways you can export your triples in various useful ways for consumption by others.
+* <?link Triple Stores ?> describes the Redleaf interface to Redland's RDF TripleStore backends.
+* <?link Parsing ?> covers the various parsers that Redland supports, and how to use them via Redleaf.
+

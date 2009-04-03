@@ -11,6 +11,7 @@ BEGIN {
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
+require 'rubygems'
 gem 'rspec', '>= 1.1.11' # For correct hash-matching in .should include(...)
 
 begin

@@ -1,3 +1,34 @@
+-- Thu, 02 Apr 2009 05:06:16 -0000 by deveiant (r101) -----
+   Changed: ext/node.c
+            docs/manual/src/tour/index.page
+            spec/redleaf_spec.rb
+            Rakefile.local
+            ext/parser.c
+            examples/redleaf_skos.rb (and 9 other/s)
+   Deleted: docs/manual/src/tour/iteration.page
+            docs/manual/src/tour/querying.page
+            docs/manual/src/tour/stores.page
+            docs/manual/src/tour/serializing.page
+
+    * Eliminated most uses of librdf_node_to_string() to avoid leaks.
+    * Added module function Redleaf.make_literal_string.
+    * Consolidated all the Graph manual pages into one.
+    * Worked a bit more on the port of danbri's SKOS demo.
+
+
+-- Tue, 31 Mar 2009 20:36:51 -0000 by deveiant (r100) -----
+   Changed: ext/store.c
+            spec/lib/store_behavior.rb
+            spec/redleaf/parser/turtle_spec.rb
+            spec/redleaf/store_spec.rb
+            lib/redleaf/constants.rb
+            spec/redleaf/graph_spec.rb (and 1 other/s)
+
+    * Added more tests around Redleaf::Graph#store= and Redleaf::Store#graph=
+    * Added W3C vCard namespace to CommonNamespaces
+    * Finished the Turtle parser spec
+
+
 -- Fri, 27 Mar 2009 15:26:13 -0000 by mahlon (r99) -----
    Changed: ext/store.c
 

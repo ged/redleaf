@@ -19,7 +19,7 @@ h2. <%= page.config['title'] %>
 
 <?api Redleaf::Graph ?> is the workhorse of Redleaf, the thing which you use to actually *do stuff* with statements.
 
-h3. Creating A Graph
+h3(#creating). Creating A Graph
 
 You can create a simple in-memory graph via the usual Ruby constructor:
 
@@ -27,15 +27,15 @@ You can create a simple in-memory graph via the usual Ruby constructor:
 Redleaf::Graph.new  # => 
 <?end?>
 
-It accepts a _store_ argument, too, but that'll come up when we get to <?link Persistant Graphs ?>, so just create them without an argument for a bit.
+It accepts a _store_ argument, too, but that'll come up "a little later":#triplestores, so just create them without an argument for a bit.
 
 Once you've created a new @Graph@, you're ready to add some statements to it.
 
-h3. Adding Statements
+h3(#adding). Adding Statements
 
 There are several ways to add statements to a @Graph@: you can read data in from some pre-existing source, copy them from other graph objects, or create new statements yourself. You've probably already seen how to create statements in the chapter on <?link Statements ?>, so let's do that first.
 
-h3. Generating Your Own Statements
+h3(#generating). Generating Your Own Statements
 
 The way to add statements to a @Graph@ is via its @#append@ method:
 
@@ -116,27 +116,25 @@ graph
 
 Now that you can load statements into a @Graph@, you're probably wondering how you can go about finding them again. Have no fear, you can ask a graph to give you back your statements in a number of ways.
 
-h3. Searching A Graph
+h3(#searching). Searching A Graph
 
 * @#each_statement@ (aka @#each@)
 * Topological Sorting (@#tsort@)
 * The node-match iterators (@#subjects@, @#objects@, @#predicates@, @#predicates_entailing@, @#predicates_about@, etc.)
 
 
-h3. Advanced Searching With SPARQL
+h3(#advanced_searching). Advanced Searching With SPARQL
 
 This page will cover the SPARQL query interface, and mention RQL.
 
 
-h3. Persistent Graphs via Redleaf::Store
+h3(#triplestores). Persistent Graphs via Redleaf::Store
 
 How to use Redleaf::Store.
 
 
-h3. Persistent Graphs via Serialization
+h3(#serialization). Persistent Graphs via Serialization
 
 Serializers, how to find out which ones are supported, how to serialize to various formats, how to build an appropriate @Accept@ header for content-negotiation, and more.
 
-
-h3. 
 
