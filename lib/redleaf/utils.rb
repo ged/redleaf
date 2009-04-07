@@ -82,9 +82,13 @@ module Redleaf # :nodoc:
 
 		### Register a new object that knows how to map strings to Ruby objects for the
 		### specified +typeuri+. The +converter+ is any object that responds to #[].
-		def register_new_type( typeuri, converter=nil )
+		def register_new_type( typeuri, converter=nil, &block )
 			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
-			converter ||= Proc.new if block_given?
+			Redleaf.logger.info "Registering a new object converter for %s literals " % [ typeuri ]
+
+			converter ||= block
+			
+			Redleaf.logger.debug "  will convert via %p" % [ converter ]
 			@@typeuri_registry[ typeuri ] = converter
 		end
 		
@@ -95,10 +99,14 @@ module Redleaf # :nodoc:
 		### associated with the specified +typeuri+. The +converter+ should either be an
 		### object that responds to #[] or a Symbol that specifies a method on the object
 		### that should be called.
-		def register_new_class( classobj, typeuri, converter=nil )
+		def register_new_class( classobj, typeuri, converter=nil, &block )
+			Redleaf.logger.info "Registering a new typed-literal conversion for %p objects." %
+			 	[ classobj ]
 			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
-			converter ||= Proc.new if block_given?
+			converter ||= block
 			converter ||= :to_s
+
+			Redleaf.logger.debug "  will convert to type: %p via %p" % [ typeuri, converter ]
 			@@class_registry[ classobj ] = [ typeuri, converter ]
 		end
 		
@@ -110,19 +118,26 @@ module Redleaf # :nodoc:
 		end
 		
 		
-		### Convert the specified Ruby +object+ to a typed literal and return it as a two-element
-		### Array of value and type URI.
-		### Transform the given +object+ into a tuple of [ canonical_string_value, datatype_uri ]
-		### and return it as an Array.
+		### Convert the specified Ruby +object+ to a typed literal and return it as a tuple of 
+		### the form:
+		###   [ <canonical_string_value>, <datatype_uri> ]
 		def make_object_typed_literal( object )
 			Redleaf.logger.debug "Making typed literal from object %p" % [ object ]
 
 			if entry = @@class_registry[ object.class ]
 				uri, converter = *entry 
+				Redleaf.logger.debug "  literal type URI is: %p" % [ uri ]
 				if converter.is_a?( Symbol )
-					return [ uri, object.__send__(converter) ]
+					Redleaf.logger.debug "  converter is %p#%s" % [ object.class, converter ]
+					
+					literal = object.__send__(converter)
+					Redleaf.logger.debug "  converted to: %p" % [ literal ]
+					return [ literal, uri ]
 				else
-					return [ uri, converter[object] ]
+					Redleaf.logger.debug "  converter is %p" % [ converter ]
+					literal = converter[object]
+					Redleaf.logger.debug "  converted to: %p" % [ literal ]
+					return [ literal, uri ]
 				end
 			else
 				raise "no typed-literal conversion for %p objects" % [ object.class ]
@@ -139,6 +154,7 @@ module Redleaf # :nodoc:
 				[ string_value, typeuri ]
 
 			if converter = @@typeuri_registry[ typeuri ]
+				Redleaf.logger.debug "  casting function is: %p" % [ converter ]
 				return converter[ string_value ]
 			else
 				raise "No object conversion for typed literal %p (%p)" % [ string_value, typeuri ]

@@ -189,13 +189,24 @@ rleaf_rdflib_log_handler( void *user_data, librdf_log_message *message ) {
  */
 static VALUE
 rleaf_redleaf_make_literal_string( VALUE mod, VALUE obj ) {
-	librdf_node *node = rleaf_value_to_librdf_node( obj );
-	unsigned char *literal = librdf_node_to_string( node );
-	VALUE literal_string = rb_str_new2( (char *)literal );
+	librdf_node *node;
+	unsigned char *literal;
+	VALUE literal_string;
 	
-	xfree( literal );
-	OBJ_INFECT( literal_string, obj );
+	if ( TYPE(obj) == T_STRING ) {
+		/* FIXME: Doesn't handle language tags */
+		literal_string = rb_funcall( obj, rb_intern("dump"), 0 );
+	}
+	
+	else {
+		node = rleaf_value_to_librdf_node( obj );
+		literal = librdf_node_to_string( node );
+		literal_string = rb_str_new2( (char *)literal );
 
+		xfree( literal );
+	}
+
+	OBJ_INFECT( literal_string, obj );
 	return literal_string;
 }
 
