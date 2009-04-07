@@ -397,7 +397,7 @@ static VALUE
 rleaf_redleaf_store_sync( VALUE self ) {
 	rleaf_STORE *store = rleaf_get_store( self );
 	
-	if ( librdf_storage_sync(store->storage) == 0 )
+	if ( librdf_storage_sync(store->storage) != 0 )
 		rb_raise( rleaf_eRedleafError, "Failed to sync to the underlying storage." );
 	
 	return Qtrue;

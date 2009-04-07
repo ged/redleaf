@@ -1,3 +1,21 @@
+-- Tue, 07 Apr 2009 16:19:19 -0000 by deveiant (r104) -----
+   Changed: ext/redleaf.c
+            spec/redleaf/utils_spec.rb
+            spec/redleaf_spec.rb
+            lib/redleaf/utils.rb
+
+    * Added a fix for string typed literals in Redleaf.make_literal_string
+    * Corrected the type-registry system; it was returning the datatype uri and canonical string value
+    in the wrong order.
+
+
+-- Fri, 03 Apr 2009 19:51:24 -0000 by deveiant (r103) -----
+   Added:   docs/manual/src/tour/stores.page (new)
+   Changed: ChangeLog
+
+   Oops. Really add the triple stores manual page this time.
+
+
 -- Fri, 03 Apr 2009 19:15:06 -0000 by deveiant (r102) -----
    Changed: /trunk
             docs/manual/lib/links-filter.rb

@@ -230,7 +230,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		default:
 		converted_pair = rb_funcall( rleaf_mRedleafNodeUtils, 
 			rb_intern("make_object_typed_literal"), 1, object );
-		str = rb_ary_entry( converted_pair, 0 );
+		str = rb_obj_as_string( rb_ary_entry(converted_pair, 0) );
 		typeuristr = rb_obj_as_string( rb_ary_entry(converted_pair, 1) );
 		typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char*)RSTRING_PTR(typeuristr) );
 	}
