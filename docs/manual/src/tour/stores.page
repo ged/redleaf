@@ -1,7 +1,7 @@
 ---
 title: Triple Stores
 layout: default
-index: 4
+index: 3
 filters:
   - erb
   - links

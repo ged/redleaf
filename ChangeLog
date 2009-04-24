@@ -1,3 +1,14 @@
+-- Tue, 07 Apr 2009 19:29:05 -0000 by deveiant (r105) -----
+   Changed: ext/store.c
+            /trunk
+            ext/node.c
+            ChangeLog
+
+    * Made literal-conversion stringify values returned from  conversions called via 
+    Redleaf::NodeUtils.make_object_type_literal.
+    * Fixed stupid inversion of logic bug in Redleaf::Store#sync.
+
+
 -- Tue, 07 Apr 2009 16:19:19 -0000 by deveiant (r104) -----
    Changed: ext/redleaf.c
             spec/redleaf/utils_spec.rb
