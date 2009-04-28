@@ -1,3 +1,14 @@
+-- Fri, 24 Apr 2009 03:06:19 -0000 by deveiant (r106) -----
+   Changed: docs/manual/src/tour/stores.page
+            docs/manual/src/design.page
+            docs/manual/src/tour/parsing.page
+            docs/manual/src/tour/graphs.page
+            ChangeLog
+            docs/manual/src/tour/index.page (and 3 other/s)
+
+   Reorganized the manual a bit.
+
+
 -- Tue, 07 Apr 2009 19:29:05 -0000 by deveiant (r105) -----
    Changed: ext/store.c
             /trunk

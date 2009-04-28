@@ -116,25 +116,66 @@ graph
 
 Now that you can load statements into a @Graph@, you're probably wondering how you can go about finding them again. Have no fear, you can ask a graph to give you back your statements in a number of ways.
 
+h4. Loading RDF Data From A String
+
+If you have some RDF data in a String and need to be able to load it directly, you can do so with a <?api Redleaf::Parser ?>. Say we have some RDF data in  "Turtle":http://www.dajobe.org/2004/01/turtle/ format:
+
+<?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
+require 'redleaf/parser/turtle'
+
+baseuri = URI('http://www.example.org/')
+a_string = <<EOF
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix dc:      <http://purl.org/dc/elements/1.1/#>.
+@prefix exterms: <http://www.example.org/terms/>.
+
+<http://www.w3.org/TR/rdf-syntax-grammar> 
+    dc:title "RDF/XML Syntax Specification (Revised)";
+    exterm:editor [
+        exterms:fullName "Dave Beckett";
+        exterms:homePage <http://purl.org/net/dajobe/>.
+    ].
+EOF
+
+parser = Redleaf::TurtleParser.new
+parser.parse( a_string, baseuri )
+# =>
+<?end?>
+
+You can read more about parsers in the <?link Parsing RDF ?> chapter.
+
 h3(#searching). Searching A Graph
 
+* #[]
 * @#each_statement@ (aka @#each@)
 * Topological Sorting (@#tsort@)
 * The node-match iterators (@#subjects@, @#objects@, @#predicates@, @#predicates_entailing@, @#predicates_about@, etc.)
 
 
-h3(#advanced_searching). Advanced Searching With SPARQL
+h3(#querying). Querying With SPARQL
 
-This page will cover the SPARQL query interface, and mention RQL.
+* Querying with SPARQL
+** #query
+** Three kinds of Response object, depending on what kind of query it was
+** Future goals
+*** DSL
+*** Sequel-like datasets
+
+* RDQL
 
 
 h3(#triplestores). Persistent Graphs via Redleaf::Store
 
-How to use Redleaf::Store.
-
+* Stores can be used to persist graphs 
+* You implicitly get a MemoryHashesStore whenever you use a Graph by itself
+* You can upgrade at any time
+* ...or you can start out with a store and get the associated Graph
+* See the <?link Triple Stores ?> chapter for more specifics
 
 h3(#serialization). Persistent Graphs via Serialization
 
-Serializers, how to find out which ones are supported, how to serialize to various formats, how to build an appropriate @Accept@ header for content-negotiation, and more.
-
+* Serializers turn a graph into text in one of several different formats
+** Which ones are built in, and how to find out which ones are supported
+** How to access the serializer you want
+** Generate an appropriate @Accept@ header for service content negotiation
 

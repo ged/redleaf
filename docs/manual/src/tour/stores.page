@@ -19,4 +19,10 @@ h2. <%= page.config['title'] %>
 
 This page will be all about <?api Redleaf::Store ?> objects.
 
+* How to find out what stores are available
+* The BDB-backed <?api Redleaf::HashesStore ?>
+** Creating a new store
+** Loading an existing store
+** Options
+* Adding your own store to Redleaf
 
