@@ -184,7 +184,7 @@ end
 
 
 if __FILE__ == $0
-	Redleaf.logger.level = Logger::DEBUG
+	# Redleaf.logger.level = Logger::DEBUG
 	test_concept = "http://www.ukat.org.uk/thesaurus/concept/1366"
 
 	sources = [

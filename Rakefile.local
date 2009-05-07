@@ -57,7 +57,7 @@ namespace :spec do
 end
 
 # Nasty, I know, but I can't find any builtin way to prepend a prerequisite
-Rake::Task[ 'manual:build' ].prerequisites.unshift( 'rake:build' )
+#Rake::Task[ 'manual:build' ].prerequisites.unshift( 'rake:build' )
 
 
 desc "Make the Makefile for the C extension"

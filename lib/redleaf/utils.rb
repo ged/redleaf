@@ -268,7 +268,7 @@ module Redleaf # :nodoc:
 
 		# The default HTML fragment that'll be used as the template for each log message.
 		HTML_LOG_FORMAT = %q{
-		<dd class="log-message %5$s">
+		<div class="log-message %5$s">
 			<span class="log-time">%1$s.%2$06d</span>
 			[
 				<span class="log-pid">%3$d</span>
@@ -279,7 +279,7 @@ module Redleaf # :nodoc:
 			:
 			<span class="log-name">%6$s</span>
 			<span class="log-message-text">%7$s</span>
-		</dd>
+		</div>
 		}
 
 		### Override the logging formats with ones that generate HTML fragments
@@ -306,7 +306,7 @@ module Redleaf # :nodoc:
 				time.usec,                                                    # %2$d
 				Process.pid,                                                  # %3$d
 				Thread.current == Thread.main ? 'main' : Thread.object_id,    # %4$s
-				severity,                                                     # %5$s
+				severity.downcase,                                                     # %5$s
 				progname,                                                     # %6$s
 				html_escape( msg ).gsub(/\n/, '<br />')                       # %7$s
 			]

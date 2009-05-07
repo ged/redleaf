@@ -3,10 +3,10 @@
 BEGIN {
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = basedir + "ext"
-	
+
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
@@ -64,13 +64,13 @@ describe Redleaf::Graph do
 		graph = Redleaf::Graph.new( store )
 		graph.store.should == store
 	end
-	
+
 	it "raises an error if created with anything other than a Store" do
 		lambda {
 			Redleaf::Graph.new( "not a store" )
 		}.should raise_error( TypeError, /wrong argument type String/i )
 	end
-	
+
 
 	describe "with no nodes" do
 		before( :each ) do
@@ -81,7 +81,7 @@ describe Redleaf::Graph do
 		it "knows that it is empty" do
 			@graph.should be_empty()
 		end
-		
+
 		it "has the same store as duplicates of itself" do
 			@graph.dup.store.should equal( @graph.store )
 		end
@@ -90,42 +90,42 @@ describe Redleaf::Graph do
 			@graph << [ :_, FOAF[:knows], ME ]
 			stmt = @graph[ nil, FOAF[:knows], ME ].first
 			stmt.subject.should_not == :_
-			
+
 			# :FIXME: This is Redland's identifier pattern; not sure if I should be testing it
 			# this specifically or not
 			stmt.subject.to_s.should =~ /r\d+r\d+r\d+/
 		end
-		
+
 		it "considers bnodes to be equivalent when testing graph equality" do
 			@graph << [ :_, FOAF[:knows], ME ]
-			
+
 			other_graph = Redleaf::Graph.new
 			other_graph << [ :mahlon, FOAF[:knows], ME ]
-			
+
 			@graph.should === other_graph
 		end
-		
+
 		it "produces tainted duplicates if it itself is tainted" do
 			@graph.taint
 			@graph.dup.should be_tainted()
 		end
-		
+
 		it "is equivalent to another graph with no nodes" do
 			other_graph = Redleaf::Graph.new
 			@graph.should === other_graph
 		end
-		
+
 		it "has a default store" do
 			@graph.store.should be_an_instance_of( Redleaf::DEFAULT_STORE_CLASS )
 		end
-				
+
 		it "can have statements appended to it as Redleaf::Statements" do
 			stmts = TEST_FOAF_TRIPLES.collect do |triple|
 				Redleaf::Statement.new( *triple )
 			end
-			
+
 			stmts.each {|stmt| @graph << stmt }
-			
+
 			@graph.statements.should have( stmts.length ).members
 			@graph.statements.should include( *stmts )
 		end
@@ -137,21 +137,21 @@ describe Redleaf::Graph do
 			@graph <<
 				[ ME, FOAF[:knows], :mahlon  ] <<
 				[ :mahlon,  FOAF[:knows], ME ]
-			
+
 			@graph.statements.should have( 2 ).members
 			@graph.statements.should include( stmt, stmt2 )
 		end
-		
+
 		it "can load URIs that point to RDF data" do
 			rdfxml_file = @specdatadir + 'mgranger-foaf.xml'
 			uri = URI( 'file:' + rdfxml_file.to_s )
 			@graph.load( uri.to_s ).should == TEST_FOAF_TRIPLES.length
 		end
-		
+
 		it "can sync itself to the underlying store" do
 			@graph.sync.should be_true()
 		end
-		
+
 	end
 
 
@@ -160,48 +160,48 @@ describe Redleaf::Graph do
 			@graph = Redleaf::Graph.new
 			@graph.append( *TEST_FOAF_TRIPLES )
 		end
-		
-		
+
+
 		it "knows that it is not empty" do
 			@graph.should_not be_empty()
 		end
-				
+
 		it "is not equivalent to another graph with no nodes" do
 			other_graph = Redleaf::Graph.new
 			@graph.should_not === other_graph
 		end
-		
+
 		it "is equivalent to another graph with the same nodes" do
 			other_graph = Redleaf::Graph.new
 			other_graph.append( *TEST_FOAF_TRIPLES )
-			
+
 			@graph.should === other_graph
-			
+
 			# Make sure testing for equivalence doesn't alter either graph
 			@graph.statements.should have(12).members
 			other_graph.statements.should have(12).members
 		end
-		
+
 		it "is not equivalent to another graph with all the same nodes but one" do
 			other_graph = Redleaf::Graph.new
 			other_graph.append( *TEST_FOAF_TRIPLES[0..-2] )
-			
+
 			@graph.should_not === other_graph
 		end
-		
+
 		it "is not equivalent to another graph with the same number of nodes but one different one" do
 			other_graph = Redleaf::Graph.new
 			other_graph.append( *TEST_FOAF_TRIPLES )
 			other_graph.remove([ :mahlon,  FOAF[:name], "Mahlon E Smith" ])
 			other_graph.append([ :clumpy,  FOAF[:knows], :throaty ])
-			
+
 			@graph.should_not be_equivalent_to( other_graph )
 		end
-		
+
 		it "has a default store" do
 			@graph.store.should be_an_instance_of( Redleaf::DEFAULT_STORE_CLASS )
 		end
-			
+
 		it "provides a way to remove statements by passing a triple" do
 			triple = [ ME, FOAF[:phone], URI('tel:303.555.1212') ]
 
@@ -212,10 +212,10 @@ describe Redleaf::Graph do
 			stmts[0].subject.should == ME
 			stmts[0].predicate.should == FOAF[:phone]
 			stmts[0].object.should == URI('tel:303.555.1212')
-			
+
 			@graph[ nil, FOAF[:phone], nil ].should be_empty()
 		end
-		
+
 		it "provides a way to remove statements by passing a statement object" do
 			target = Redleaf::Statement.new( ME, FOAF[:phone], URI('tel:303.555.1212') )
 
@@ -226,7 +226,7 @@ describe Redleaf::Graph do
 			stmts[0].subject.should == ME
 			stmts[0].predicate.should == FOAF[:phone]
 			stmts[0].object.should == URI('tel:303.555.1212')
-			
+
 			@graph[ nil, FOAF[:phone], nil ].should be_empty()
 		end
 
@@ -236,10 +236,10 @@ describe Redleaf::Graph do
 			@graph.size.should == 3
 			stmts.should have(9).members
 			stmts.all? {|stmt| stmt.subject == ME }.should be_true()
-			
+
 			@graph[ ME, nil, nil ].should be_empty()
 		end
-		
+
 		it "raises an error if you try to #remove anything but a statement or triple" do
 			lambda {
 				@graph.remove( :glar )
@@ -248,53 +248,53 @@ describe Redleaf::Graph do
 				@graph.remove( @graph )
 			}.should raise_error( ArgumentError, /can't convert a Redleaf::Graph to a statement/i )
 		end
-		
+
 		it "can find statements which contain nodes that match specified ones" do
 			stmts = @graph[ ME, nil, nil ]
-			
+
 			stmts.should have(9).members
 			stmts.all? {|stmt| stmt.subject == ME }.should be_true()
 		end
-		
+
 		it "can iterate over its statements" do
 			subjects = @graph.collect {|stmt| stmt.subject.to_s }
 			subjects.should have( TEST_FOAF_TRIPLES.length ).members
 			subjects.uniq.should have(2).members
 		end
-		
+
 		it "can find all subjects for a given predicate and object" do
 			subjects = @graph.subjects( RDF[:type], FOAF[:Person] )
 			subjects.should have(2).members
 			subjects.should include( ME, :mahlon )
 		end
-		
+
 		it "can find one subject for a given predicate and object" do
 			subject = @graph.subject( RDF[:type], FOAF[:Person] )
 			[ ME, :mahlon ].should include( subject )
 		end
-		
+
 		it "can find all predicates for a given subject and object" do
 			subjects = @graph.predicates( ME, FOAF[:Person] )
 			subjects.should have(1).member
 			subjects.should == [ RDF[:type] ]
 		end
-		
+
 		it "can find one predicate for a given subject and object" do
 			subject = @graph.predicate( ME, FOAF[:Person] )
 			subject.should == RDF[:type]
 		end
-		
+
 		it "can find all objects for a given subject and predicate" do
 			objects = @graph.objects( ME, FOAF[:givenname] )
 			objects.should have(1).member
 			objects.should == [ "Michael" ]
 		end
-		
+
 		it "can find one object for a given subject and predicate" do
 			object = @graph.object( :mahlon, FOAF[:name] )
 			object.should == "Mahlon E. Smith"
 		end
-		
+
 		it "can find all predicates that are about a given subject" do
 			predicates = @graph.predicates_about( ME )
 			filtered_predicates = TEST_FOAF_TRIPLES.
@@ -304,64 +304,64 @@ describe Redleaf::Graph do
 			predicates.should have( filtered_predicates.length ).members
 			predicates.should include( *filtered_predicates )
 		end
-		
+
 		it "can find all predicates that entail a given object" do
 			predicates = @graph.predicates_entailing( FOAF[:Person] )
 			predicates.should have( 2 ).members
 			predicates.should == [ RDF[:type], RDF[:type] ]
 		end
-		
+
 		it "knows if it has the specified predicate about the given subject" do
 			@graph.should have_predicate_about( ME, FOAF[:phone] )
 			@graph.should_not have_predicate_about( ME, DOAP[:name] )
 		end
-		
-		
+
+
 		it "knows if it has any statements with the given subject" do
 			@graph.include_subject?( ME ).should be_true()
 			@graph.include_subject?( :nonexistant ).should be_false()
 		end
-		
+
 		it "knows if it has any statements with the given object" do
 			@graph.include_object?( :mahlon ).should be_true()
 			@graph.include_object?( :nonexistant ).should be_false()
 		end
-		
+
 
 		it "knows it includes a statement which has been added to it" do
 			stmt = Redleaf::Statement.new( *TEST_FOAF_TRIPLES.first )
 			@graph.should include( stmt )
 		end
-		
+
 		it "knows it includes a valid triple which has been added to it" do
 			@graph.should include( TEST_FOAF_TRIPLES.first )
 		end
-		
+
 		it "knows it doesn't include a statement which hasn't been added to it" do
 			stmt = Redleaf::Statement.new( :grimlok, FOAF[:knows], :skeletor )
 			@graph.should_not include( stmt )
 		end
-		
+
 		it "raises a FeatureError if asked to serialize to a format that isn't supported" do
 			lambda {
 				@graph.serialized_as( 'zebras' )
 			}.should raise_error( Redleaf::FeatureError, /unsupported/i )
 		end
-		
+
 		it "can be serialized as RDF/XML" do
 			@graph.serialized_as( 'rdfxml' ).should =~
 				%r{<\?xml version=\"1.0\" encoding=\"utf-8\"\?>\n<rdf:RDF}
 		end
-		
+
 		it "can be serialized via a #to_<format> method" do
 			@graph.to_rdfxml.should =~
 				%r{<\?xml version=\"1.0\" encoding=\"utf-8\"\?>\n<rdf:RDF}
 		end
-		
+
 		it "can sync itself to the underlying store" do
 			@graph.sync.should be_true()
 		end
-		
+
 		it "can swap out its store with another one and carry its triples with it" do
 			oldstore = @graph.store
 			newstore = Redleaf::Store.create( :hashes )
@@ -370,12 +370,12 @@ describe Redleaf::Graph do
 			@graph.store.should == newstore
 			@graph.store.should_not == oldstore
 			@graph.statements.should have( TEST_FOAF_TRIPLES.length ).members
-			
+
 			newstore.graph.should == @graph
 			oldstore.graph.should_not == @graph
 			oldstore.graph.statements.should have( TEST_FOAF_TRIPLES.length ).members
 		end
-		
+
 	end
 
 
@@ -389,7 +389,7 @@ describe Redleaf::Graph do
 			@graph <<
 				[ :_a, RDF[:type], FOAF[:Person] ] <<
 				[ :_a, FOAF[:name], "Alice" ]
-			
+
 			sparql = %{
 				PREFIX rdf: <#{RDF}> 
 				PREFIX foaf: <#{FOAF}>
@@ -400,7 +400,7 @@ describe Redleaf::Graph do
 					?person foaf:name ?name
 				}
 			}
-			
+
 			res = @graph.query( sparql )
 			res.should be_an_instance_of( Redleaf::BindingQueryResult )
 			res.bindings.should == [:name]
@@ -449,12 +449,12 @@ describe Redleaf::Graph do
 				[ :_a, FOAF[:homepage],   URI('http://work.example.org/alice/') ] <<
 				[ :_b, FOAF[:name],       "Bob" ] <<
 				[ :_b, FOAF[:mbox],       URI('mailto:bob@work.example') ]
-			
+
 			sparql = %{
 				PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
 				ASK  { ?x foaf:name  "Alice" }
 			}
-			
+
 			res = @graph.query( sparql )
 			res.should be_an_instance_of( Redleaf::BooleanQueryResult )
 			res.value.should be_true()
@@ -465,7 +465,7 @@ describe Redleaf::Graph do
 			sparql = %{
 				DESCRIBE <http://example.org/>
 			}
-			
+
 			res = @graph.query( sparql )
 			res.graph.should be_empty()
 		end
@@ -487,20 +487,20 @@ describe Redleaf::Graph do
 				[ :_b, VCARD[:Given],         "John"     ] <<
 
 				[ FOAF[:mbox_sha1sum], RDF[:type], OWL[:InverseFunctionalProperty] ]
-			
+
 			sparql = %{
 				PREFIX ent:  <http://org.example.com/employees#>
 				DESCRIBE ?x WHERE { ?x ent:employeeId "1234" }
 			}
-			
+
 			pending "figuring out what the hell I'm doing wrong" do
 				res = @graph.query( sparql )
 				res.graph.should_not be_empty()
 			end
 		end
 	end
-	
-	
+
+
 	describe "tsort interface" do
 
 		before( :all ) do
@@ -552,13 +552,13 @@ describe Redleaf::Graph do
 			reset_logging()
 		end
 
-		
+
 		it "is topologically-sortable" do
 			sorted = @graph.tsort.map {|stmt| stmt.subject }
 			sorted.index( DOAP[:Repository] ).should < sorted.index( DOAP[:SVNRepository] )
 			sorted.length.should == @graph.length
 		end
-		
+
 	end
 end
 
