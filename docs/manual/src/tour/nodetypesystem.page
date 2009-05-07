@@ -24,27 +24,23 @@ require 'ipaddr'
 
 # There's almost certainly an actual URI for IP addresses, but I 
 # can't find it
-ipuri = 'http://www.iana.org/numbers/ipaddr'
+IANA_NUMBERS = Redleaf::Namespace.new( 'http://www.iana.org/numbers/' )
 
-# Make IPAddr objects representable as typed literals (ignoring for 
-# the moment the fact that #family is a platform-dependent value)
-Redleaf::NodeUtils.register_new_class( IPAddr, ipuri ) do |addr|
+Redleaf::NodeUtils.register_new_class( IPAddr, IANA_NUMBERS[:ipaddr] ) do |addr|
 	af = case addr.family
 	     when Socket::AF_INET then "ipv4"
 	     when Socket::AF_INET6 then "ipv6"
 	     else "unknown" end
-	ip = a.to_string
-	
-	# Regretably the only way to actually get the mask_addr as a string
-	mask = a.send( :_to_string, a.instance_variable_get(:@mask_addr) )
+	ip = addr.to_string
 
-	return "%s:%s/%s" % [ af, ip, mask ]
+	# Regretably the only way to actually get the mask_addr as a string
+	mask = addr.send( :_to_string, addr.instance_variable_get(:@mask_addr) )
+
+	"%s:%s/%s" % [ af, ip, mask ]
 end
 
-# Make literal nodes in the graph with the type 'http://www.iana.org/numbers/ipaddr'
-# generate the equivalent Ruby object when fetched from the graph
-Redleaf::NodeUtils.register_new_type( ipuri ) do |literal_string|
-	IPAddr.new( literal_string )
+Redleaf::NodeUtils.register_new_type( IANA_NUMBERS[:ipaddr] ) do |literal_string|
+	IPAddr.new( literal_string[/.*:(.*)/, 1] )
 end
 
 addr = IPAddr.new( '192.168.16.96/27' )   # =>
@@ -52,11 +48,13 @@ addr = IPAddr.new( '192.168.16.96/27' )   # =>
 # Make a tuple that contains the typed literal's type URI and its 
 # canonical representation
 literal = Redleaf::NodeUtils.make_object_typed_literal( addr )
-# =>
+literal # =>
 
 # Now translate that tuple back to a Ruby object
 obj = Redleaf::NodeUtils.make_typed_literal_object( *literal )
-# =>
+p obj
+obj  # =>
+
 <?end ?>
 
 This assumes that each employee's @name@ attribute is unique, but you can use anything you like as the string representation in the graph, <?ed verify:"as long as it is canonical" ?>.

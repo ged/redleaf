@@ -65,7 +65,7 @@ graph <<
 	Redleaf::Statement.new( myfoaf[:me], FOAF[:name], "Michael Granger" ) <<
 	Redleaf::Statement.new( myfoaf[:me], FOAF[:homepage], URI('http://deveiate.org/') )
 
-graph
+graph.inspect
 # => 
 <?end?>
 
@@ -85,7 +85,7 @@ graph <<
 	[ :johnaddress,      exterms[:state],      "Massachusetts" ] <<
 	[ :johnaddress,      exterms[:postalCode], "01730" ]
 
-graph
+graph.inspect
 # =>
 <?end?>
 
@@ -96,7 +96,7 @@ Chances are you'll quickly grow bored of inserting all those example statements,
 <?example { language: ruby, caption: "Loading some statements from a URI", testable: true } ?>
 graph = Redleaf::Graph.new
 graph.load( 'http://deveiate.org/foaf.xml' )  # => 
-graph
+graph.inspect
 # => 
 <?end?>
 
@@ -110,7 +110,7 @@ If you have some kind of serialized RDF data in a local file, you can load it fr
 <?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
 graph = Redleaf::Graph.new
 graph.load( 'file:spec/data/mgranger-foaf.xml' )
-graph
+graph.inspect
 # =>
 <?end?>
 
