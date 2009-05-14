@@ -65,7 +65,7 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
 	rleaf_STORE *ptr = ALLOC( rleaf_STORE );
 	
 	if ( (storage = librdf_new_storage( rleaf_rdf_world, backend, name, optstring )) == 0 )
-		rb_raise( rleaf_eRedleafError, 
+		rb_raise( rleaf_eRedleafStoreCreationError, 
 			"Could not create a new storage with: backend=\"%s\", name=\"%s\", optstring=\"%s\"", 
 			backend, name, optstring );
 

@@ -3,10 +3,10 @@
 BEGIN {
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = basedir + "ext"
-	
+
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
@@ -47,7 +47,7 @@ describe Redleaf::PostgreSQLStore do
 	before( :each ) do
 		pending "no postgresql backend; will not test" unless Redleaf::PostgreSQLStore.is_supported?
 	end
-	
+
 
 	after( :all ) do
 		reset_logging()
@@ -55,19 +55,20 @@ describe Redleaf::PostgreSQLStore do
 
 
 	it "can be created with a name" do
-		Redleaf::PostgreSQLStore.new( TESTING_STORE_NAME, @store_config )
+		store = safely_create_store( Redleaf::PostgreSQLStore, TESTING_STORE_NAME, @store_config )
+		store.should be_an_instance_of( Redleaf::PostgreSQLStore )
 	end
 
 
 	describe "instance" do
-		
+
 		before( :each ) do
-			@store = Redleaf::PostgreSQLStore.new( TESTING_STORE_NAME, @store_config )
+			@store = safely_create_store( Redleaf::PostgreSQLStore, TESTING_STORE_NAME, @store_config )
 		end
-		
-		
+
+
 		it_should_behave_like "A Store"
-		
+
 
 		describe "without an associated Redleaf::Graph" do
 			it "raises an error when checked for contexts" do
@@ -78,19 +79,19 @@ describe Redleaf::PostgreSQLStore do
 		end
 
 		describe "with an associated Redleaf::Graph" do
-		
+
 			before( :each ) do
 				@store.graph = Redleaf::Graph.new
 			end
 
 
 			it_should_behave_like "A Store with an associated Graph"
-		
+
 
 			it "has contexts enabled by default" do
 				@store.should have_contexts()
 			end
-	
+
 		end
 	end
 

@@ -13,9 +13,10 @@ BEGIN {
 }
 
 begin
+	require 'pp'
 	require 'yaml'
 	require 'redleaf'
-	
+
 	require 'spec/lib/constants'
 rescue LoadError
 	unless Object.const_defined?( :Gem )
@@ -35,15 +36,15 @@ module Redleaf::SpecHelpers
 		def initialize( array )
 			@array = array
 		end
-		
+
 		### Write the specified +message+ to the array.
 		def write( message )
 			@array << message
 		end
-		
+
 		### No-op -- this is here just so Logger doesn't complain
 		def close; end
-		
+
 	end # class ArrayLogger
 
 
@@ -65,8 +66,8 @@ module Redleaf::SpecHelpers
 	def reset_logging
 		Redleaf.reset_logger
 	end
-	
-	
+
+
 	### Alter the output of the default log formatter to be pretty in SpecMate output
 	def setup_logging( level=Logger::FATAL )
 
@@ -74,7 +75,7 @@ module Redleaf::SpecHelpers
 		if Redleaf::Loggable::LEVEL.key?( level )
 			level = Redleaf::Loggable::LEVEL[ level ]
 		end
-		
+
 		logger = Logger.new( $stderr )
 		Redleaf.logger = logger
 		Redleaf.logger.level = level
@@ -97,7 +98,7 @@ module Redleaf::SpecHelpers
 		return {} unless TESTING_CONFIG_FILE.exist?
 
 		Redleaf.logger.debug "Trying to load test config: %s" % [ TESTING_CONFIG_FILE ]
-	
+
 		begin
 			config = YAML.load_file( TESTING_CONFIG_FILE )
 			if config[ section ]
@@ -114,8 +115,34 @@ module Redleaf::SpecHelpers
 			return {}
 		end
 	end
-	
-	
+
+
+	### Create an instance of the specified +storeclass+, and if doing
+	### so raises a Redleaf::StoreCreationError, convert it to a 'pending'
+	### with a (hopefully) helpful suggestion about how to make it work.
+	def safely_create_store( storeclass, *args )
+		return storeclass.new( *args )
+	rescue Redleaf::StoreCreationError => err
+		config = get_test_config( storeclass.backend.to_s )
+
+		if !config.empty?
+			msg = err.message + "\n"
+			msg << "Loaded the following config from %s:\n" % [ TESTING_CONFIG_FILE ]
+			PP.pp( config, msg )
+
+			pending( msg )
+		else
+			msg = err.message + "\n"
+			msg << "You might want to try adding a '%s' section to %s \n" %
+				[ storeclass.backend, TESTING_CONFIG_FILE ]
+			msg << "and verify that the connection criteria are correct.\n"
+			msg << "See the 'Testing' section of the README for more info."
+
+			pending( msg )
+		end
+	end
+
+
 end
 
 # vim: set nosta noet ts=4 sw=4:

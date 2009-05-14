@@ -17,9 +17,28 @@ The project page also has more details and the most-recent API documentation:
 
     http://deveiate.org/projects/Redleaf
 
+== Testing
+
+Provided you have Rake and RSpec (`gem install rake rspec` if you don't) installed, you can run the tests in this directory with the command:
+
+  $ rake spec
+
+Note that the Redleaf::Store classes that store triples in an RDBMS actually do connect to a database. While this is not ideal (I'd much rather they work in isolation), it can't be helped if
+the corresponding bindings are to be testable. Connection errors should be handled gracefully as 'Pending' examples, but if you want to exercise one or more of them, just make a YAML file called 'test-config.yml' in the base directory, and add a Hash for each backend you wish to test with the requisite connection information. An example is provided as 'test-config.yml.example'.
+
+
 == Authors
 
 * Michael Granger (ged@FaerieMUD.org)
+* Michael Granger (ged@FaerieMUD.org)
+
+
+== Contributors
+
+* Thanks to Leslie Wu (lwu2 at graphics.stanford.edu) for her suggestions and bug reports.
+* Thanks to Gregg Kellogg (gregg at kellogg-assoc.com) for suggestions regarding the testing of the 
+	RDBMS-backed stores.
+
 
 == License
 
