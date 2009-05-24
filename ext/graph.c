@@ -647,7 +647,7 @@ rleaf_redleaf_graph_each_statement( VALUE self ) {
  *     graph.load( uri )   -> Fixnum
  *
  *  Parse the RDF at the specified +uri+ into the receiving graph. Returns the number of statements
- *  added to the graph.
+ *  added to the graph (if the underlying store supports ).
  *
  *     graph = Redleaf::Graph.new
  *     graph.load( "http://bigasterisk.com/foaf.rdf" )

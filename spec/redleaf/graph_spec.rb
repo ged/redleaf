@@ -42,7 +42,7 @@ describe Redleaf::Graph do
 	        Redleaf::Constants::CommonNamespaces
 
 	before( :all ) do
-		setup_logging( :error )
+		setup_logging( :fatal )
 
 		@basedir     = Pathname.new( __FILE__ ).dirname.parent.parent
 		@specdir     = @basedir + 'spec'
@@ -471,7 +471,6 @@ describe Redleaf::Graph do
 		end
 
 		it "can be queried with a DESCRIBE SPARQL statement" do
-			# setup_logging( :debug )
 			exOrg  = Redleaf::Namespace.new( 'http://org.example.com/employees#' )
 
 			# :FIXME:

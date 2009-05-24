@@ -1,3 +1,68 @@
+-- Thu, 14 May 2009 21:27:17 -0000 by deveiant (r112) -----
+   Changed: misc/redland-1.0.9.patch
+
+   Added some instructions to the redland patch.
+
+
+-- Thu, 14 May 2009 21:10:58 -0000 by deveiant (r111) -----
+   Added:   misc/redland-1.0.9.patch (new)
+            misc (new)
+   Changed: README
+            ext/store.c
+            ext/redleaf.c
+            spec/lib/helpers.rb
+            spec/redleaf/store/postgresql_spec.rb
+            ext/redleaf.h (and 5 other/s)
+
+    * Added a Redleaf::StoreCreationError to disambiguate creation errors from other
+    exceptions raised by a store.
+    * Made the specs tolerant of connection failures in the RDBMS-backed store classes. Thanks
+    to Gregg Kellogg for the idea, and for reporting the problem.
+    * Added a 'Testing' section to the README.
+    * Added a patch for the PostgreSQL store in 1.0.9 that fixes the segfault on table
+    creation.
+
+
+-- Thu, 07 May 2009 18:24:43 -0000 by deveiant (r110) -----
+   Added:   experiments/ipaddr_literal.rb (new)
+   Changed: docs/manual/src/tour/graphs.page
+            lib/redleaf/utils.rb
+            docs/manual/src/tour/nodetypesystem.page
+
+    * Added an experiment to try to figure out why IPAddr conversion sometimes doesn't work.
+    * Some manual work.
+
+
+-- Thu, 07 May 2009 17:44:39 -0000 by deveiant (r109) -----
+   Changed: examples/redleaf_skos.rb
+            spec/lib/helpers.rb
+            spec/redleaf/graph_spec.rb
+            lib/redleaf/utils.rb
+            Rakefile.local
+            examples/foaf1.rb (and 1 other/s)
+
+    * Changed logging in the spec helper to support the webkit RSpec runner
+    * Commented out the manual:build hack in Rakefile.local; need to find a better
+    way to do this, as it's causing problems.
+    * Cleaned up some examples.
+
+
+-- Mon, 04 May 2009 23:53:10 -0000 by deveiant (r108) -----
+   Changed: examples/redleaf_skos.rb
+
+   Adding example output to the redleaf_skos example
+
+
+-- Tue, 28 Apr 2009 13:10:19 -0000 by deveiant (r107) -----
+   Changed: docs/manual/src/tour/stores.page
+            docs/manual/src/tour/parsing.page
+            docs/manual/src/tour/graphs.page
+            ChangeLog
+            docs/manual/src/tour/index.page
+
+   A little bit of work on the manual.
+
+
 -- Fri, 24 Apr 2009 03:06:19 -0000 by deveiant (r106) -----
    Changed: docs/manual/src/tour/stores.page
             docs/manual/src/design.page

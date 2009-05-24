@@ -35,8 +35,6 @@ h3(#adding). Adding Statements
 
 There are several ways to add statements to a @Graph@: you can read data in from some pre-existing source, copy them from other graph objects, or create new statements yourself. You've probably already seen how to create statements in the chapter on <?link Statements ?>, so let's do that first.
 
-h3(#generating). Generating Your Own Statements
-
 The way to add statements to a @Graph@ is via its @#append@ method:
 
 <?example { language: ruby, caption: "Appending with #append", testable: true } ?>
@@ -69,7 +67,7 @@ graph.inspect
 # => 
 <?end?>
 
-h4. Appending With Syntax Shortcuts
+h4(#appending-shortcuts). Appending With Syntax Shortcuts
 
 The @#append@ method (and its sidekick the @#<<@ operator) also support several shortcut syntaxes so you don't have to do all those @Redleaf::Statement.new@ calls. If you want to append one or more simple statements, you can just send in three-element Arrays instead of <?api Redleaf::Statement ?> objects, and they'll be converted on the fly:
 
@@ -89,54 +87,41 @@ graph.inspect
 # =>
 <?end?>
 
-h4. The @Redleaf::Graph#load@ Method
+h4(#load). Loading Serialized RDF
 
-Chances are you'll quickly grow bored of inserting all those example statements, and will want to load a useful set of triples to work with. Redleaf can load statements from remote resources via the @Redleaf::Graph#load@ method:
+Chances are you'll quickly grow bored of inserting all those example statements, and will want to load a useful set of triples to work with. You can load statements from serialized RDF via the @Redleaf::Graph#load@ method. It supports several different URL schemes, including @http@ and @file@, so you can load triples from a remote resource or from a local file:
 
-<?example { language: ruby, caption: "Loading some statements from a URI", testable: true } ?>
+<?example { language: ruby, caption: "Loading statements with <code>http</code> and <code>file</code> URLs", testable: false } ?>
 graph = Redleaf::Graph.new
-graph.load( 'http://deveiate.org/foaf.xml' )  # => 
-graph.inspect
-# => 
-<?end?>
-
-
-(Redland provides its own IO functions, handles all kinds of URI schemes, etc. Also cover the various serialization formats, and what Redland does by default)
-
-h4. Reading RDF Data From Disk
-
-If you have some kind of serialized RDF data in a local file, you can load it from disk by passing either a path or a @file@ URI to @#load@:
-
-<?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
-graph = Redleaf::Graph.new
+graph.load( 'http://deveiate.org/foaf.xml' )
 graph.load( 'file:spec/data/mgranger-foaf.xml' )
-graph.inspect
-# =>
 <?end?>
-
-Now that you can load statements into a @Graph@, you're probably wondering how you can go about finding them again. Have no fear, you can ask a graph to give you back your statements in a number of ways.
 
 h4. Loading RDF Data From A String
 
 If you have some RDF data in a String and need to be able to load it directly, you can do so with a <?api Redleaf::Parser ?>. Say we have some RDF data in  "Turtle":http://www.dajobe.org/2004/01/turtle/ format:
 
-<?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
+<?example { language: ruby, caption: "Appending triples as Arrays", testable: true }
+ ?>
 require 'redleaf/parser/turtle'
 
+Redleaf.logger.level = Logger::DEBUG
 baseuri = URI('http://www.example.org/')
 a_string = <<EOF
-@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix dc:      <http://purl.org/dc/elements/1.1/#>.
-@prefix exterms: <http://www.example.org/terms/>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix s:   <http://example.org/students/vocab#>.
 
-<http://www.w3.org/TR/rdf-syntax-grammar> 
-    dc:title "RDF/XML Syntax Specification (Revised)";
-    exterm:editor [
-        exterms:fullName "Dave Beckett";
-        exterms:homePage <http://purl.org/net/dajobe/>.
+<http://example.org/courses/6.001> s:students [
+        a rdf:Bag;
+        rdf:_1 <http://example.org/students/Amy>;
+        rdf:_2 <http://example.org/students/Mohamed>;
+        rdf:_3 <http://example.org/students/Johann>;
+        rdf:_4 <http://example.org/students/Maria>;
+        rdf:_5 <http://example.org/students/Phuong>.
     ].
 EOF
 
+Redleaf.logger.level = Logger::DEBUG
 parser = Redleaf::TurtleParser.new
 parser.parse( a_string, baseuri )
 # =>
@@ -145,6 +130,8 @@ parser.parse( a_string, baseuri )
 You can read more about parsers in the <?link Parsing RDF ?> chapter.
 
 h3(#searching). Searching A Graph
+
+Now that you've loaded a bunch of statements into a @Graph@, you're probably wondering how you can go about finding them again.
 
 * #[]
 * @#each_statement@ (aka @#each@)
