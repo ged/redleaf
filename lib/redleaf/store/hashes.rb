@@ -79,7 +79,7 @@ class Redleaf::HashesStore < Redleaf::Store
 		end
 
 		Redleaf.logger.debug "Constructing a %p with name = %p, options = %p" % 
-			[ self.class.name, name, options ]
+			[ self.name, name, options ]
 		return name, options
 	end
 

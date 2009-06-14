@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'redleaf'
 require 'redleaf/mixins'
 
@@ -49,9 +49,16 @@ class Redleaf::Parser
 
 	### Find a parser class by +name+.
 	def self::find_by_name( name )
+		begin
+			require "redleaf/parser/#{name}"
+		rescue LoadError => err
+			Redleaf.logger.error "%s while trying to load a parser named %p: %s" %
+				[ err.class.name, name, err.message ]
+		end
+
 		return self.subclasses.find {|klass| klass.parser_type.to_s == name }
 	end
-	
+
 
 	### Set the class's Redland parser type to +new_setting+ if given, and return the current
 	### (new) setting.
@@ -65,17 +72,17 @@ class Redleaf::Parser
 					[ @parser_type.to_s, self.features ]
 			end
 		end
-		
+
 		return @parser_type
 	end
-	
-	
+
+
 	### Get the parser_type for the class after making sure it's valid and supported by
 	### the local installation. Raises a Redleaf::FeatureError if there is a problem.
 	def self::validated_parser_type
 		return self.parser_type.to_s.gsub( /_/, '-' )
 	end
-	
+
 
 	### Returns +true+ if the Redland parser type required by the receiving store class is
 	### supported by the local installation.
@@ -90,11 +97,11 @@ class Redleaf::Parser
 		 	self.is_supported?
 		super
 	end
-	
-	
+
+
 	# Default to the 'guess' parser
 	parser_type :guess
-	
+
 
 end # class Redleaf::Parser
 

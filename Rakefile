@@ -64,30 +64,30 @@ EXTCONF       = EXTDIR + 'extconf.rb'
 
 ARTIFACTS_DIR = Pathname.new( CC_BUILD_ARTIFACTS )
 
-TEXT_FILES    = %w( Rakefile ChangeLog README LICENSE ).collect {|filename| BASEDIR + filename }
-BIN_FILES     = Pathname.glob( "#{BINDIR}/*" ).delete_if {|item| item.to_s =~ /\.svn/ }
-LIB_FILES     = Pathname.glob( "#{LIBDIR}/**/*.rb" ).delete_if {|item| item.to_s =~ /\.svn/ }
-EXT_FILES     = Pathname.glob( "#{EXTDIR}/**/*.{c,h,rb}" ).delete_if {|item| item.to_s =~ /\.svn/ }
-DATA_FILES    = Pathname.glob( "#{DATADIR}/**/*" ).delete_if {|item| item.to_s =~ /\.svn/ }
+TEXT_FILES    = Rake::FileList.new( %w[Rakefile ChangeLog README LICENSE] )
+BIN_FILES     = Rake::FileList.new( "#{BINDIR}/*" ).exclude( /\.svn/ )
+LIB_FILES     = Rake::FileList.new( "#{LIBDIR}/**/*.rb" ).exclude( /\.svn/ )
+EXT_FILES     = Rake::FileList.new( "#{EXTDIR}/**/*.{c,h,rb}" ).exclude( /\.svn/ )
+DATA_FILES    = Rake::FileList.new( "#{DATADIR}/**/*" ).exclude( /\.svn/ )
 
 SPECDIR       = BASEDIR + 'spec'
 SPECLIBDIR    = SPECDIR + 'lib'
-SPEC_FILES    = Pathname.glob( "#{SPECDIR}/**/*_spec.rb" ).delete_if {|item| item.to_s =~ /\.svn/ } +
-                Pathname.glob( "#{SPECLIBDIR}/**/*.rb" ).delete_if {|item| item.to_s =~ /\.svn/ }
+SPEC_FILES    = Rake::FileList.new( "#{SPECDIR}/**/*_spec.rb", "#{SPECLIBDIR}/**/*.rb" )
 
 TESTDIR       = BASEDIR + 'tests'
-TEST_FILES    = Pathname.glob( "#{TESTDIR}/**/*.tests.rb" ).delete_if {|item| item.to_s =~ /\.svn/ }
+TEST_FILES    = Rake::FileList.new( "#{TESTDIR}/**/*.tests.rb" ).exclude( /\.svn/ )
 
 RAKE_TASKDIR  = BASEDIR + 'rake'
-RAKE_TASKLIBS = Pathname.glob( "#{RAKE_TASKDIR}/*.rb" )
+RAKE_TASKLIBS = Rake::FileList.new( "#{RAKE_TASKDIR}/*.rb" )
 
 LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
 
-EXTRA_PKGFILES = []
-EXTRA_PKGFILES.concat Pathname.glob( "#{BASEDIR}/spec/templates" ).delete_if {|item| item.to_s =~ /\.svn/ } 
-EXTRA_PKGFILES.concat Pathname.glob( "#{BASEDIR}/spec/spec_generator.rb" ).delete_if {|item| item.to_s =~ /\.svn/ } 
-EXTRA_PKGFILES.concat Pathname.glob( "#{BASEDIR}/spec/Rakefile" ).delete_if {|item| item.to_s =~ /\.svn/ } 
-EXTRA_PKGFILES.concat Pathname.glob( "#{BASEDIR}/examples/*.rb" ).delete_if {|item| item.to_s =~ /\.svn/ } 
+EXTRA_PKGFILES = Rake::FileList.new
+EXTRA_PKGFILES.include "#{BASEDIR}/spec/templates"
+EXTRA_PKGFILES.include "#{BASEDIR}/spec/spec_generator.rb"
+EXTRA_PKGFILES.include "#{BASEDIR}/spec/Rakefile"
+EXTRA_PKGFILES.include "#{BASEDIR}/examples/*.rb"
+EXTRA_PKGFILES.exclude( /\.svn/ )
 
 RELEASE_FILES = TEXT_FILES + 
 	SPEC_FILES + 
@@ -99,7 +99,7 @@ RELEASE_FILES = TEXT_FILES +
 	RAKE_TASKLIBS +
 	EXTRA_PKGFILES
 
-RELEASE_FILES << LOCAL_RAKEFILE if LOCAL_RAKEFILE.exist?
+RELEASE_FILES << LOCAL_RAKEFILE.to_s if LOCAL_RAKEFILE.exist?
 
 COVERAGE_MINIMUM = ENV['COVERAGE_MINIMUM'] ? Float( ENV['COVERAGE_MINIMUM'] ) : 85.0
 RCOV_EXCLUDES = 'spec,tests,/Library/Ruby,/var/lib,/usr/local/lib'
@@ -136,7 +136,7 @@ SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
 RDOCDIR = DOCSDIR + 'api'
 RDOC_OPTIONS = [
 	'-w', '4',
-	'-SHN',
+	'-HN',
 	'-i', '.',
 	'-m', 'README',
 	'-t', PKG_NAME,
@@ -215,17 +215,14 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.extra_rdoc_files  = %w[ChangeLog README LICENSE]
 
 	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
-	gem.executables       = BIN_FILES.select {|pn| pn.executable? }.
-		collect {|pn| pn.relative_path_from(BINDIR).to_s }
+	gem.executables       = BIN_FILES.select {|pn| File.executable?(pn) }
 
 	if EXTCONF.exist?
 		gem.extensions << EXTCONF.relative_path_from( BASEDIR ).to_s
 	end
 
-	gem.files             = RELEASE_FILES.
-		collect {|f| f.relative_path_from(BASEDIR).to_s }
-	gem.test_files        = SPEC_FILES.
-		collect {|f| f.relative_path_from(BASEDIR).to_s }
+	gem.files             = RELEASE_FILES
+	gem.test_files        = SPEC_FILES
 		
 	DEPENDENCIES.each do |name, version|
 		version = '>= 0' if version.length.zero?
@@ -257,7 +254,7 @@ RAKE_TASKLIBS.each do |tasklib|
 	next if tasklib.to_s =~ %r{/(helpers|svn|verifytask)\.rb$}
 	begin
 		trace "  loading tasklib %s" % [ tasklib ]
-		require tasklib.expand_path
+		require tasklib
 	rescue ScriptError => err
 		fail "Task library '%s' failed to load: %s: %s" %
 			[ tasklib, err.class.name, err.message ]

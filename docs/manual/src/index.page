@@ -18,7 +18,7 @@ Redleaf is an RDF library for Ruby. It's intended as a high-level, approachable,
 
 h3. Getting Started
 
-If you don't already know a little RDF, I'd highly recommend at least skimming one of the RDF Primers; I prefer "the one that uses Turtle examples":http://www.w3.org/2007/02/turtle/primer/, as I find the XML syntax to be cluttered and unnecessarily awkward, but you may prefer "the regular XML one":http://www.w3.org/TR/rdf-primer/.
+If you don't already know a little about RDF, I'd highly recommend at least skimming one of the RDF Primers; I prefer "the one that uses Turtle examples":http://www.w3.org/2007/02/turtle/primer/, as I find the XML syntax to be cluttered and unnecessarily awkward, but you may prefer "the regular XML one":http://www.w3.org/TR/rdf-primer/.
 
 The <?link Design Overview ?> is a high-level introduction to the basic design philosophy behind Redleaf, how it relates to Redland and RDF, with links into the <?link Guided Tour ?> for the classes it mentions in case you want more detail about a particular part.
 

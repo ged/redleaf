@@ -99,35 +99,7 @@ graph.load( 'file:spec/data/mgranger-foaf.xml' )
 
 h4. Loading RDF Data From A String
 
-If you have some RDF data in a String and need to be able to load it directly, you can do so with a <?api Redleaf::Parser ?>. Say we have some RDF data in  "Turtle":http://www.dajobe.org/2004/01/turtle/ format:
-
-<?example { language: ruby, caption: "Appending triples as Arrays", testable: true }
- ?>
-require 'redleaf/parser/turtle'
-
-Redleaf.logger.level = Logger::DEBUG
-baseuri = URI('http://www.example.org/')
-a_string = <<EOF
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
-@prefix s:   <http://example.org/students/vocab#>.
-
-<http://example.org/courses/6.001> s:students [
-        a rdf:Bag;
-        rdf:_1 <http://example.org/students/Amy>;
-        rdf:_2 <http://example.org/students/Mohamed>;
-        rdf:_3 <http://example.org/students/Johann>;
-        rdf:_4 <http://example.org/students/Maria>;
-        rdf:_5 <http://example.org/students/Phuong>.
-    ].
-EOF
-
-Redleaf.logger.level = Logger::DEBUG
-parser = Redleaf::TurtleParser.new
-parser.parse( a_string, baseuri )
-# =>
-<?end?>
-
-You can read more about parsers in the <?link Parsing RDF ?> chapter.
+If you have some RDF data in a String and need to be able to load it directly, you can do so with a <?api Redleaf::Parser ?>. You can read more about parsers in the <?link Parsing RDF ?> chapter.
 
 h3(#searching). Searching A Graph
 
