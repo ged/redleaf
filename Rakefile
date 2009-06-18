@@ -85,7 +85,6 @@ LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
 EXTRA_PKGFILES = Rake::FileList.new
 EXTRA_PKGFILES.include "#{BASEDIR}/spec/templates"
 EXTRA_PKGFILES.include "#{BASEDIR}/spec/spec_generator.rb"
-EXTRA_PKGFILES.include "#{BASEDIR}/spec/Rakefile"
 EXTRA_PKGFILES.include "#{BASEDIR}/examples/*.rb"
 EXTRA_PKGFILES.exclude( /\.svn/ )
 
@@ -215,7 +214,8 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.extra_rdoc_files  = %w[ChangeLog README LICENSE]
 
 	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
-	gem.executables       = BIN_FILES.select {|pn| File.executable?(pn) }
+	gem.executables       = BIN_FILES.select {|pn| File.executable?(pn) }.
+	                            collect {|pn| File.basename(pn) }
 
 	if EXTCONF.exist?
 		gem.extensions << EXTCONF.relative_path_from( BASEDIR ).to_s

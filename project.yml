@@ -18,7 +18,6 @@ version_file: redleaf.rb
 additional_pkgfiles: 
 - spec/templates
 - spec/spec_generator.rb
-- spec/Rakefile
 - examples/*.rb
 dev_dependencies: 
   rubyzip: ">= 0.9.1"
