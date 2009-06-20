@@ -1,3 +1,47 @@
+-- Sat, 20 Jun 2009 01:56:18 -0000 by deveiant (r116) -----
+   Changed: spec/redleaf/parser/turtle_spec.rb
+            docs/manual/src/tour/graphs.page
+            spec/templates/w3c_parser_spec.template
+            spec/redleaf/utils_spec.rb
+            spec/templates/w3c_entailment_spec.template
+            Rakefile.local (and 2 other/s)
+
+    * Added some work to the Graphs tour page.
+    * Modified the W3C spec templates to generate more-descriptive names.
+    * Made the local spec:gdb output prettier.
+
+
+-- Thu, 18 Jun 2009 18:43:28 -0000 by deveiant (r115) -----
+   Changed: Rakefile
+            project.yml
+
+   Updated the build system -- will hopefully fix the broken CC build.
+
+
+-- Sun, 14 Jun 2009 15:57:17 -0000 by deveiant (r114) -----
+   Added:   examples/parse_turtle_string.rb (new)
+            spec/w3cissues.yml (new)
+            docs/manual/resources/js/jquery-1.3.2.min.js
+            -> renamed from /trunk/docs/manual/resources/js/jquery.js@r113
+   Changed: docs/manual/src/index.page
+            lib/redleaf/store/hashes.rb
+            Rakefile
+            docs/manual/src/tour/parsing.page
+            docs/manual/layouts/default.page
+            docs/manual/src/tour/graphs.page (and 4 other/s)
+   Deleted: docs/manual/resources/js/jquery.js
+
+    * Updated build system
+    * Manual
+    - Upgraded jQuery to 1.3.2
+    - Removed ThickBox
+    - Added some more stuff to Graphs and Parsing
+    * Made Redleaf::Parser.find_by_name try to require the subclass its trying to load so the 
+    user doesn't have to.
+    * Fixed a bogus log message in Redleaf::HashesStore
+    * Added a turtle-parsing example.
+
+
 -- Sun, 24 May 2009 17:09:13 -0000 by deveiant (r113) -----
    Added:   experiments/graphpath.rb (new)
    Changed: ext/graph.c

@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'uri'
 require 'pp'
 require 'tsort'
@@ -54,7 +54,7 @@ class Redleaf::Graph
 			@a_to_b = {}
 			@b_to_a = {}
 		end
-	
+
 		### Look up a mapping for the specified +node+
 		def []( node )
 			return @a_to_b[ node ]
@@ -77,8 +77,8 @@ class Redleaf::Graph
 		alias_method :[]=, :create
 
 	end # class BnodeMap
-	
-	
+
+
 	#################################################################
 	###	C L A S S   M E T H O D S
 	#################################################################
@@ -103,7 +103,7 @@ class Redleaf::Graph
 		return self.size.zero?
 	end
 	alias_method :is_empty?, :empty?
-	
+
 
 	### Run a SPARQL +query+ against the graph. The optional +prefixes+ hash can be
 	### used to set up prefixes in the query.
@@ -126,16 +126,16 @@ class Redleaf::Graph
 	###
 	def query( querystring, *args )
 		prefixes = args.last.is_a?( Hash ) ? args.last : {}
-		
-		
+
+
 		prelude = prefixes.collect {|prefix, uri| "PREFIX %s: <%s>\n" % [ prefix, uri ] }.join
 		querystring = prelude + querystring
 		self.log.debug "Querystring is: %p" % [ querystring ]
-		
+
 		return self.execute_query( querystring )
 	end
-	
-	
+
+
 	### call-seq:
 	###    graph.is_equivalent_to?( other_graph )   -> true or false
 	###    graph === other_graph                    -> true or false
@@ -148,17 +148,17 @@ class Redleaf::Graph
 			self.log.debug "Graphs differ in size (%d vs. %d)" % [ self.size, other_graph.size ]
 			return false
 		end
-		
+
 		other = other_graph.dup
 		bnode_map = BnodeMap.new
 		difference = nil
-		
+
 		difference = self.find do |stmt|
 			# If the copy of the other graph has an equivalent statement, remove it
 			# and move on to the next one.
 			if other.remove_equivalent_statement( stmt, bnode_map )
 				next
-				
+
 			# Otherwise, we've found a difference
 			else
 				stmt
@@ -179,8 +179,8 @@ class Redleaf::Graph
 	end
 	alias_method :equivalent_to?, :is_equivalent_to?
 	alias_method :===, :is_equivalent_to?
-	
-	
+
+
 	### Return a human-readable representation of the object suitable for debugging.
 	def inspect
 		return "#<%s:0x%x %d statements, %s>" % [
@@ -201,30 +201,30 @@ class Redleaf::Graph
 			return "contexts disabled"
 		end
 	end
-	
-	
+
+
 	### Defined explicitly so the 'json' library's default implementation doesn't override
 	### the serializer.
 	def to_json
 		return self.serialized_as( 'json' )
 	end
-	
-	
+
+
 	### Return the graph as RDF/XML.
 	def to_xml
 		return self.to_rdfxml
 	end
-	
-	
-	
+
+
+
 	#########
 	protected
 	#########
 
 	# TSort interface -- iterate for all nodes over a graph
 	alias_method :tsort_each_node, :each
-	
-	
+
+
 	### TSort interface -- iterate for statements which have the given +statement+'s 
 	### object as their subject.
 	def tsort_each_child( statement, &block )
@@ -232,23 +232,23 @@ class Redleaf::Graph
 			self.search( statement.object, nil, nil ).each( &block )
 		end
 	end
-	
+
 
 	### Proxy method -- handle #to_«format» methods by invoking a serializer for the
 	### specified +format+.
 	def method_missing( sym, *args )
 		super unless sym.to_s =~ /^to_(\w+)$/
-		
+
 		format = $1.tr( '_', '-' )
 		super unless self.class.valid_format?( format )
 
 		serializer = lambda { self.serialized_as(format) }
-		
+
 		# Install the closure as a new method and call it
 		self.class.send( :define_method, sym, &serializer )
 		return self.method( sym ).call
 	end
-	
+
 
 	### Given the specified +bnode_map+ (a BnodeMap object which contains an equivalence 
 	### mapping between blank nodes in the receiver and +statement+), remove the given 
@@ -334,11 +334,11 @@ class Redleaf::Graph
 		end
 
 		self.log.debug "Equivalent is: %p" % [ equivalent ]
-		
+
 		return self.remove( equivalent ).first if equivalent
 		return nil
 	end
-	
+
 
 end # class Redleaf::Graph
 
