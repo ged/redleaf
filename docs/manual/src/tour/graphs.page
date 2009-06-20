@@ -35,7 +35,7 @@ h3(#adding). Adding Statements
 
 There are several ways to add statements to a @Graph@: you can read data in from some pre-existing source, copy them from other graph objects, or create new statements yourself. You've probably already seen how to create statements in the chapter on <?link Statements ?>, so let's do that first.
 
-The way to add statements to a @Graph@ is via its @#append@ method:
+The way to add existing statement objects to a @Graph@ is via its @#append@ method:
 
 <?example { language: ruby, caption: "Appending with #append", testable: true } ?>
 include Redleaf::Constants::CommonNamespaces
@@ -101,11 +101,46 @@ h4. Loading RDF Data From A String
 
 If you have some RDF data in a String and need to be able to load it directly, you can do so with a <?api Redleaf::Parser ?>. You can read more about parsers in the <?link Parsing RDF ?> chapter.
 
+<?example { language: ruby, caption: "Appending triples as Arrays", testable: true } ?>
+require 'redleaf/parser/turtle'
+
+baseuri = URI('http://www.example.org/')
+a_string = <<EOF
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix s:   <http://example.org/students/vocab#>.
+
+<http://example.org/courses/6.001> s:students [
+        a rdf:Bag;
+        rdf:_1 <http://example.org/students/Amy>;
+        rdf:_2 <http://example.org/students/Mohamed>;
+        rdf:_3 <http://example.org/students/Johann>;
+        rdf:_4 <http://example.org/students/Maria>;
+        rdf:_5 <http://example.org/students/Phuong>.
+    ].
+EOF
+
+parser = Redleaf::TurtleParser.new
+parser.parse( a_string, baseuri )
+# =>
+<?end?>
+
+You can read more about parsers in the <?link Parsing RDF ?> chapter.
+
 h3(#searching). Searching A Graph
 
 Now that you've loaded a bunch of statements into a @Graph@, you're probably wondering how you can go about finding them again.
 
-* #[]
+h4(#indexop). The @#search@ Method
+
+The easiest way is to use the @#search@ method, which takes a subject, a predicate, and an object that specify what triples to search for. Any of those three that are @nil@ will be treated as a wildcard, and will match any value for that part of the triples it finds.
+
+<?example { language: ruby, caption: "Searching for triples.", testable: true } ?>
+g = Redleaf::Graph.new
+g.load( '' )
+
+<?end?>
+
+
 * @#each_statement@ (aka @#each@)
 * Topological Sorting (@#tsort@)
 * The node-match iterators (@#subjects@, @#objects@, @#predicates@, @#predicates_entailing@, @#predicates_about@, etc.)

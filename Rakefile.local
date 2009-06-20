@@ -46,7 +46,7 @@ namespace :spec do
 	    cmd_parts << '-Ilib:ext'
 	    cmd_parts << '/usr/bin/spec'
 	    cmd_parts += SPEC_FILES.collect { |fn| %["#{fn}"] }
-	    cmd_parts += COMMON_SPEC_OPTS
+	    cmd_parts += COMMON_SPEC_OPTS + ['-f', 's', '-c']
 
 		script = Tempfile.new( 'spec-gdbscript' )
 		script.puts( cmd_parts.join(' ') )
