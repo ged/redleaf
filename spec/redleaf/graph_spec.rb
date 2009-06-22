@@ -499,66 +499,6 @@ describe Redleaf::Graph do
 		end
 	end
 
-
-	describe "tsort interface" do
-
-		before( :all ) do
-			@test_triples = [
-				 [ DOAP[:Project], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:Project], RDFS[:isDefinedBy], DOAP.uri ],
-				 [ DOAP[:Project], RDFS[:label], "Project@en" ],
-				 [ DOAP[:Project], RDFS[:comment], "A project.@en" ],
-				 [ DOAP[:Project], RDFS[:subClassOf], URI('http://xmlns.com/wordnet/1.6/Project') ],
-				 [ DOAP[:Project], RDFS[:subClassOf], FOAF[:Project] ],
-				 [ DOAP[:Version], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:Version], RDFS[:isDefinedBy], DOAP.uri ],
-				 [ DOAP[:Version], RDFS[:label], "Version@en" ],
-				 [ DOAP[:Version], RDFS[:comment], "Version information of a project release.@en" ],
-				 [ DOAP[:SVNRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:SVNRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:SVNRepository], RDFS[:label], "Subversion Repository@en" ],
-				 [ DOAP[:SVNRepository], RDFS[:comment], "Subversion source code repository.@en" ],
-				 [ DOAP[:SVNRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:BKRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:BKRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:BKRepository], RDFS[:label], "BitKeeper Repository@en" ],
-				 [ DOAP[:BKRepository], RDFS[:comment], "BitKeeper source code repository.@en" ],
-				 [ DOAP[:BKRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:CVSRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:CVSRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:CVSRepository], RDFS[:label], "CVS Repository@en" ],
-				 [ DOAP[:CVSRepository], RDFS[:comment], "CVS source code repository.@en" ],
-				 [ DOAP[:CVSRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:ArchRepository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:ArchRepository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:ArchRepository], RDFS[:label], "GNU Arch repository@en" ],
-				 [ DOAP[:ArchRepository], RDFS[:comment], "GNU Arch source code repository.@en" ],
-				 [ DOAP[:ArchRepository], RDFS[:subClassOf], DOAP[:Repository] ],
-				 [ DOAP[:Repository], RDF[:type], RDFS[:Class] ],
-				 [ DOAP[:Repository], RDFS[:isDefinedBy], DOAP.uri  ],
-				 [ DOAP[:Repository], RDFS[:label], "Repository@en" ],
-				 [ DOAP[:Repository], RDFS[:comment], "Source code repository.@en" ],
-			]
-			setup_logging( :fatal )
-		end
-
-		before( :each ) do
-			@graph = Redleaf::Graph.new
-			@graph.append( *@test_triples )
-		end
-
-		after( :all ) do
-			reset_logging()
-		end
-
-
-		it "is topologically-sortable" do
-			sorted = @graph.tsort.map {|stmt| stmt.subject }
-			sorted.index( DOAP[:Repository] ).should < sorted.index( DOAP[:SVNRepository] )
-			sorted.length.should == @graph.length
-		end
-
-	end
 end
 
 # vim: set nosta noet ts=4 sw=4:

@@ -33,8 +33,7 @@ require 'redleaf/mixins'
 #
 class Redleaf::Graph
 	include Redleaf::Loggable,
-	        Enumerable,
-	        TSort
+	        Enumerable
 
 	# SVN Revision
 	SVNRev = %q$Rev$
@@ -220,19 +219,6 @@ class Redleaf::Graph
 	#########
 	protected
 	#########
-
-	# TSort interface -- iterate for all nodes over a graph
-	alias_method :tsort_each_node, :each
-
-
-	### TSort interface -- iterate for statements which have the given +statement+'s 
-	### object as their subject.
-	def tsort_each_child( statement, &block )
-		if statement.object.is_a?( URI ) || statement.object.is_a?( Symbol )
-			self.search( statement.object, nil, nil ).each( &block )
-		end
-	end
-
 
 	### Proxy method -- handle #to_«format» methods by invoking a serializer for the
 	### specified +format+.
