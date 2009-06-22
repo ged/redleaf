@@ -1,3 +1,23 @@
+-- Mon, 22 Jun 2009 00:22:47 -0000 by deveiant (r118) -----
+   Changed: spec/redleaf/graph_spec.rb
+            lib/redleaf/graph.rb
+
+   Removed experimental TSort support -- RDF graphs are not acyclic
+
+
+-- Sat, 20 Jun 2009 16:56:41 -0000 by deveiant (r117) -----
+   Changed: docs/manual/src/design.page
+            lib/redleaf/core_extensions.rb
+            docs/manual/src/tour/graphs.page
+            ChangeLog
+            docs/manual/layouts/intro.page
+            lib/redleaf/graph.rb (and 1 other/s)
+
+    * Updated build system.
+    * Manual work.
+    * Trimmed some trailing whitespace.
+
+
 -- Sat, 20 Jun 2009 01:56:18 -0000 by deveiant (r116) -----
    Changed: spec/redleaf/parser/turtle_spec.rb
             docs/manual/src/tour/graphs.page

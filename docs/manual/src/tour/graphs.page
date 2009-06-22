@@ -125,18 +125,25 @@ h4(#enumerable). Graphs are Enumerable
 <?example { language: ruby, caption: "Silly Enumerable tricks.", testable: true } ?>
 <?end?>
 
-h4(#tsort). Topological Sorting (@#tsort@)
+h4(#nodematch). Node-Match Methods
 
-Graphs also mix in the @TSort@ module, which adds a @#tsort@ method. 
-
-* The node-match iterators (@#subjects@, @#objects@, @#predicates@, @#predicates_entailing@, @#predicates_about@, etc.)
+Redleaf also provides optimized matchers for particular situations, see the <?api "API documentation":Redleaf::Graph ?> for more information on : @has_predicate_about?@, @has_predicate_entailing?@, @include_object?@, @include_subject?@, @object@, @objects@, @predicate@, @predicates@, @predicates_about@, @predicates_entailing@, @subject@, and @subjects@.
 
 
 h3(#querying). Querying With SPARQL
 
-* Querying with SPARQL
-** #query
-** Three kinds of Response object, depending on what kind of query it was
+If you require a more exact way to search your graph, Redland also comes with a query engine for the "SPARQL":http://www.w3.org/TR/rdf-sparql-query/ Query Language.
+
+<?example { language: ruby, caption: "A simple SPARQL query.", testable: true } ?>
+<?end?>
+
+There are four kinds of responses you can expect from a query; which one will be returned depends on what kind of query you use:
+
+- @SELECT@ := Returns a <?api Redleaf::BindingQueryResult ?>
+- @CONSTRUCT@ := Returns a <?api Redleaf::GraphQueryResult ?>
+- @ASK@ := Returns a <?api Redleaf::BooleanQueryResult ?>
+- @DESCRIBE@ := Returns a <?api Redleaf::SyntaxQueryResult ?>
+
 ** Future goals
 *** DSL
 *** Sequel-like datasets
