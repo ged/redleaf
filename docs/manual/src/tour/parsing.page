@@ -23,13 +23,13 @@ h3. Supported Parser Formats
 
 Redland comes with a fairly comprehensive set of parsers for various serialized RDF formats. As of this writing it can parse the following formats:
 
- * RDF/XML
- * N-Triples
- * Turtle
- * TriG (Turtle with Named Graphs)
- * RSS "tag soup" parser
- * GRDDL and microformats
- * RDFa
+* RDF/XML
+* N-Triples
+* Turtle
+* TriG (Turtle with Named Graphs)
+* RSS "tag soup" parser
+* GRDDL and microformats
+* RDFa
 
 To find out which syntaxes your particular installation supports, you can ask the <?api Redleaf::Parser ?> class:
 
@@ -88,9 +88,17 @@ a_string = <<EOF
     ].
 EOF
 
+# guess_type accepts one or more of: mime-type, buffer of data
+# to parse, and/or uri of target data.
 Redleaf::Parser.guess_type( nil, a_string, nil )
 # => 
 <?end?>
 
 and then if that returns a valid value, fetch the correct parser class by name:
+
+<?example { language: ruby, caption: "Fetch a parser by name.", testable: true } ?>
+Redleaf::Parser.find_by_name( Redleaf::Parser.guess_type('text/html') )
+# => 
+<?end?>
+
 
