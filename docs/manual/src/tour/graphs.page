@@ -48,6 +48,9 @@ st3 = Redleaf::Statement.new( myfoaf[:me], FOAF[:homepage], URI('http://deveiate
 graph = Redleaf::Graph.new
 graph.append( st1, st2, st3 )
 # => 
+
+graph.statements
+# => 
 <?end?>
 
 The append method is also known as the @#<<@ operator, and because it returns the receiving object, you can chain as many statements together as you want. The above example could be written like this instead:
@@ -63,7 +66,7 @@ graph <<
 	Redleaf::Statement.new( myfoaf[:me], FOAF[:name], "Michael Granger" ) <<
 	Redleaf::Statement.new( myfoaf[:me], FOAF[:homepage], URI('http://deveiate.org/') )
 
-graph.inspect
+graph.statements
 # => 
 <?end?>
 
@@ -83,7 +86,7 @@ graph <<
 	[ :johnaddress,      exterms[:state],      "Massachusetts" ] <<
 	[ :johnaddress,      exterms[:postalCode], "01730" ]
 
-graph.inspect
+graph.statements
 # =>
 <?end?>
 
@@ -137,12 +140,60 @@ If you require a more exact way to search your graph, Redland also comes with a 
 <?example { language: ruby, caption: "A simple SPARQL query.", testable: true } ?>
 <?end?>
 
-There are four kinds of responses you can expect from a query; which one will be returned depends on what kind of query you use:
+There are four kinds of responses you can expect from a query, all of which are specializations of the <?api Redleaf::QueryResult ?> class; which one will be returned depends on what kind of query you use:
 
 - @SELECT@ := Returns a <?api Redleaf::BindingQueryResult ?>
 - @CONSTRUCT@ := Returns a <?api Redleaf::GraphQueryResult ?>
 - @ASK@ := Returns a <?api Redleaf::BooleanQueryResult ?>
 - @DESCRIBE@ := Returns a <?api Redleaf::SyntaxQueryResult ?>
+
+These four result types have different result data (e.g., @BindingQueryResult@s have _bindings_ which map to keywords in the query, whereas @BooleanQueryResult@s just contain @true@ or @false@), but all of them support the @Enumerable@ interface. See the individual API documentation for more on how to use the result type you're expecting.
+
+h4(#query-result-formatters). Formatting Query Results
+
+Query results also support convenient exporting in a few different formats, which makes it easy to set up a SPARQL service that can return results formatted appropriately via content negotiation.
+
+The formats supported by your installation of @librdf@ can be queried via @Redleaf::QueryResult.formatters@:
+
+<?example { language: ruby, caption: "Checking available query result formatters.", testable: false } ?>
+pp Redleaf::QueryResult.formatters
+# => {"xml"=>
+# 	  {:mimetype=>"application/sparql-results+xml",
+# 	   :uri=>#<URI::HTTP:0x111ef1c URL:http://www.w3.org/2005/sparql-results#>,
+# 	   :label=>"SPARQL Query Results Format 2007-06-14"},
+# 	 "json"=>
+# 	  {:mimetype=>"text/json",
+# 	   :uri=>
+# 	    #<URI::HTTP:0x111ebe8 URL:http://www.w3.org/2001/sw/DataAccess/json-sparql/>,
+# 	   :label=>"JSON"}}
+<?end?>
+
+There are convenience methods (@#to_json@ and @#to_xml@) for formatting results in one of the two common formats:
+
+<?example { language: ruby, caption: "Checking available query result formatters.", testable: true } ?>
+require 'redleaf/constants'
+include Redleaf::Constants::CommonNamespaces
+
+# Example from http://www.w3.org/TR/rdf-sparql-query/#constructGraph
+ORG = Redleaf::Namespace.new( 'http://example.com/ns#' )
+
+graph = Redleaf::Graph.new
+graph << 
+	[:a,  ORG[:employeeName],   "Alice"] <<
+	[:a,  ORG[:employeeId],     12345 ]  <<
+	[:b,  ORG[:employeeName],   "Bob" ]  <<
+	[:b,  ORG[:employeeId],     67890 ]
+
+sparql = <<END_SPARQL
+CONSTRUCT { ?x foaf:name ?name }
+WHERE  { ?x org:employeeName ?name }
+END_SPARQL
+
+result = graph.query( sparql, :foaf => FOAF, :org => ORG )
+# => 
+result.to_json
+# => 
+<?end?>
 
 ** Future goals
 *** DSL
