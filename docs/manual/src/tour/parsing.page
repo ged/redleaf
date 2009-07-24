@@ -1,0 +1,104 @@
+---
+title: Parsing RDF
+layout: default
+tagline: 
+index: 4
+filters:
+  - erb
+  - links
+  - examples
+  - editorial
+  - api
+  - textile
+example_prelude: |-
+  require 'redleaf'
+  require 'redleaf/parser'
+---
+
+h2. <%= page.config['title'] %>
+
+<div id="auto-toc"></div>
+
+h3. Supported Parser Formats
+
+Redland comes with a fairly comprehensive set of parsers for various serialized RDF formats. As of this writing it can parse the following formats:
+
+* RDF/XML
+* N-Triples
+* Turtle
+* TriG (Turtle with Named Graphs)
+* RSS "tag soup" parser
+* GRDDL and microformats
+* RDFa
+
+To find out which syntaxes your particular installation supports, you can ask the <?api Redleaf::Parser ?> class:
+
+<?example { language: ruby, caption: "Fetching the list of supported parsers.", testable: true } ?>
+Redleaf::Parser.features
+# =>
+<?end?>
+
+h3. Parsing A Known Format
+
+Say we have some RDF data in  "Turtle":http://www.dajobe.org/2004/01/turtle/ format. You can load it into a new graph by creating a <?api Redleaf::TurtleParser ?>, which returns a Graph containing the parsed statements:
+
+<?example { language: ruby, caption: "Parsing ", testable: true } ?>
+require 'redleaf/parser/turtle'
+
+Redleaf.logger.level = Logger::DEBUG
+baseuri = URI('http://www.example.org/')
+a_string = <<EOF
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix s:   <http://example.org/students/vocab#>.
+
+<http://example.org/courses/6.001> s:students [
+        a rdf:Bag;
+        rdf:_1 <http://example.org/students/Amy>;
+        rdf:_2 <http://example.org/students/Mohamed>;
+        rdf:_3 <http://example.org/students/Johann>;
+        rdf:_4 <http://example.org/students/Maria>;
+        rdf:_5 <http://example.org/students/Phuong>
+    ].
+EOF
+
+Redleaf.logger.level = Logger::DEBUG
+parser = Redleaf::TurtleParser.new
+graph = parser.parse( a_string, baseuri )
+# =>
+graph.statements
+# => 
+<?end?>
+
+h3. Guessing the Required Parser Type
+
+You can also use a mime-type string, a buffer of content, or a URI to ask Redland for the type of parser it thinks will be required to parse it using @Redleaf::Parser@'s @.guess_type@ method:
+
+<?example { language: ruby, caption: "Guessing parser type based on a URI.", testable: true } ?>
+a_string = <<EOF
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix s:   <http://example.org/students/vocab#>.
+
+<http://example.org/courses/6.001> s:students [
+        a rdf:Bag;
+        rdf:_1 <http://example.org/students/Amy>;
+        rdf:_2 <http://example.org/students/Mohamed>;
+        rdf:_3 <http://example.org/students/Johann>;
+        rdf:_4 <http://example.org/students/Maria>;
+        rdf:_5 <http://example.org/students/Phuong>
+    ].
+EOF
+
+# guess_type accepts one or more of: mime-type, buffer of data
+# to parse, and/or uri of target data.
+Redleaf::Parser.guess_type( nil, a_string, nil )
+# => 
+<?end?>
+
+and then if that returns a valid value, fetch the correct parser class by name:
+
+<?example { language: ruby, caption: "Fetch a parser by name.", testable: true } ?>
+Redleaf::Parser.find_by_name( Redleaf::Parser.guess_type('text/html') )
+# => 
+<?end?>
+
+

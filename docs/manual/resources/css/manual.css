@@ -1,3 +1,5 @@
+/* @override http://tenar.home.faeriemud.org/Redleaf/css/manual.css */
+
 /* 
  *	Redleaf Manual Stylesheet
  *	$Id$
@@ -29,13 +31,17 @@
 
 
 /* @group Elements */
+html {
+	border-left: 5px solid #ca2f1b;
+	min-height: 100%;
+	min-width: 800px;
+}
+
 body {
 	margin: 0;
 	font: 14px/1.2em "Gill Sans", Helvetica, Tahoma, sans-serif;
 	background: #f3f3f3;
 	color: #333;
-	border-left: 5px solid #ca2f1b;
-	min-width: 800px;
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -236,7 +242,7 @@ td, th {
 
 #content {
 	position: relative;
-	margin: 3em 2em;
+	margin: 3em 3em 6em;
 }
 
 #content #version {
@@ -250,10 +256,15 @@ td, th {
 
 #footer {
 	margin: 2em 0 0;
+	background-color: #fff;
 	border-top: 1px solid #c0c0d5;
+	-webkit-box-shadow: 0 -2px 5px rgba( 25,25,25, 0.4 );
 	padding: 0;
 	font-size: 0.75em;
-	position: relative;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
 }
 
 #footer p {
@@ -302,12 +313,15 @@ div.caption {
 	text-align: center;
 	padding: 0.25em 0;
 	border-top: 1px solid #787890;
+	overflow: hidden;
 }
 div.example {
+	max-width: 60em;
 	border: 3px solid #787890;
 	margin: 0.5em 1em;
 	padding: 0;
 	font: 14px Monaco, Profont, "Andale Mono", mono;
+	overflow: hidden;
 }
 div.example pre {
 	line-height: 1.2em;
@@ -322,6 +336,9 @@ div.example pre:hover {
 pre.deveiate .line-numbers {
 	background-color: #474860;
 	color: #f3f3f3;
+	font-size: 0.8em;
+	padding: 0.3em 0;
+	letter-spacing: -0.1em;
 }
 pre.console-output {
 	

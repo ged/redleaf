@@ -22,16 +22,21 @@ end
 ###
 ###   <?link Page Title ?>
 ###   <?link "click here":Page Title ?>
+###   <?link Page Title #section_id ?>
+###   <?link "click here":Page Title#section_id ?>
 ### 
 ### This first form links to a page by title. Link text defaults to the page title unless an 
-### optional quoted string is prepended.
+### optional quoted string is prepended. If you want to link to an anchor inside the page, include
+### its ID with a hash mark after the title.
 ###
 ###   <?link path/to/Catalog.page ?>
 ###   <?link "click here":path/to/Catalog.page ?>
+###   <?link path/to/Catalog.page#section_id ?>
+###   <?link "click here":path/to/Catalog.page#section_id ?>
 ###
 ### The second form links to a page by its path relative to the base manual source directory.
-### Again, the link text defaults to the page title, or can be overriden via a prepended string.
-### 
+### Again, the link text defaults to the page title, or can be overriden via a prepended string,
+### and you can link into a page with an appended ID.
 class LinksFilter < Manual::Page::Filter
 	
 	# PI	   ::= '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
@@ -43,6 +48,8 @@ class LinksFilter < Manual::Page::Filter
 				(.*?)           # Optional link text [$1]
 			":)?
 			(.*?)				# Title or path [$2]
+			\s*
+			(\#\w+)?				# Fragment [$3]
 			\s+
 		\?>
 	  }x
@@ -58,24 +65,24 @@ class LinksFilter < Manual::Page::Filter
 			# Grab the tag values
 			link_text = $1
 			reference = $2
+			fragment  = $3
 			
-			self.generate_link( page, reference, link_text )
+			self.generate_link( page, reference, link_text, fragment )
 		end
 	end
 	
 	
 	### Create an HTML link fragment from the parsed LinkPI.
-	###
-	def generate_link( current_page, reference, link_text=nil )
+	def generate_link( current_page, reference, link_text=nil, fragment=nil )
 
 		if other_page = self.find_linked_page( current_page, reference )
 			href_path = other_page.sourcefile.relative_path_from( current_page.sourcefile.dirname )
 			href = href_path.to_s.gsub( '.page', '.html' )
 		
 			if link_text
-				return %{<a href="#{href}">#{link_text}</a>}
+				return %{<a href="#{href}#{fragment}">#{link_text}</a>}
 			else
-				return %{<a href="#{href}">#{other_page.title}</a>}
+				return %{<a href="#{href}#{fragment}">#{other_page.title}</a>}
 			end
 		else
 			link_text ||= reference
@@ -89,7 +96,6 @@ class LinksFilter < Manual::Page::Filter
 	### Lookup a page +reference+ in the catalog.  +reference+ can be either a
 	### path to the .page file, relative to the manual root path, or a page title.
 	### Returns a matching Page object, or nil if no match is found.
-	###
 	def find_linked_page( current_page, reference )
 		
 		catalog = current_page.catalog

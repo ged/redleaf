@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'uri'
 require 'pathname'
 
@@ -62,7 +62,7 @@ class Redleaf::Namespace
 	def fragment_style?
 		return @fragment_style
 	end
-	
+
 
 	### Return the Redleaf::Namespace as a String
 	def to_s
@@ -79,9 +79,9 @@ class Redleaf::Namespace
 		else
 			term_uri.path += term.to_s
 		end
-		
+
 		return term_uri
 	end
-	
+
 end # class Redleaf::Namespace
 

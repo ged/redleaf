@@ -347,8 +347,6 @@ rleaf_redleaf_bindingsqueryresult_rows( VALUE self ) {
 				librdf_node *value = librdf_query_results_get_binding_value( res, i );
 
 				if ( value ) {
-					rleaf_log_with_context( self, "debug", "  binding :%s => %s",
-						name, librdf_node_to_string(value) );
 					rb_hash_aset( row, ID2SYM(rb_intern(name)), rleaf_librdf_node_to_value(value) );
 					librdf_free_node( value );
 				} else {

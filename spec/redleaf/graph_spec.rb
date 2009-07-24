@@ -42,7 +42,7 @@ describe Redleaf::Graph do
 	        Redleaf::Constants::CommonNamespaces
 
 	before( :all ) do
-		setup_logging( :error )
+		setup_logging( :fatal )
 
 		@basedir     = Pathname.new( __FILE__ ).dirname.parent.parent
 		@specdir     = @basedir + 'spec'
@@ -399,6 +399,20 @@ describe Redleaf::Graph do
 			@graph.sync.should be_true()
 		end
 		
+		it "can swap out its store with another one and carry its triples with it" do
+			oldstore = @graph.store
+			newstore = Redleaf::Store.create( :hashes )
+
+			@graph.store = newstore
+			@graph.store.should == newstore
+			@graph.store.should_not == oldstore
+			@graph.statements.should have( TEST_FOAF_TRIPLES.length ).members
+
+			newstore.graph.should == @graph
+			oldstore.graph.should_not == @graph
+			oldstore.graph.statements.should have( TEST_FOAF_TRIPLES.length ).members
+		end
+
 	end
 
 
@@ -494,17 +508,25 @@ describe Redleaf::Graph do
 		end
 
 		it "can be queried with a DESCRIBE SPARQL statement" do
+			exOrg  = Redleaf::Namespace.new( 'http://org.example.com/employees#' )
+
+			# :FIXME:
+			# This example is taken from:
+			#   http://www.w3.org/TR/rdf-sparql-query/#descriptionsOfResources
+			# The query returns an empty graph, however, so I'm pretty sure I'm 
+			# missing something.
 			@graph <<
-				[:_a, FOAF[:givenname],   'Alice' ] <<
-				[:_a, FOAF[:family_name], 'Hacker' ] <<
-				[:_b, FOAF[:firstname],   'Bob' ] <<
-				[:_b, FOAF[:surname],     'Hacker' ]
+				[ :_a, exOrg[:employeeId],    "1234"     ] <<
+				[ :_a, FOAF[:mbox_sha1sum],   "ABCD1234" ] <<
+				[ :_a, VCARD[:N],             :_b        ] <<
+				[ :_b, VCARD[:Family],        "Smith"    ] <<
+				[ :_b, VCARD[:Given],         "John"     ] <<
 			
+				[ FOAF[:mbox_sha1sum], RDF[:type], OWL[:InverseFunctionalProperty] ]
 
 			sparql = %{
-				PREFIX foaf:   <http://xmlns.com/foaf/0.1/>
-				DESCRIBE ?x
-				WHERE    { ?x foaf:family_name "Hacker" }
+				PREFIX ent:  <http://org.example.com/employees#>
+				DESCRIBE ?x WHERE { ?x ent:employeeId "1234" }
 			}
 			
 			pending "figuring out what the hell I'm doing wrong" do
@@ -513,83 +535,7 @@ describe Redleaf::Graph do
 			end
 		end
 	end
-	
-	
-	describe "tsort interface" do
 
-		before( :all ) do
-			@test_triples = {
-				 DOAP[:Project] => {
-					RDF[:type]         => RDFS[:Class],
-				 	RDFS[:isDefinedBy] => DOAP.uri,
-				 	RDFS[:label]       => "Project@en",
-				 	RDFS[:comment]     => "A project.@en",
-				 	RDFS[:subClassOf]  => [
-						URI('http://xmlns.com/wordnet/1.6/Project'),
-				 		FOAF[:Project],
-					],
-				},
-				DOAP[:Version] => {
-					RDF[:type]         => RDFS[:Class],
-					RDFS[:isDefinedBy] => DOAP.uri,
-					RDFS[:label]       => "Version@en",
-					RDFS[:comment]     => "Version information of a project release.@en",
-				},
-				DOAP[:SVNRepository] => {
-					RDF[:type]         => RDFS[:Class],
-					RDFS[:isDefinedBy] => DOAP.uri,
-					RDFS[:label]       => "Subversion Repository@en",
-					RDFS[:comment]     => "Subversion source code repository.@en",
-					RDFS[:subClassOf]  => DOAP[:Repository],
-				},
-				DOAP[:BKRepository] => {
-					RDF[:type]         => RDFS[:Class],
-					RDFS[:isDefinedBy] => DOAP.uri,
-					RDFS[:label]       => "BitKeeper Repository@en",
-					RDFS[:comment]     => "BitKeeper source code repository.@en",
-					RDFS[:subClassOf]  => DOAP[:Repository],
-				},
-				DOAP[:CVSRepository] => {
-					RDF[:type]         => RDFS[:Class],
-					RDFS[:isDefinedBy] => DOAP.uri,
-					RDFS[:label]       => "CVS Repository@en",
-					RDFS[:comment]     => "CVS source code repository.@en",
-					RDFS[:subClassOf]  => DOAP[:Repository],
-				},
-				DOAP[:ArchRepository] => {
-					RDF[:type]         => RDFS[:Class],
-					RDFS[:isDefinedBy] => DOAP.uri,
-					RDFS[:label]       => "GNU Arch repository@en",
-					RDFS[:comment]     => "GNU Arch source code repository.@en",
-					RDFS[:subClassOf]  => DOAP[:Repository],
-				},
-				DOAP[:Repository] => {
-					RDF[:type]         => RDFS[:Class],
-					RDFS[:isDefinedBy] => DOAP.uri,
-					RDFS[:label]       => "Repository@en",
-					RDFS[:comment]     => "Source code repository.@en",
-				},
-			}
-			setup_logging( :fatal )
-		end
-
-		before( :each ) do
-			@graph = Redleaf::Graph.new
-			@graph.append( @test_triples )
-		end
-
-		after( :all ) do
-			reset_logging()
-		end
-
-		
-		it "is topologically-sortable" do
-			sorted = @graph.tsort.map {|stmt| stmt.subject }
-			sorted.index( DOAP[:Repository] ).should < sorted.index( DOAP[:SVNRepository] )
-			sorted.length.should == @graph.length
-		end
-		
-	end
 end
 
 # vim: set nosta noet ts=4 sw=4:

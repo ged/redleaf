@@ -73,6 +73,7 @@ extern VALUE rleaf_cRedleafSyntaxQueryResult;
 
 extern VALUE rleaf_eRedleafError;
 extern VALUE rleaf_eRedleafFeatureError;
+extern VALUE rleaf_eRedleafStoreCreationError;
 extern VALUE rleaf_eRedleafParseError;
 
 extern VALUE rleaf_rb_cURI;

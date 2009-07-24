@@ -34,7 +34,8 @@ include Redleaf::Constants
 #####################################################################
 
 describe Redleaf do
-	include Redleaf::SpecHelpers
+	include Redleaf::SpecHelpers,
+	        Redleaf::Constants::CommonNamespaces
 
 	before( :all ) do
 		reset_logging()
@@ -55,6 +56,30 @@ describe Redleaf do
 
 	it "returns a version string with a build number if asked" do
 		Redleaf.version_string(true).should =~ /\w+ [\d.]+ \(build \d+\)/
+	end
+	
+	
+	it "can convert a Ruby String into its equivalent literal string" do
+		Redleaf.make_literal_string( "foo" ).should == '"foo"'
+	end
+	
+	it "can convert a Ruby String with a language tag into its equivalent literal string" do
+		str = "foo"
+		str.extend( Redleaf::StringExtensions )
+		str.lang = 'de'
+
+		pending "figuring out the language-tagging stuff, then making the literal" +
+		        " function take that into account" do
+			Redleaf.make_literal_string( str ).should == '"foo"@de'
+		end
+	end
+
+	it "can convert a Ruby Integer into its equivalent literal string" do
+		Redleaf.make_literal_string( 5 ).should == "5^^<%s>" % [ XSD[:integer].to_s ]
+	end
+	
+	it "can convert a Ruby Float into its equivalent literal string" do
+		Redleaf.make_literal_string( 5.0 ).should == "5.0^^<%s>" % [ XSD[:float].to_s ]
 	end
 	
 

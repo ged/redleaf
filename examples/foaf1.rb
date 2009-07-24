@@ -17,15 +17,15 @@ require 'logger'
 
 Redleaf.logger.level = Logger::DEBUG
 
-FOAF = Redleaf::Namespace.new( "http://xmlns.com/foaf/0.1/" )
+FOAF = Redleaf::Namespace( "http://xmlns.com/foaf/0.1/" )
 
 graph = Redleaf::Graph.new
 graph.load( "http://bigasterisk.com/foaf.rdf" )
 graph.load( "http://www.w3.org/People/Berners-Lee/card.rdf" )
 graph.load( "http://danbri.livejournal.com/data/foaf" ) 
 
-# Create foaf:name triples for each foaf:member_name (the attribute LiveJournal uses for the
-# member's full name)
+# Create foaf:name triples for each foaf:member_name (the attribute 
+# LiveJournal uses for the member's full name)
 graph[ nil, FOAF[:member_name], nil ].each do |stmt|
 	graph << [ stmt.subject, FOAF[:name], stmt.object ]
 end

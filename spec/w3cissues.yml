@@ -1,0 +1,13 @@
+rdf-charmod-uris/test001.rdf:
+  description: test depends on malformed URI
+  details: |-
+    The RDFCore Working Group decided to allow unescaped UTF-8 characters in URI 
+    references (http://lists.w3.org/Archives/Public/w3c-rdfcore-wg/2002Apr/0474.html), but the
+    URI RFC doesn't appear to allow them. The Ruby URI library, accordingly, raises an 
+    exception when it encounters a malformed URI, so this test case fails with:
+    
+        bad URI(is not URI?): http://example.org/#André
+    
+    Need to figure out how to handle this situation; perhaps ask Dan Brickley since he was
+    on that working group.
+    

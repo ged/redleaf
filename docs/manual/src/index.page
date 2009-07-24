@@ -14,40 +14,11 @@ filters:
 
 h2. <%= page.config['title'] %>
 
-<div id="auto-toc"></div>
-
 Redleaf is an RDF library for Ruby. It's intended as a high-level, approachable, Ruby-idiomatic binding to the "Redland library":http://librdf.org/ by Dave Beckett. If you're interested in the who and why of the project, that's covered in <?link Project Information ?>.
-
-If you just want to get started, it's easy (assuming you "know a little about RDF":http://www.w3.org/2007/02/turtle/primer/ already):
-
-<?example { language: ruby, caption: "Find the mailing-list archives for all the W3C interest groups" } ?>
-require 'redleaf'
-
-graph = Redleaf::Graph.new
-graph.load( 'http://www.w3.org/2000/04/mem-news/public-groups.rdf' )
-CONTACT = Redleaf::Namespace.new( 'http://www.w3.org/2000/10/swap/pim/contact#' )
-
-puts "The W3C Interest Group mailing list archives: "
-graph[ nil, CONTACT[:archive], nil ].each do |statement|
-	puts "%s: %s" % [ statement.subject.to, statement.object ]
-end
-<?end?>
-
-This prints:
-
-<?example { language: r_console, caption: "Output from the example above." } ?>
-www-tag@w3.org: http://lists.w3.org/Archives/Public/www-tag/
-www-smil@w3.org: http://lists.w3.org/Archives/Public/www-smil/
-public-tt@w3.org: http://lists.w3.org/Archives/Public/public-tt/
-www-ws-cg@w3.org: http://lists.w3.org/Archives/Public/www-ws-cg/
-public-exi@w3.org: http://lists.w3.org/Archives/Public/public-exi/
-public-sml@w3.org: http://lists.w3.org/Archives/Public/public-sml/
-[...]
-<?end?>
 
 h3. Getting Started
 
-If you don't already know a little RDF, I'd highly recommend at least skimming one of the RDF Primers; I prefer "the one that uses Turtle examples":http://www.w3.org/2007/02/turtle/primer/, as I find the XML syntax to be cluttered and unnecessarily awkward, but you may prefer "the regular XML one":http://www.w3.org/TR/rdf-primer/.
+If you don't already know a little about RDF, I'd highly recommend at least skimming one of the RDF Primers; I prefer "the one that uses Turtle examples":http://www.w3.org/2007/02/turtle/primer/, as I find the XML syntax to be cluttered and unnecessarily awkward, but you may prefer "the regular XML one":http://www.w3.org/TR/rdf-primer/.
 
 The <?link Design Overview ?> is a high-level introduction to the basic design philosophy behind Redleaf, how it relates to Redland and RDF, with links into the <?link Guided Tour ?> for the classes it mentions in case you want more detail about a particular part.
 

@@ -82,46 +82,62 @@ module Redleaf # :nodoc:
 
 		### Register a new object that knows how to map strings to Ruby objects for the
 		### specified +typeuri+. The +converter+ is any object that responds to #[].
-		def register_new_type( typeuri, converter=nil )
+		def register_new_type( typeuri, converter=nil, &block )
 			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
-			converter ||= Proc.new if block_given?
+			Redleaf.logger.info "Registering a new object converter for %s literals " % [ typeuri ]
+
+			converter ||= block
+
+			Redleaf.logger.debug "  will convert via %p" % [ converter ]
 			@@typeuri_registry[ typeuri ] = converter
 		end
-		
-		
+
+
 		### Register a new class with the type-conversion system. When the _object_ of a
 		### Redleaf::Statement is set to an instance of the specified +classobj+, it will
 		### be converted to its canonical string form by using the given +converter+ and
 		### associated with the specified +typeuri+. The +converter+ should either be an
 		### object that responds to #[] or a Symbol that specifies a method on the object
 		### that should be called.
-		def register_new_class( classobj, typeuri, converter=:to_s )
+		def register_new_class( classobj, typeuri, converter=nil, &block )
+			Redleaf.logger.info "Registering a new typed-literal conversion for %p objects." %
+			 	[ classobj ]
 			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
-			converter ||= Proc.new if block_given?
+			converter ||= block
+			converter ||= :to_s
+
+			Redleaf.logger.debug "  will convert to type: %p via %p" % [ typeuri, converter ]
 			@@class_registry[ classobj ] = [ typeuri, converter ]
 		end
-		
-		
+
+
 		### Clear the datatype registries of all but the default conversions.
 		def clear_custom_types
 			@@typeuri_registry.replace( DEFAULT_TYPEURI_REGISTRY )
 			@@class_registry.replace( DEFAULT_CLASS_REGISTRY )
 		end
-		
-		
-		### Convert the specified Ruby +object+ to a typed literal and return it as a two-element
-		### Array of value and type URI.
-		### Transform the given +object+ into a tuple of [ canonical_string_value, datatype_uri ]
-		### and return it as an Array.
+
+
+		### Convert the specified Ruby +object+ to a typed literal and return it as a tuple of 
+		### the form:
+		###   [ <canonical_string_value>, <datatype_uri> ]
 		def make_object_typed_literal( object )
 			Redleaf.logger.debug "Making typed literal from object %p" % [ object ]
 
 			if entry = @@class_registry[ object.class ]
 				uri, converter = *entry 
+				Redleaf.logger.debug "  literal type URI is: %p" % [ uri ]
 				if converter.is_a?( Symbol )
-					return [ uri, object.__send__(converter) ]
+					Redleaf.logger.debug "  converter is %p#%s" % [ object.class, converter ]
+
+					literal = object.__send__(converter)
+					Redleaf.logger.debug "  converted to: %p" % [ literal ]
+					return [ literal, uri ]
 				else
-					return [ uri, converter[object] ]
+					Redleaf.logger.debug "  converter is %p" % [ converter ]
+					literal = converter[object]
+					Redleaf.logger.debug "  converted to: %p" % [ literal ]
+					return [ literal, uri ]
 				end
 			else
 				raise "no typed-literal conversion for %p objects" % [ object.class ]
@@ -133,20 +149,27 @@ module Redleaf # :nodoc:
 		### Transform the given +string_value+ into a Ruby object based on the datatype
 		### in +typeuri+.
 		def make_typed_literal_object( typeuri, string_value )
-			typeuri = URI( typeuri ) unless typeuri.is_a?( URI )
+			unless typeuri.is_a?( URI )
+				Redleaf.logger.debug "Converting typeuri %p to a URI object" % [ typeuri ]
+				typeuri = URI( typeuri )
+			end
+
 			Redleaf.logger.debug "Making Ruby object from typed literal %p<%s>" %
 				[ string_value, typeuri ]
 
 			if converter = @@typeuri_registry[ typeuri ]
+				Redleaf.logger.debug "  casting function is: %p" % [ converter ]
 				return converter[ string_value ]
 			else
+				Redleaf.logger.error "  I only know about the following typeuris: %p" %
+					[ @@typeuri_registry.keys ]
 				raise "No object conversion for typed literal %p (%p)" % [ string_value, typeuri ]
 			end
 		end
 
 	end # module NodeUtils
-	
-	
+
+
 	# 
 	# A alternate formatter for Logger instances.
 	# 
@@ -173,7 +196,7 @@ module Redleaf # :nodoc:
 
 		# The format to output unless debugging is turned on
 		DEFAULT_FORMAT = "[%1$s.%2$06d %3$d/%4$s] %5$5s -- %7$s\n"
-		
+
 		# The format to output if debugging is turned on
 		DEFAULT_DEBUG_FORMAT = "[%1$s.%2$06d %3$d/%4$s] %5$5s {%6$s} -- %7$s\n"
 
@@ -193,13 +216,13 @@ module Redleaf # :nodoc:
 
 		# The Logger object associated with the formatter
 		attr_accessor :logger
-		
+
 		# The logging format string
 		attr_accessor :format
-		
+
 		# The logging format string that's used when outputting in debug mode
 		attr_accessor :debug_format
-		
+
 
 		### Log using either the DEBUG_FORMAT if the associated logger is at ::DEBUG level or
 		### using FORMAT if it's anything less verbose.
@@ -221,8 +244,8 @@ module Redleaf # :nodoc:
 			end
 		end
 	end # class LogFormatter
-	
-	
+
+
 	# 
 	# An alternate formatter for Logger instances that outputs +dd+ HTML
 	# fragments.
@@ -251,7 +274,7 @@ module Redleaf # :nodoc:
 
 		# The default HTML fragment that'll be used as the template for each log message.
 		HTML_LOG_FORMAT = %q{
-		<dd class="log-message %5$s">
+		<div class="log-message %5$s">
 			<span class="log-time">%1$s.%2$06d</span>
 			[
 				<span class="log-pid">%3$d</span>
@@ -262,7 +285,7 @@ module Redleaf # :nodoc:
 			:
 			<span class="log-name">%6$s</span>
 			<span class="log-message-text">%7$s</span>
-		</dd>
+		</div>
 		}
 
 		### Override the logging formats with ones that generate HTML fragments
@@ -279,7 +302,7 @@ module Redleaf # :nodoc:
 
 		# The HTML fragment that will be used as a format() string for the log
 		attr_accessor :format
-		
+
 
 		### Return a log message composed out of the arguments formatted using the
 		### formatter's format string
@@ -289,14 +312,14 @@ module Redleaf # :nodoc:
 				time.usec,                                                    # %2$d
 				Process.pid,                                                  # %3$d
 				Thread.current == Thread.main ? 'main' : Thread.object_id,    # %4$s
-				severity,                                                     # %5$s
+				severity.downcase,                                                     # %5$s
 				progname,                                                     # %6$s
 				html_escape( msg ).gsub(/\n/, '<br />')                       # %7$s
 			]
 
 			return self.format % args
 		end
-		
+
 	end # class HtmlLogFormatter
 
 end # module Redleaf

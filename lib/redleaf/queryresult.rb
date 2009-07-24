@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'redleaf'
 require 'redleaf/mixins'
 
@@ -36,8 +36,8 @@ class Redleaf::QueryResult
 	def initialize( graph )
 		@source_graph = graph
 	end
-	
-	
+
+
 	######
 	public
 	######
@@ -53,34 +53,34 @@ class Redleaf::QueryResult
 
 		# Work around the doubled-quotes bug
 		json.gsub!( %r{""(ordered|distinct)}, %{"\\1} )
-		
+
 		return json
 	end
-	
+
 
 	### Return the query result as RDF/XML in the format specified by 
 	### http://www.w3.org/2005/sparql-results.
 	def to_xml
 		return self.formatted_as( self.class.formatters['xml'][:uri] )
 	end
-	
+
 
 	### Proxy method -- handle serialization format convenience calls like
 	### #to_json, #to_xml, etc.
 	def method_missing( sym, *args )
 		super unless sym.to_s =~ /^to_(\w+)$/
-		
+
 		format = $1
 		formatters = self.class.formatters
 		unless formatters.key?( format )
 			raise Redleaf::FeatureError,
 				"local Redland installation does not have a '%s' formatter"
 		end
-		
+
 		return self.formatted_as( formatters[format][:uri] )
 	end
-	
-	
+
+
 	require 'redleaf/queryresult/graph'
 	require 'redleaf/queryresult/binding'
 	require 'redleaf/queryresult/boolean'

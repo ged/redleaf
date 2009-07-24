@@ -5,6 +5,7 @@
  * Authors
  * 
  * - Michael Granger <ged@FaerieMUD.org>
+ * - Mahlon E. Smith <mahlon@martini.nu>
  * 
  * Copyright (c) 2008, 2009 Michael Granger
  * 
@@ -64,14 +65,14 @@ rleaf_store_alloc( const char *backend, const char *name, const char *optstring 
 	rleaf_STORE *ptr = ALLOC( rleaf_STORE );
 	
 	if ( (storage = librdf_new_storage( rleaf_rdf_world, backend, name, optstring )) == 0 )
-		rb_raise( rleaf_eRedleafError, 
+		rb_raise( rleaf_eRedleafStoreCreationError, 
 			"Could not create a new storage with: backend=\"%s\", name=\"%s\", optstring=\"%s\"", 
 			backend, name, optstring );
 
 	ptr->storage = storage;
 	ptr->graph   = Qnil;
 
-	// rleaf_log( "debug", "alloc'ed a rleaf_STORE <%p> with storage <%p>", ptr, ptr->storage );
+	/* rleaf_log( "debug", "alloc'ed a rleaf_STORE <%p> with storage <%p>", ptr, ptr->storage ); */
 	return ptr;
 }
 
@@ -95,7 +96,7 @@ rleaf_store_gc_free( rleaf_STORE *ptr ) {
 
 		/* Not sure if I need to break the graph<->storage link here, and if I do, how. [MG] */
 		if ( ptr->storage ) {
-			librdf_storage_close( ptr->storage );
+			/* librdf_storage_close( ptr->storage ); */
 			librdf_free_storage( ptr->storage );
 		}
 		
@@ -113,7 +114,7 @@ rleaf_store_gc_free( rleaf_STORE *ptr ) {
  */
 static rleaf_STORE *
 check_store( VALUE self ) {
-	// rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_obj_classname(self), self );
+	/* rleaf_log_with_context( self, "debug", "checking a %s object <0x%x>.", rb_obj_classname(self), self ); */
 	Check_Type( self, T_DATA );
 
     if ( !IsStore(self) ) {
@@ -353,7 +354,7 @@ rleaf_redleaf_store_graph( VALUE self ) {
  *  call-seq:
  *     store.graph = newgraph
  *
- *  Set the store's graph to +newgraph+.
+ *  Set the store's graph to +newgraph+, discarding any previous graph.
  *
  */
 static VALUE
@@ -396,7 +397,7 @@ static VALUE
 rleaf_redleaf_store_sync( VALUE self ) {
 	rleaf_STORE *store = rleaf_get_store( self );
 	
-	if ( librdf_storage_sync(store->storage) == 0 )
+	if ( librdf_storage_sync(store->storage) != 0 )
 		rb_raise( rleaf_eRedleafError, "Failed to sync to the underlying storage." );
 	
 	return Qtrue;

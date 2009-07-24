@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'redleaf'
 require 'redleaf/namespace'
 
@@ -30,20 +30,20 @@ module Redleaf::Constants
 
 	### A collection of useful RDF namespaces, expressed as Redleaf::NameSpace objects.
 	module CommonNamespaces
-		
+
 		# The RDF Vocabulary -- This is the RDF Schema for the RDF vocabulary defined 
 		# in the RDF namespace.
 		RDF        = Redleaf::Namespace.new( 'http://www.w3.org/1999/02/22-rdf-syntax-ns#' )
 
 		# The RDF Schema vocabulary
 		RDFS       = Redleaf::Namespace.new( 'http://www.w3.org/2000/01/rdf-schema#' )
-		
+
 		# DCMI Namespace for the Dublin Core Metadata Element Set, Version 1.1
 		DC         = Redleaf::Namespace.new( 'http://purl.org/dc/elements/1.1/' )
 
 		# DCMI Namespace for metadata terms in the http://purl.org/dc/terms/ namespace
 		DC_TERMS   = Redleaf::Namespace.new( 'http://purl.org/dc/terms/' )
-		
+
 		# DCMI Namespace for metadata terms of the DCMI Type Vocabulary
 		DCMI_TYPES = Redleaf::Namespace.new( 'http://purl.org/dc/dcmitype/' )
 
@@ -53,10 +53,13 @@ module Redleaf::Constants
 
 		# The XML Schema namespace
 		XSD        = Redleaf::Namespace.new( 'http://www.w3.org/2001/XMLSchema#' )
-		
+
+		# The W3C 'vcard' namespace (http://www.w3.org/TR/vcard-rdf)
+		VCARD  = Redleaf::Namespace.new( 'http://www.w3.org/2001/vcard-rdf/3.0#' )
+
 		# The Creative Commons licensing vocabulary
 		CC         = Redleaf::Namespace.new( 'http://creativecommons.org/ns#' )
-		
+
 		# The "Friend-Of-A-Friend" namespace
 		FOAF       = Redleaf::Namespace.new( 'http://xmlns.com/foaf/0.1/' )
 

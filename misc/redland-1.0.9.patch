@@ -1,0 +1,19 @@
+
+This is a patch against Redland 1.0.9's PostgreSQL store that fixes an issue introduced in that version. 
+
+It can be applied like so:
+
+  $ patch -d path/to/redland-1.0.9 -Np1 < misc/redland-1.0.9.patch
+
+diff -ubr redland-1.0.9/src/rdf_storage_postgresql.c redland-1.0.9.patched/src/rdf_storage_postgresql.c
+--- redland-1.0.9/src/rdf_storage_postgresql.c	2009-04-12 13:34:59.000000000 -0700
++++ redland-1.0.9.patched/src/rdf_storage_postgresql.c	2009-04-13 14:41:01.000000000 -0700
+@@ -569,7 +569,7 @@
+         PGresult *res2 = PQexec(handle, create_tables[i]);
+         if (res2) {
+           if (PQresultStatus(res2) != PGRES_COMMAND_OK) {
+-            if (0 != strncmp("42P07", PQresultErrorField(res, PG_DIAG_SQLSTATE), strlen("42P07"))) {
++            if (0 != strncmp("42P07", PQresultErrorField(res2, PG_DIAG_SQLSTATE), strlen("42P07"))) {
+               librdf_log(storage->world, 0, LIBRDF_LOG_ERROR, LIBRDF_FROM_STORAGE, NULL,
+                        "postgresql table creation failed with error %s", PQresultErrorMessage(res2));
+               status = -1;

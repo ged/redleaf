@@ -52,17 +52,11 @@ rleaf_librdf_uri_node_to_object( librdf_node *node ) {
 	const unsigned char *uristring = NULL;
 
 	if ( !librdf_node_is_resource(node) )
-		rb_raise( rleaf_eRedleafError, "cannot convert a non-resource (%s) to a URI", 
-			librdf_node_to_string(node) );
-
-	// rleaf_log( "debug", "trying to convert node %s to a URI object", 
-	// 	librdf_node_to_string(node) );
-
+		rb_raise( rleaf_eRedleafError, "cannot convert a non-resource to a URI" );
 	if ( (uri = librdf_node_get_uri( node )) == NULL )
-		rb_raise( rleaf_eRedleafError, "unable to fetch a uri from resource node %s",
-			librdf_node_to_string(node) );
+		rb_raise( rleaf_eRedleafError, "unable to fetch a uri from resource node" );
 	if ( (uristring = librdf_uri_as_string( uri )) == NULL )
-		rb_raise( rleaf_eRedleafError, "unable to fetch a string from uri %p", uri );
+		rb_raise( rleaf_eRedleafError, "unable to fetch a string from uri" );
 
 	// rleaf_log( "debug", "converting %s to a URI object", uristring );
 	node_object = rb_funcall( rleaf_rb_cURI, rb_intern("parse"), 1,
@@ -236,7 +230,7 @@ rleaf_value_to_librdf_node( VALUE object ) {
 		default:
 		converted_pair = rb_funcall( rleaf_mRedleafNodeUtils, 
 			rb_intern("make_object_typed_literal"), 1, object );
-		str = rb_ary_entry( converted_pair, 0 );
+		str = rb_obj_as_string( rb_ary_entry(converted_pair, 0) );
 		typeuristr = rb_obj_as_string( rb_ary_entry(converted_pair, 1) );
 		typeuri = librdf_new_uri( rleaf_rdf_world, (unsigned char*)RSTRING_PTR(typeuristr) );
 	}

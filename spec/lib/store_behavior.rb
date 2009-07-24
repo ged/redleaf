@@ -47,6 +47,10 @@ describe "A Store", :shared => true do
 		[ true, false ].should include( result )
 	end
 	
+	it "knows what its associated graph is" do
+		@store.graph.should be_an_instance_of( Redleaf::Graph )
+	end
+	
 end
 
 
@@ -57,6 +61,13 @@ describe "A Store with an associated Graph", :shared => true do
 		graph = Redleaf::Graph.new
 		@store.graph = graph
 		@store.graph.should == graph
+	end
+
+	it "copies triples from a new associated graph into the store" do
+		graph = Redleaf::Graph.new
+		graph.append( *TEST_FOAF_TRIPLES )
+		@store.graph = graph
+		@store.graph.statements.should have( TEST_FOAF_TRIPLES.length ).members
 	end
 
 end

@@ -11,6 +11,7 @@ BEGIN {
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
+require 'rubygems'
 gem 'rspec', '>= 1.1.11' # For correct hash-matching in .should include(...)
 
 begin
@@ -79,7 +80,7 @@ describe Redleaf::Store do
 		Redleaf::Store.is_supported?( :memory ).should == true
 	end
 
-	it "can load its derivatives by name" do
+	it "can create its derivatives by name" do
 		Redleaf::Store.should_receive( :require ).with( 'redleaf/store/giraffe' )
 
 		giraffe_storeclass = Class.new( Redleaf::Store )
@@ -91,6 +92,20 @@ describe Redleaf::Store do
 		giraffe_storeclass.should_receive( :new ).with( 'name' ).and_return( :the_triplestore )
 
 		Redleaf::Store.create( :giraffe, 'name' ).should == :the_triplestore
+	end
+
+	it "can load its derivatives by name" do
+		Redleaf::Store.should_receive( :require ).with( 'redleaf/store/giraffe' )
+
+		giraffe_storeclass = Class.new( Redleaf::Store )
+		giraffe_storeclass.should_receive( :backends ).
+			and_return({ 'giraffe' => "Giraffes like RDF too!" })
+		giraffe_storeclass.module_eval do
+			backend :giraffe
+		end
+		giraffe_storeclass.should_receive( :load ).with( 'name' ).and_return( :the_triplestore )
+
+		Redleaf::Store.load( :giraffe, 'name' ).should == :the_triplestore
 	end
 
 
@@ -114,6 +129,7 @@ describe Redleaf::Store do
 
 			@storeclass.should be_supported
 		end
+		
 	end
 
 end

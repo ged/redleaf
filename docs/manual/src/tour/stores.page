@@ -1,8 +1,7 @@
 ---
-title: Persistant Graphs
+title: Triple Stores
 layout: default
-tagline: The More Things Change, The More They Stay the Same
-index: 5
+index: 3
 filters:
   - erb
   - links
@@ -10,10 +9,20 @@ filters:
   - editorial
   - api
   - textile
+example_prelude: |-
+  require 'redleaf'
 ---
 
 h2. <%= page.config['title'] %>
 
 <div id="auto-toc"></div>
 
-Okay, so now you've built up your graph with a collection of statements, and you can 
+This page will be all about <?api Redleaf::Store ?> objects.
+
+* How to find out what stores are available
+* The BDB-backed <?api Redleaf::HashesStore ?>
+** Creating a new store
+** Loading an existing store
+** Options
+* Adding your own store to Redleaf
+

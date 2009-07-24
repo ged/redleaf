@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'pathname'
- 
+
 require 'redleaf'
 require 'redleaf/store'
 
@@ -36,9 +36,9 @@ class Redleaf::MySQLStore < Redleaf::Store
 	DEFAULT_OPTIONS = {
 		:new      => true,
 		:host     => 'localhost',
-		:database => 'redleaf',
-		:user     => 'foo',
-		:password => 'bar',
+		:database => 'test',
+		:user     => 'test',
+		:password => '',
 	}
 
 	# Use the 'mysql' Redland backend
@@ -55,8 +55,8 @@ class Redleaf::MySQLStore < Redleaf::Store
 		opthash[:new] = false
 		return new( name, opthash )
 	end
-	
-	
+
+
 	#################################################################
 	###	I N S T A N C E   M E T H O D S
 	#################################################################
@@ -72,7 +72,7 @@ class Redleaf::MySQLStore < Redleaf::Store
 	def persistent?
 		return true
 	end
-	
+
 
 end # class Redleaf::MemoryStore
 

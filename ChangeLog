@@ -1,3 +1,325 @@
+-- Thu, 25 Jun 2009 01:31:34 -0000 by deveiant (r120) -----
+   Changed: docs/manual/src/tour/parsing.page
+
+   A little work on the parsing page of the manual.
+
+
+-- Mon, 22 Jun 2009 13:09:41 -0000 by deveiant (r119) -----
+   Changed: docs/manual/src/tour/graphs.page
+            ChangeLog
+            docs/manual/resources/css/manual.css
+            spec/redleaf/queryresult_spec.rb
+
+    * More manual work.
+    * Fixed page presentation in CSS.
+
+
+-- Mon, 22 Jun 2009 00:22:47 -0000 by deveiant (r118) -----
+   Changed: spec/redleaf/graph_spec.rb
+            lib/redleaf/graph.rb
+
+   Removed experimental TSort support -- RDF graphs are not acyclic
+
+
+-- Sat, 20 Jun 2009 16:56:41 -0000 by deveiant (r117) -----
+   Changed: docs/manual/src/design.page
+            lib/redleaf/core_extensions.rb
+            docs/manual/src/tour/graphs.page
+            ChangeLog
+            docs/manual/layouts/intro.page
+            lib/redleaf/graph.rb (and 1 other/s)
+
+    * Updated build system.
+    * Manual work.
+    * Trimmed some trailing whitespace.
+
+
+-- Sat, 20 Jun 2009 01:56:18 -0000 by deveiant (r116) -----
+   Changed: spec/redleaf/parser/turtle_spec.rb
+            docs/manual/src/tour/graphs.page
+            spec/templates/w3c_parser_spec.template
+            spec/redleaf/utils_spec.rb
+            spec/templates/w3c_entailment_spec.template
+            Rakefile.local (and 2 other/s)
+
+    * Added some work to the Graphs tour page.
+    * Modified the W3C spec templates to generate more-descriptive names.
+    * Made the local spec:gdb output prettier.
+
+
+-- Thu, 18 Jun 2009 18:43:28 -0000 by deveiant (r115) -----
+   Changed: Rakefile
+            project.yml
+
+   Updated the build system -- will hopefully fix the broken CC build.
+
+
+-- Sun, 14 Jun 2009 15:57:17 -0000 by deveiant (r114) -----
+   Added:   examples/parse_turtle_string.rb (new)
+            spec/w3cissues.yml (new)
+            docs/manual/resources/js/jquery-1.3.2.min.js
+            -> renamed from /trunk/docs/manual/resources/js/jquery.js@r113
+   Changed: docs/manual/src/index.page
+            lib/redleaf/store/hashes.rb
+            Rakefile
+            docs/manual/src/tour/parsing.page
+            docs/manual/layouts/default.page
+            docs/manual/src/tour/graphs.page (and 4 other/s)
+   Deleted: docs/manual/resources/js/jquery.js
+
+    * Updated build system
+    * Manual
+    - Upgraded jQuery to 1.3.2
+    - Removed ThickBox
+    - Added some more stuff to Graphs and Parsing
+    * Made Redleaf::Parser.find_by_name try to require the subclass its trying to load so the 
+    user doesn't have to.
+    * Fixed a bogus log message in Redleaf::HashesStore
+    * Added a turtle-parsing example.
+
+
+-- Sun, 24 May 2009 17:09:13 -0000 by deveiant (r113) -----
+   Added:   experiments/graphpath.rb (new)
+   Changed: ext/graph.c
+            docs/manual/src/tour/graphs.page
+            lib/redleaf/constants.rb
+            ChangeLog
+            docs/manual/src/tour/statements.page
+            spec/redleaf/graph_spec.rb (and 1 other/s)
+
+    * Manual work
+    * Adding an experimental implementation of the GraphPath library
+
+
+-- Thu, 14 May 2009 21:27:17 -0000 by deveiant (r112) -----
+   Changed: misc/redland-1.0.9.patch
+
+   Added some instructions to the redland patch.
+
+
+-- Thu, 14 May 2009 21:10:58 -0000 by deveiant (r111) -----
+   Added:   misc/redland-1.0.9.patch (new)
+            misc (new)
+   Changed: README
+            ext/store.c
+            ext/redleaf.c
+            spec/lib/helpers.rb
+            spec/redleaf/store/postgresql_spec.rb
+            ext/redleaf.h (and 5 other/s)
+
+    * Added a Redleaf::StoreCreationError to disambiguate creation errors from other
+    exceptions raised by a store.
+    * Made the specs tolerant of connection failures in the RDBMS-backed store classes. Thanks
+    to Gregg Kellogg for the idea, and for reporting the problem.
+    * Added a 'Testing' section to the README.
+    * Added a patch for the PostgreSQL store in 1.0.9 that fixes the segfault on table
+    creation.
+
+
+-- Thu, 07 May 2009 18:24:43 -0000 by deveiant (r110) -----
+   Added:   experiments/ipaddr_literal.rb (new)
+   Changed: docs/manual/src/tour/graphs.page
+            lib/redleaf/utils.rb
+            docs/manual/src/tour/nodetypesystem.page
+
+    * Added an experiment to try to figure out why IPAddr conversion sometimes doesn't work.
+    * Some manual work.
+
+
+-- Thu, 07 May 2009 17:44:39 -0000 by deveiant (r109) -----
+   Changed: examples/redleaf_skos.rb
+            spec/lib/helpers.rb
+            spec/redleaf/graph_spec.rb
+            lib/redleaf/utils.rb
+            Rakefile.local
+            examples/foaf1.rb (and 1 other/s)
+
+    * Changed logging in the spec helper to support the webkit RSpec runner
+    * Commented out the manual:build hack in Rakefile.local; need to find a better
+    way to do this, as it's causing problems.
+    * Cleaned up some examples.
+
+
+-- Mon, 04 May 2009 23:53:10 -0000 by deveiant (r108) -----
+   Changed: examples/redleaf_skos.rb
+
+   Adding example output to the redleaf_skos example
+
+
+-- Tue, 28 Apr 2009 13:10:19 -0000 by deveiant (r107) -----
+   Changed: docs/manual/src/tour/stores.page
+            docs/manual/src/tour/parsing.page
+            docs/manual/src/tour/graphs.page
+            ChangeLog
+            docs/manual/src/tour/index.page
+
+   A little bit of work on the manual.
+
+
+-- Fri, 24 Apr 2009 03:06:19 -0000 by deveiant (r106) -----
+   Changed: docs/manual/src/tour/stores.page
+            docs/manual/src/design.page
+            docs/manual/src/tour/parsing.page
+            docs/manual/src/tour/graphs.page
+            ChangeLog
+            docs/manual/src/tour/index.page (and 3 other/s)
+
+   Reorganized the manual a bit.
+
+
+-- Tue, 07 Apr 2009 19:29:05 -0000 by deveiant (r105) -----
+   Changed: ext/store.c
+            /trunk
+            ext/node.c
+            ChangeLog
+
+    * Made literal-conversion stringify values returned from  conversions called via 
+    Redleaf::NodeUtils.make_object_type_literal.
+    * Fixed stupid inversion of logic bug in Redleaf::Store#sync.
+
+
+-- Tue, 07 Apr 2009 16:19:19 -0000 by deveiant (r104) -----
+   Changed: ext/redleaf.c
+            spec/redleaf/utils_spec.rb
+            spec/redleaf_spec.rb
+            lib/redleaf/utils.rb
+
+    * Added a fix for string typed literals in Redleaf.make_literal_string
+    * Corrected the type-registry system; it was returning the datatype uri and canonical string value
+    in the wrong order.
+
+
+-- Fri, 03 Apr 2009 19:51:24 -0000 by deveiant (r103) -----
+   Added:   docs/manual/src/tour/stores.page (new)
+   Changed: ChangeLog
+
+   Oops. Really add the triple stores manual page this time.
+
+
+-- Fri, 03 Apr 2009 19:15:06 -0000 by deveiant (r102) -----
+   Changed: /trunk
+            docs/manual/lib/links-filter.rb
+            docs/manual/src/design.page
+            Rakefile
+            docs/manual/src/tour/parsing.page
+            docs/manual/src/tour/graphs.page (and 6 other/s)
+
+    * Updated the build system to hopefully fix the CC build.
+    * Manual:
+    * Fixed links to reflect the reorg/consolidation.
+    * Started a chapter for triple stores.
+    * Added an optional target-fragment to the links filter.
+
+
+-- Thu, 02 Apr 2009 05:06:16 -0000 by deveiant (r101) -----
+   Changed: ext/node.c
+            docs/manual/src/tour/index.page
+            spec/redleaf_spec.rb
+            Rakefile.local
+            ext/parser.c
+            examples/redleaf_skos.rb (and 9 other/s)
+   Deleted: docs/manual/src/tour/iteration.page
+            docs/manual/src/tour/querying.page
+            docs/manual/src/tour/stores.page
+            docs/manual/src/tour/serializing.page
+
+    * Eliminated most uses of librdf_node_to_string() to avoid leaks.
+    * Added module function Redleaf.make_literal_string.
+    * Consolidated all the Graph manual pages into one.
+    * Worked a bit more on the port of danbri's SKOS demo.
+
+
+-- Tue, 31 Mar 2009 20:36:51 -0000 by deveiant (r100) -----
+   Changed: ext/store.c
+            spec/lib/store_behavior.rb
+            spec/redleaf/parser/turtle_spec.rb
+            spec/redleaf/store_spec.rb
+            lib/redleaf/constants.rb
+            spec/redleaf/graph_spec.rb (and 1 other/s)
+
+    * Added more tests around Redleaf::Graph#store= and Redleaf::Store#graph=
+    * Added W3C vCard namespace to CommonNamespaces
+    * Finished the Turtle parser spec
+
+
+-- Fri, 27 Mar 2009 15:26:13 -0000 by mahlon (r99) -----
+   Changed: ext/store.c
+
+    * Changed some comments to get my name in this file. I rule!
+    * librdf_storage_close() was causing a segfault.  We *think*
+    that the problem is a double close on the storage backend.
+
+
+-- Fri, 20 Mar 2009 12:57:42 -0000 by deveiant (r98) -----
+   Added:   docs/sync-to-deveiate.sh (new)
+   Changed: /trunk
+            docs/Redleaf Design Diagrams.graffle
+            spec/data
+
+    * Manual diagram work
+    * Added my online manual rsync script to docs/
+
+
+-- Thu, 19 Mar 2009 17:20:27 -0000 by deveiant (r97) -----
+   Added:   docs/manual/src/tour/parsing.page (new)
+   Changed: docs/manual/src/index.page
+            docs/manual/src/tour/iteration.page
+            docs/manual/src/design.page
+            docs/manual/src/about.page
+            Rakefile
+            docs/manual/src/tour/querying.page (and 8 other/s)
+
+    * Updated build system
+    * Fixed the block-style Redleaf::Utils.register_new_class, which was ignoring
+    the block.
+    * Manual work
+
+
+-- Tue, 17 Mar 2009 16:53:12 -0000 by mahlon (r95) -----
+   Changed: spec/redleaf/store/hashes_spec.rb
+            lib/redleaf/store/hashes.rb
+            ChangeLog
+            lib/redleaf/store/postgresql.rb
+
+    * Small whitespace fixes.
+    * Add Redleaf::Loggable to the Redleaf::HashesStore.
+    * Break the option normalization into a class method, that better matches
+    idiomatic behaviors for Redland bdb instantiation in ruby.
+
+
+-- Tue, 17 Mar 2009 16:49:04 -0000 by deveiant (r94) -----
+   Changed: spec/redleaf/store_spec.rb
+            lib/redleaf/store.rb
+
+    * Added a ::load method to Redleaf::Store that's analogous to its ::create method, but creates
+    the instance via the subordinate class's ::load method instead of ::new.
+
+
+-- Mon, 16 Mar 2009 16:16:25 -0000 by mahlon (r91) -----
+   Changed: spec/redleaf/store_spec.rb
+            lib/redleaf/store.rb
+            ChangeLog
+
+   * Alias Redleaf::Store#is_supported? to Redleaf::Store#supported?.
+   * Add optional argument to Redleaf::Store#is_supported? to explicitly check for a certain type of store.
+   * Put my name back because I finally contributed something besides verbal abuse  :D
+
+
+-- Fri, 13 Mar 2009 23:44:04 -0000 by deveiant (r90) -----
+   Changed: Rakefile
+
+   Updated build system.
+
+
+-- Thu, 12 Mar 2009 17:14:17 -0000 by deveiant (r89) -----
+   Changed: Rakefile
+            docs/manual/src/tour/statements.page
+            docs/manual/resources/css/manual.css
+
+    * Updated the build system
+    * Tweaked the examples CSS
+
+
 -- Thu, 12 Mar 2009 16:31:45 -0000 by deveiant (r88) -----
    Changed: ext/store.c
             examples/redleaf_skos.rb

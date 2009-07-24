@@ -184,7 +184,7 @@ end
 
 
 if __FILE__ == $0
-	Redleaf.logger.level = Logger::DEBUG
+	# Redleaf.logger.level = Logger::DEBUG
 	test_concept = "http://www.ukat.org.uk/thesaurus/concept/1366"
 
 	sources = [
@@ -212,3 +212,32 @@ if __FILE__ == $0
 
 end
 
+# Outputs:
+# 
+# test concept is http://www.ukat.org.uk/thesaurus/concept/1366 Agronomy
+#   narrower: http://www.ukat.org.uk/thesaurus/concept/2509 Cultivation
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/12697 Cotton growing
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/4635 Dry farming
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/2523 Food production
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/2641 Harvesting
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/16008 Hop growing
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/16360 Osier growing
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/16680 Seed growing
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/5563 Shifting cultivation
+#   narrower: http://www.ukat.org.uk/thesaurus/concept/6063 Horticulture
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/12048 Arboriculture
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/15902 Fruit growing
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/13685 Nurseries (Horticulture)
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/16896 Viticulture
+#   narrower: http://www.ukat.org.uk/thesaurus/concept/1333 Pest control
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/20978 Fungicide use
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/21037 Herbicide use
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/3038 Insect control
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/21098 Insecticide use
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/21323 Pesticide use
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/4527 Pests
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/21447 Rodent control
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/21509 Sheep dipping
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/21558 Spraying (pesticides)
+#     narrower: http://www.ukat.org.uk/thesaurus/concept/21677 Weedkiller use
+#   narrower: http://www.ukat.org.uk/thesaurus/concept/4216 Weed control

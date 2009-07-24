@@ -33,7 +33,7 @@ end
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-describe Redleaf::Parser do
+describe "W3C RDF Test Suite: Parser Tests" do
 	include Redleaf::SpecHelpers
 
 	BASE_URI = 'http://www.w3.org/2000/10/rdf-tests/rdfcore/testSchema#'
@@ -65,7 +65,7 @@ describe Redleaf::Parser do
 		inputuri = "file:#{inputfile}"
 		lambda {
 			@rdfxml_parser.parse( inputfile.read, inputuri )
-		}.should raise_error( Redleaf::ParseError, /failed to parse/ )
+		}.should raise_error( Redleaf::ParseError )
 	end
 <% else %>
 	it "correctly parses the document '<%= example.input_doc %>'" do

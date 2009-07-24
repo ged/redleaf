@@ -1,7 +1,7 @@
 ---
 title: The Node Type System
 layout: default
-index: 3
+index: 5
 filters:
   - erb
   - links
@@ -9,26 +9,52 @@ filters:
   - editorial
   - api
   - textile
+example_prelude: |-
+  require 'redleaf'
 ---
 
 h2. <%= page.config['title'] %>
 
-As mentioned in the <?link "Design Overview":design.page ?>, Redleaf is intended to be used naturally from within Ruby, and to do so provides conversion of regular Ruby objects to equivalent nodes in RDF and vice-versa. This type system is extensible, meaning you can add translations for your own object classes. For instance, if you wanted to store employees in the graph, but wanted to do so as instances of an already-existing domain class called @Company::Employee@, you could do so like this:
+As mentioned in the <?link "Design Overview":design.page ?>, Redleaf is intended to be used naturally from within Ruby, and to do so provides conversion of regular Ruby objects to equivalent nodes in RDF and vice-versa. This type system is extensible, meaning you can add translations for your own object classes. You just need to tell Redleaf how to convert an object of that type to its "canonical representation":http://www.w3.org/TR/xmlschema11-2/#dt-lexical-mapping as a typed literal and back again.
 
-<?example { language: ruby, caption: "Declare a custom mapping from a literal datatype to a Ruby class", testable: true } ?>
-require 'redleaf'
-company = Redleaf::Namespace[ 'http://company.com/ns/' ]
+For instance, if you wanted to store @IPAddr@ objects in the graph, and wanted them to map back to @IPAddr@ instances when they came back into Ruby:
 
-# Make employees serialize correctly when appended to the graph as objects
-Redleaf::NodeUtils.register_new_class( Company::Employee, company[:employee] ) do |employee|
-	employee.name
+<?example { language: ruby, caption: "Declare a custom mapping for <code>IPAddr</code> objects", testable: true } ?>
+require 'ipaddr'
+
+# There's almost certainly an actual URI for IP addresses, but I 
+# can't find it
+IANA_NUMBERS = Redleaf::Namespace.new( 'http://www.iana.org/numbers/' )
+
+Redleaf::NodeUtils.register_new_class( IPAddr, IANA_NUMBERS[:ipaddr] ) do |addr|
+	af = case addr.family
+	     when Socket::AF_INET then "ipv4"
+	     when Socket::AF_INET6 then "ipv6"
+	     else "unknown" end
+	ip = addr.to_string
+
+	# Regretably the only way to actually get the mask_addr as a string
+	mask = addr.send( :_to_string, addr.instance_variable_get(:@mask_addr) )
+
+	"%s:%s/%s" % [ af, ip, mask ]
 end
 
-# Make literal nodes in the graph with the type 'http://company.com/ns/employee'
-# generate the equivalent Ruby object when fetched from the graph
-Redleaf::NodeUtils.register_new_type( company[:employee] ) do |literal_string|
-	Company::Employee.find_by_name( literal_string )
+Redleaf::NodeUtils.register_new_type( IANA_NUMBERS[:ipaddr] ) do |literal_string|
+	IPAddr.new( literal_string[/.*:(.*)/, 1] )
 end
+
+addr = IPAddr.new( '192.168.16.96/27' )   # =>
+
+# Make a tuple that contains the typed literal's type URI and its 
+# canonical representation
+literal = Redleaf::NodeUtils.make_object_typed_literal( addr )
+literal # =>
+
+# Now translate that tuple back to a Ruby object
+obj = Redleaf::NodeUtils.make_typed_literal_object( *literal )
+p obj
+obj  # =>
+
 <?end ?>
 
 This assumes that each employee's @name@ attribute is unique, but you can use anything you like as the string representation in the graph, <?ed verify:"as long as it is canonical" ?>.

@@ -37,9 +37,7 @@ namespace :spec do
 	task :quiet => [ :build ]
 	task :html  => [ :build ]
 	task :text  => [ :build ]
-end
 
-namespace :spec do
 	desc "Run specs under gdb"
 	task :gdb do |task|
 		require 'tempfile'
@@ -48,7 +46,7 @@ namespace :spec do
 	    cmd_parts << '-Ilib:ext'
 	    cmd_parts << '/usr/bin/spec'
 	    cmd_parts += SPEC_FILES.collect { |fn| %["#{fn}"] }
-	    cmd_parts += COMMON_SPEC_OPTS
+	    cmd_parts += COMMON_SPEC_OPTS + ['-f', 's', '-c']
 
 		script = Tempfile.new( 'spec-gdbscript' )
 		script.puts( cmd_parts.join(' ') )
@@ -57,6 +55,10 @@ namespace :spec do
 		run 'gdb', '-x', script.path, RUBY
 	end
 end
+
+# Nasty, I know, but I can't find any builtin way to prepend a prerequisite
+#Rake::Task[ 'manual:build' ].prerequisites.unshift( 'rake:build' )
+
 
 desc "Make the Makefile for the C extension"
 file EXT_MAKEFILE.to_s => EXT_SOURCES do
