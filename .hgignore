@@ -7,3 +7,4 @@ docs/api
 \.(bundle|dll|so)$
 \.db$
 ^commit-msg\.txt$
+test-config\.yml$
