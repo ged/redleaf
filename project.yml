@@ -20,9 +20,8 @@ additional_pkgfiles:
 - examples/*.rb
 dev_dependencies: 
   rubyzip: ">= 0.9.1"
-authors:
+authors: 
   Michael Granger: ged@FaerieMUD.org
-
 post_install_message: |-
   Thanks for installing Redleaf!
   

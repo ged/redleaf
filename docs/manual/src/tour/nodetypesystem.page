@@ -26,6 +26,7 @@ require 'ipaddr'
 # can't find it
 IANA_NUMBERS = Redleaf::Namespace.new( 'http://www.iana.org/numbers/' )
 
+# Make a canonical string representation for both ipv4 and ipv6 addresses
 Redleaf::NodeUtils.register_new_class( IPAddr, IANA_NUMBERS[:ipaddr] ) do |addr|
 	af = case addr.family
 	     when Socket::AF_INET then "ipv4"
@@ -33,7 +34,7 @@ Redleaf::NodeUtils.register_new_class( IPAddr, IANA_NUMBERS[:ipaddr] ) do |addr|
 	     else "unknown" end
 	ip = addr.to_string
 
-	# Regretably the only way to actually get the mask_addr as a string
+	# Regretably the only way I could find to get the mask_addr as a string
 	mask = addr.send( :_to_string, addr.instance_variable_get(:@mask_addr) )
 
 	"%s:%s/%s" % [ af, ip, mask ]
@@ -51,11 +52,11 @@ literal = Redleaf::NodeUtils.make_object_typed_literal( addr )
 literal # =>
 
 # Now translate that tuple back to a Ruby object
-obj = Redleaf::NodeUtils.make_typed_literal_object( *literal )
-p obj
-obj  # =>
-
+literal_string, typeuri = *literal
+Redleaf::NodeUtils.make_typed_literal_object( typeuri, literal_string )
+# => 
 <?end ?>
 
-This assumes that each employee's @name@ attribute is unique, but you can use anything you like as the string representation in the graph, <?ed verify:"as long as it is canonical" ?>.
+The type-conversion system is still experimental. We'd welcome your input on ways to make it better, appropriate defaults, etc.
+
 

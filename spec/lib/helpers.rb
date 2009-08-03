@@ -86,7 +86,7 @@ module Redleaf::SpecHelpers
 			logdevice = ArrayLogger.new( Thread.current['logger-output'] )
 			Redleaf.logger = Logger.new( logdevice )
 			# Redleaf.logger.level = level
-			Redleaf.logger.formatter = Redleaf::HtmlLogFormatter.new( logger )
+			Redleaf.logger.formatter = Redleaf::HtmlLogFormatter.new( Redleaf.logger )
 		end
 	end
 

@@ -6,6 +6,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	
 	<script type="text/javascript" src="<%= @basepath %>/js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="<%= @basepath %>/js/sh.js"></script>
 	<script type="text/javascript" src="<%= @basepath %>/js/manual.js"></script>
 
     <link rel="stylesheet" type="text/css" href="<%= @basepath %>/css/manual.css"
@@ -32,7 +33,7 @@
  
 	<div id="footer">
 		<div class="copyright">Copyright &copy; 2008-<%= Time.now.year %> Michael Granger.</div>
-		<div class="svnid">$Id$</div>
+		<div class="vcsid">$rev$</div>
 		<div class="timestamp">Built: <%= Time.now.strftime("%Y%m%d %H:%M:%S %Z") %></div>
 	</div>
 	

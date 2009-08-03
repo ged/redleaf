@@ -1,0 +1,9 @@
+docs/manual/output
+docs/api
+^ext/Makefile$
+^ext/conftest\.dSYM/
+\.o$
+\.log$
+\.(bundle|dll|so)$
+\.db$
+^commit-msg\.txt$
