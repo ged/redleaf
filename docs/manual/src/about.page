@@ -51,7 +51,7 @@ h3. Project Resources
 
 A bug tracker, a wiki with developer notes and ideas, and other such resources are available on "the project's Trac site":http://deveiate.org/projects/Redleaf.
 
-You can check out the latest source via subversion at: "svn://deveiate.org/Redleaf/trunk":svn://deveiate.org/Redleaf/trunk
+You can check out the latest source via "Mercurial":http://www.selenic.com/mercurial/ at: "http://repo.deveiate.org/Redleaf":http://repo.deveiate.org/Redleaf
 
 
 h3. Authors
@@ -61,7 +61,7 @@ h3. Authors
 
 h3. License
 
-Copyright © 2008, 2009  Michael Granger <ged@FaerieMUD.org>
+Copyright © 2008, 2009  Michael Granger
 
 All rights reserved.
 

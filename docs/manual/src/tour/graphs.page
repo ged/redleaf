@@ -114,11 +114,37 @@ h4(#indexop). The @#search@ Method
 The easiest way is to use the @#search@ method, which takes a subject, a predicate, and an object that specify what triples to search for. Any of those three that are @nil@ will be treated as a wildcard, and will match any value for that part of the triples it finds.
 
 <?example { language: ruby, caption: "Searching for triples.", testable: true } ?>
+graph = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+graph <<
+	[ exstaff["85740"],  exterms[:address],    :johnaddress ] <<
+	[ :johnaddress,      exterms[:street],     "1501 Grant Avenue" ] <<
+	[ :johnaddress,      exterms[:city],       "Bedford" ] <<
+	[ :johnaddress,      exterms[:state],      "Massachusetts" ] <<
+	[ :johnaddress,      exterms[:postalCode], "01730" ]
+
+graph.search( nil, exterms[:city], 'Bedford' )
+# =>
 <?end?>
 
 The @#search@ method is also aliased to @#[]@, so searching a graph looks much the same as appending a triple to it:
 
 <?example { language: ruby, caption: "Searching for triples with #[].", testable: true } ?>
+graph = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+graph <<
+	[ exstaff["85740"],  exterms[:address],    :johnaddress ] <<
+	[ :johnaddress,      exterms[:street],     "1501 Grant Avenue" ] <<
+	[ :johnaddress,      exterms[:city],       "Bedford" ] <<
+	[ :johnaddress,      exterms[:state],      "Massachusetts" ] <<
+	[ :johnaddress,      exterms[:postalCode], "01730" ]
+
+graph[ nil, exterms[:postalCode], nil ]
+# =>
 <?end?>
 
 h4(#enumerable). Graphs are Enumerable

@@ -15,7 +15,8 @@
 <body class="manual intro">
 
 	<div id="intro-header">
-		<img src="<%= @basepath %>/images/redleaf-small.png" width="203" height="324" alt="small red leaves" />
+		<img src="<%= @basepath %>/images/redleaf-small.png" width="259" height="200" 
+			alt="Redleaf Logo" />
 		<h1>Redleaf</h1>
 		<p class="version">Version: <%= metadata.version %></p>
 	</div>

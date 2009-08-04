@@ -1,4 +1,7 @@
-/* @override http://tenar.home.faeriemud.org/Redleaf/css/manual.css */
+/* @override 
+	http://tenar.home.faeriemud.org/Redleaf/css/manual.css
+	http://gont.ljc.laika.com/Redleaf/css/manual.css
+*/
 
 /* 
  *	Redleaf Manual Stylesheet
@@ -264,8 +267,8 @@ td, th {
 
 #footer {
 	margin: 2em 0 0;
-	background-color: #fff;
-	border-top: 1px solid #c0c0d5;
+	background-color: #484860;
+	border-top: 1px solid #484860;
 	-webkit-box-shadow: 0 -2px 5px rgba( 25,25,25, 0.4 );
 	padding: 0;
 	font-size: 0.75em;
@@ -273,23 +276,25 @@ td, th {
 	left: 0;
 	bottom: 0;
 	width: 100%;
+	color: #f3f3f3;
 }
 
 #footer p {
 	margin: 0;
+	padding: 0 1em;
 }
 #footer .copyright {
 	position: absolute;
-	left: 0;
+	left: 1em;
 	top: 0.5em;
 }
-#footer .svnid {
+#footer .vcsid {
 	margin: 0.5em auto;
 	text-align: center;
 }
 #footer .timestamp {
 	position: absolute;
-	right: 0;
+	right: 1em;
 	top: 0.5em;
 }
 
@@ -501,6 +506,10 @@ pre.console-output {
 
 .syntaxhighlighter .italic {
 	font-style: italic;
+}
+
+.syntaxhighlighter .line {
+	clear: left;
 }
 
 .syntaxhighlighter .line .number

@@ -61,7 +61,7 @@ require 'redleaf/store/hashes'
 #    redleaf.release = [ version_0_0_1 ]
 #    
 #    repo = SVNRepository.new(
-#    	:location => URI('http://svn://deveiate.org/Redleaf'),
+#    	:location => URI('http://repo.deveiate.org/Redleaf'),
 #    	:browse => URI('http://deveiate.org/projects/Redleaf/browser')
 #      )
 #    redleaf.repository = [ repo ]

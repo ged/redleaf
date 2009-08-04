@@ -8,3 +8,8 @@ docs/api
 \.db$
 ^commit-msg\.txt$
 test-config\.yml$
+^\.DS_Store$
+^docs/\.DS_Store$
+^docs/manual/\.DS_Store$
+^docs/manual/resources/\.DS_Store$
+^docs/manual/resources/images/\.DS_Store$

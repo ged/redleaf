@@ -27,10 +27,10 @@
       </Version>
     </release>
     <repository>
-      <SVNRepository>
-        <location rdf:resource="http://svn://deveiate.org/Redleaf"/>
+      <MercurialRepository>
+        <location rdf:resource="http://repo.deveiate.org/Redleaf"/>
         <browse rdf:resource="http://deveiate.org/projects/Redleaf/browser"/>
-      </SVNRepository>
+      </MercurialRepository>
     </repository>
     <maintainer>
       <foaf:Person>
