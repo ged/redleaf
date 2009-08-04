@@ -14,3 +14,4 @@ test-config\.yml$
 ^docs/manual/resources/\.DS_Store$
 ^docs/manual/resources/images/\.DS_Store$
 ^ChangeLog
+~$
