@@ -77,6 +77,15 @@ p, ul {
 	line-height: 1.5;
 }
 
+blockquote {
+	color: #666;
+	border: 1px solid #ccc;
+	background-color: #ddd;
+	margin: 0;
+	padding: 0 2em;
+	border-left-width: 5px;
+}
+
 li {
 	margin: 0.5em 0;
 }

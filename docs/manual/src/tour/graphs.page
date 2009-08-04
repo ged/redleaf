@@ -168,6 +168,46 @@ If you require a more exact way to search your graph, Redland also comes with a 
 
 There are four kinds of responses you can expect from a query, all of which are specializations of the <?api Redleaf::QueryResult ?> class; which one will be returned depends on what kind of query you use:
 
+h4(#select-queries). @SELECT@ Queries
+
+From "the W3C recommendation":http://www.w3.org/TR/rdf-sparql-query/#select:
+
+bq. The SELECT form of results returns variables and their bindings directly. The syntax SELECT * is an abbreviation that selects all of the variables in a query.
+
+Returns a <?api Redleaf::BindingQueryResult ?>:
+
+<?example { language: ruby, caption: "A simple SELECT SPARQL query.", testable: true } ?>
+graph = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+graph <<
+  [ myfoaf[:me], RDF[:type], FOAF[:Person] ] <<
+  [ myfoaf[:me], FOAF[:name], "Michael Granger" ] <<
+  [ myfoaf[:me], FOAF[:homepage], URI('http://deveiate.org/') ]
+  [ myfoaf[:me], FOAF[:myersBriggs], 'INTP' ]
+
+sparql = <<-END_SPARQL
+PREFIX exstaff <#{exstaff}>
+PREFIX exterms <#{exstaff}>
+
+SELECT 
+END_SPARQL
+<?end?>
+
+
+h4(#construct-queries). @CONSTRUCT@ 
+
+Returns a <?api Redleaf::GraphQueryResult ?>
+
+h4(#ask-queries). @ASK@ 
+
+Returns a <?api Redleaf::BooleanQueryResult ?>
+
+h4(#describe-queries). @DESCRIBE@ 
+
+Returns a <?api Redleaf::SyntaxQueryResult ?>
+
 - @SELECT@ := Returns a <?api Redleaf::BindingQueryResult ?>
 - @CONSTRUCT@ := Returns a <?api Redleaf::GraphQueryResult ?>
 - @ASK@ := Returns a <?api Redleaf::BooleanQueryResult ?>
