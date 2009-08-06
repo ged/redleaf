@@ -385,6 +385,20 @@ rleaf_redleaf_graph_statements( VALUE self ) {
 
 
 /*
+ * TODO: Support hash-append like this:
+ *     
+ *     graph << {
+ *       michael => {
+ *         RDF[:type] => FOAF[:Person],
+ *         FOAF[:knows] => {
+ *           RDF[:type] => FOAF[:Person],
+ *           FOAF[:givenname] => "Mahlon",
+ *           FOAF[:family_name] => "Smith",
+ *         }
+ *     }
+ */
+
+/*
  *  call-seq:
  *     graph.append( *statements )   -> Redleaf::Graph
  *     graph << statement            -> Redleaf::Graph
@@ -405,16 +419,6 @@ rleaf_redleaf_graph_statements( VALUE self ) {
  *     graph.append( statement1, statement2 )
  *     
  *     graph << [ michael, FOAF[:homepage], URI('http://deveiate.org/') ]
- *     
- *     graph << {
- *       michael => {
- *         RDF[:type] => FOAF[:Person],
- *         FOAF[:knows] => {
- *           RDF[:type] => FOAF[:Person],
- *           FOAF[:givenname] => "Mahlon",
- *           FOAF[:family_name] => "Smith",
- *         }
- *     }
  *     
  */
 static VALUE
@@ -438,9 +442,6 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 				rb_raise( rb_eArgError, "Statement must have three elements." );
 			statement = rb_class_new_instance( 3, RARRAY_PTR(statement), rleaf_cRedleafStatement );
 			/* fallthrough */
-		
-			case T_HASH:
-			
 		
 			case T_DATA:
 			if ( CLASS_OF(statement) != rleaf_cRedleafStatement )

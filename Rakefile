@@ -105,9 +105,9 @@ RAKE_TASKLIBS_URL = 'http://repo.deveiate.org/rake-tasklibs'
 LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
 
 EXTRA_PKGFILES = Rake::FileList.new
-EXTRA_PKGFILES.include "#{BASEDIR}/spec/templates"
-EXTRA_PKGFILES.include "#{BASEDIR}/spec/spec_generator.rb"
-EXTRA_PKGFILES.include "#{BASEDIR}/examples/*.rb"
+EXTRA_PKGFILES.include( "#{BASEDIR}/spec/templates" )
+EXTRA_PKGFILES.include( "#{BASEDIR}/spec/spec_generator.rb" )
+EXTRA_PKGFILES.include( "#{BASEDIR}/examples/*.rb" )
 
 RELEASE_FILES = TEXT_FILES + 
 	SPEC_FILES + 
@@ -118,6 +118,9 @@ RELEASE_FILES = TEXT_FILES +
 	DATA_FILES + 
 	RAKE_TASKLIBS +
 	EXTRA_PKGFILES
+
+RELEASE_FILES.exclude( "#{BASEDIR}/lib/redleaf/archetypes*" )
+RELEASE_FILES.exclude( "#{BASEDIR}/spec/redleaf/archetypes*" )
 
 RELEASE_FILES << LOCAL_RAKEFILE.to_s if LOCAL_RAKEFILE.exist?
 

@@ -10,9 +10,15 @@ require 'redleaf/exceptions'
 require 'redleaf/store/hashes'
 
 
-# A meta-mixin that adds the ability to describe a class's structure in terms of
-# RDF classes.
-#
+# An experimental meta-mixin that adds the ability to describe a
+# class's structure in terms of RDF classes.
+# 
+# For more on how this is intended to work, see: 
+# http://deveiate.org/projects/Redleaf/wiki/Archetypes
+# 
+# *This module is not yet functional, and should not be distributed with
+# releases, or counted on for its interface.*
+# 
 # = Example
 # 
 #    require 'redleaf/archetypes'
@@ -71,12 +77,12 @@ require 'redleaf/store/hashes'
 module Redleaf::Archetypes
 	include Redleaf::Loggable
 
-	
+
 	### The methods to add to including classes
 	module ClassMethods
 
 		attr_accessor :archetypes
-		
+
 		### Add an Archetype for the RDF Class declared at the specified +uri+ to the
 		### receiving Class or Module.
 		def include_archetype( uri, options={} )
@@ -86,10 +92,10 @@ module Redleaf::Archetypes
 
 			Redleaf.logger.debug "Extending %p with %s" % [ self, uri ]
 		end
-		
+
 	end # module ClassMethods
 
-	
+
 	### Inclusion callback -- add the ability to declare Archetypes for the including Class or
 	### Module.
 	def self::included( mod )
@@ -115,8 +121,8 @@ module Redleaf::Archetypes
 			@store = Redland::HashesStore.load( @cachedb )
 			@graph = @store.graph
 		end
-		
-		
+
+
 		######
 		public
 		######
@@ -133,7 +139,7 @@ module Redleaf::Archetypes
 		### given +classuri+.
 		def make_module_for( classuri )
 			properties = nil
-			
+
 		end
 
 
@@ -155,9 +161,9 @@ module Redleaf::Archetypes
 				end
 			end
 
-			
+
 		end
-		
+
 
 		#######
 		private
@@ -178,10 +184,10 @@ module Redleaf::Archetypes
 
 			return vocabulary, typename
 		end
-		
-		
+
+
 	end # class MixinFactory
-	
+
 end # module Redleaf::Archetypes
 
 # vim: set nosta noet ts=4 sw=4:

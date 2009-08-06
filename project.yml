@@ -1,4 +1,7 @@
 --- 
+excluded_pkgfiles: 
+- lib/redleaf/archetypes*
+- spec/redleaf/archetypes*
 rubyforge_project: redleaf
 project_requirements: 
   Redland: ">= 1.0.8"

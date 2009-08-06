@@ -7,7 +7,7 @@ require 'erb'
 
 
 class SpecGenerator
-	
+
 	### Create a new SpecGenerator that will generate specs from the given
 	### +manifest+ file (e.g., the one at 
 	### http://www.w3.org/2000/10/rdf-tests/rdfcore/Manifest.rdf)
@@ -27,19 +27,19 @@ class SpecGenerator
 
 		examples.flatten!
 		examples.compact!
-		
+
 		outfile.open( File::CREAT|File::WRONLY|File::TRUNC ) do |fh|
 			# $stderr.puts "Examples are: %p" % [ examples ]
 			fh.print( template.result(binding()) )
 		end
 	end
-	
+
 
 	### Generate specs for the "Positive Parser Tests", limited to the ones marked
 	### as 'APPROVED' unless +approved_only+ is +false+.
 	def find_positive_parser_tests( approved_only=true )
 		tests = []
-		
+
 		@root.find( '//test:PositiveParserTest' ).each do |node|
 			test = PositiveParserTest.from_xml_node( node )
 			tests << test unless approved_only && !test.approved?
@@ -48,12 +48,12 @@ class SpecGenerator
 		return tests.flatten.compact
 	end
 
-	
+
 	### Generate specs for the "Negative Parser Tests", limited to the ones marked
 	### as 'APPROVED' unless +approved_only+ is +false+.
 	def find_negative_parser_tests( approved_only=true )
 		tests = []
-		
+
 		@root.find( '//test:NegativeParserTest' ).each do |node|
 			test = NegativeParserTest.from_xml_node( node )
 			tests << test unless approved_only && !test.approved?
@@ -61,13 +61,13 @@ class SpecGenerator
 
 		return tests.flatten.compact
 	end
-	
-	
+
+
 	### Generate specs for the "Positive Entailment Tests", limited to the ones marked
 	### as 'APPROVED' unless +approved_only+ is +false+.
 	def find_positive_entailment_tests( approved_only=true )
 		tests = []
-		
+
 		@root.find( '//test:PositiveEntailmentTest' ).each do |node|
 			test = PositiveEntailmentTest.from_xml_node( node )
 			tests << test unless approved_only && !test.approved?
@@ -75,12 +75,12 @@ class SpecGenerator
 
 		return tests.flatten.compact
 	end
-	
+
 	### Generate specs for the "Negative Entailment Tests", limited to the ones marked
 	### as 'APPROVED' unless +approved_only+ is +false+.
 	def find_negative_entailment_tests( approved_only=true )
 		tests = []
-		
+
 		@root.find( '//test:NegativeEntailmentTest' ).each do |node|
 			test = NegativeEntailmentTest.from_xml_node( node )
 			tests << test unless approved_only && !test.approved?
@@ -88,13 +88,13 @@ class SpecGenerator
 
 		return tests.flatten.compact
 	end
-	
-	
+
+
 	### Generate specs for the "Positive Parser Tests", limited to the ones marked
 	### as 'APPROVED' unless +approved_only+ is +false+.
 	def find_miscellaneous_tests( approved_only=true )
 		tests = []
-		
+
 		@root.find( '//test:MiscellaneousTest' ).each do |node|
 			test = MiscellaneousTest.from_xml_node( node )
 			tests << test unless approved_only && !test.approved?
@@ -136,12 +136,12 @@ class SpecGenerator
 			$stderr.puts "Error while parsing a %s from %s" % [ self.name, node ]
 			raise
 		end
-		
-		
+
+
 		### Extract the relative pathname of the premise or conclusion document from the specified
 		### +node+ an (XML::Node object for the premiseDocument or conclusionDocument element)
 		def self::extract_document( node )
-			
+
 			# "False-Document"
 			if doc = node.find_first( 'test:False-Document' )
 				return false
@@ -188,7 +188,7 @@ class SpecGenerator
 		def is_negative_test?
 			return @negative
 		end
-		
+
 
 		### Returns +true+ if the test is an approved one.
 		def approved?
@@ -200,13 +200,13 @@ class SpecGenerator
 		def testname
 			self.description.gsub( /\s+/, ' ' ).strip
 		end
-		
+
 	end # class W3CTest
 
-	
+
 	### Abstract base class for W3C parser tests
 	class ParserTest < W3CTest
-		
+
 		### Create a new parser test
 		def initialize( id, status, approval, description, issue, input_doc, output_doc )
 			super( id, status, approval, description, issue )
@@ -222,8 +222,8 @@ class SpecGenerator
 		attr_reader :input_doc, :output_doc
 
 	end # class SpecGenerator::ParserTest
-	
-	
+
+
 	# Positive parser test class
 	# Encapsulates a test in the manifest like:
 	#  <test:PositiveParserTest rdf:about="http://www.w3.org/2000/10/rdf-tests/rdfcore/xmlbase/Manifest.rdf#test011">
@@ -250,8 +250,8 @@ class SpecGenerator
 			return super( node, input_doc, output_doc )
 		end
 	end
-	
-	
+
+
 	# Negative parser test class
 	# Encapsulates a test in the manifest like:
     #   <test:NegativeParserTest rdf:about="http://www.w3.org/2000/10/rdf-tests/rdfcore/rdf-containers-syntax-vs-schema/Manifest.rdf#error001">
@@ -269,14 +269,14 @@ class SpecGenerator
     #   
     #   </test:NegativeParserTest>
 	class NegativeParserTest < ParserTest
-		
+
 		### Create a new NegativeParserTest from the given XML::Node object.
 		def self::from_xml_node( node )
 			input_doc   = node.find_first( 'test:inputDocument/test:RDF-XML-Document' )['about'][%r{/rdfcore/(.*)$}, 1]
 			return super( node, input_doc, nil )
 		end
-		
-		
+
+
 		### Create a new negative parser test
 		def initialize( *args )
 			super
@@ -318,7 +318,7 @@ class SpecGenerator
 		######
 
 		attr_reader :premise_doc, :conclusion_doc
-		
+
 	end # EntailmentTest
 
 
@@ -346,8 +346,8 @@ class SpecGenerator
     #   </test:PositiveEntailmentTest>
 	class PositiveEntailmentTest < EntailmentTest
 	end # class PositiveEntailmentTest
-	
-	
+
+
 	# Negative entailment test
 	# Encapsulates a test in the manifest like:
     #   <test:NegativeEntailmentTest rdf:about="http://www.w3.org/2000/10/rdf-tests/rdfcore/datatypes/Manifest.rdf#test009">
@@ -371,19 +371,19 @@ class SpecGenerator
     #   
     #   </test:NegativeEntailmentTest>
 	class NegativeEntailmentTest < EntailmentTest
-		
+
 		### Create a new NegativeEntailmentTest
 		def initialize( *args )
 			super
 			@negative = true
 		end
-		
+
 	end # class NegativeEntailmentTest
-	
-	
+
+
 	class MiscellaneousTest < W3CTest
 	end # MiscellaneousTest
-	
+
 
 end
 

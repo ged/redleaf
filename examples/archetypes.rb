@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
 
+# An experiment to determine how Archetypes will work (i.e, 
+# http://deveiate.org/projects/Redleaf/wiki/Archetypes)
+
 BEGIN {
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).expand_path.dirname.parent
 	libdir = basedir + 'lib'
 	extdir = basedir + 'ext'
-	
+
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
 }
@@ -39,7 +42,7 @@ end
 
 def make_module( classuri )
 	$stderr.puts "Creating a module for %p" % [ classuri ]
-	
+
 	props = $arch_graph.subjects( RDFS[:domain], classuri ).collect do |property|
 		name = property.fragment || property.path.sub( %r{.*/}, '' )
 		name.gsub!( /\W+/, '_' )
@@ -53,7 +56,7 @@ def make_module( classuri )
 
 	mod = Module.new
 	mod.module_eval( props.join("\n") )
-	
+
 	return mod
 end
 
@@ -73,7 +76,7 @@ class License
 	# include Redleaf::Architypes
 	# include_archetype CC[:License]
 	include CC_License
-	
+
 	def initialize( uri )
 		self.about = URI.new( uri )
 	end

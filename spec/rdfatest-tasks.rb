@@ -75,7 +75,7 @@ def fetch_rdfa_testdata( manifest, datadir )
 		if !input_file.exist?
 			download input_uri, input_file
 			trace "  sleeping for politeness..."
-			sleep 1
+			# sleep 1
 		else
 			trace "Reusing existing %s" % [ input_file ]
 		end
@@ -83,7 +83,7 @@ def fetch_rdfa_testdata( manifest, datadir )
 		if !result_file.exist?
 			download result_uri, result_file
 			trace "  sleeping for politeness..."
-			sleep 1
+			# sleep 1
 		else
 			trace "Reusing existing %s" % [ result_file ]
 		end
@@ -104,7 +104,7 @@ def write_specfile( examples, template, outfile )
 		comment = formatter.format( example[:purpose].strip )
 		trace "Comment is: %p" % [ comment ]
 		example[:comment] = comment.gsub( /^/m, "\t# " )
-		
+
 		example[:number] = example[:input].path[/(\d+)\.xhtml$/, 1].to_i
 		example[:pending] = PENDING_TESTS[ example[:number] ]
 	end
@@ -126,25 +126,25 @@ task :rdfatests => [ 'rdfatests:generate' ]
 begin
 	namespace :rdfatests do
 		task :default => :generate
-	
+
 		desc "Generate W3C RDFa test suite spec"
 		task :generate => RDFA_SPECFILE
 
-		desc "Download the RDFa test manifest file to #{RDFA_TEST_MANIFEST}"
+		# Download the RDFa test manifest file to #{RDFA_TEST_MANIFEST}"
 		file RDFA_TEST_MANIFEST do
 			download RDFA_TEST_MANIFEST_URI, RDFA_TEST_MANIFEST
 		end
 		CLOBBER.include( RDFA_TEST_MANIFEST )
 
 		directory RDFA_TEST_DATADIR.to_s
+		CLOBBER.include( RDFA_TEST_DATADIR )
 
-		desc "Download the RDFa test suite data into #{RDFA_TEST_DATADIR}"
+		# Download the RDFa test suite data into RDFA_TEST_DATADIR
 		task RDFA_TEST_DATAFILE => [RDFA_TEST_DATADIR, RDFA_TEST_MANIFEST] do
 			fetch_rdfa_testdata( RDFA_TEST_MANIFEST, RDFA_TEST_DATADIR )
 		end
-		CLOBBER.include( RDFA_TEST_DATADIR + '*.{xhtml,sparql}' )
 
-		desc "Generate the W3C XHTML1 RDFa spec file"
+		# Generate the W3C XHTML1 RDFa spec file
 		file RDFA_SPECFILE => [ RDFA_TEST_MANIFEST, RDFA_TEST_DATAFILE, RDFA_SPEC_TEMPLATE ] do
 			examples = find_approved_tests( RDFA_TEST_MANIFEST )
 			write_specfile( examples, RDFA_SPEC_TEMPLATE, RDFA_SPECFILE )
@@ -152,13 +152,13 @@ begin
 		CLOBBER.include( RDFA_SPECFILE )
 
 	end
-	
+
 rescue LoadError => err
 	namespace :rdfatests do
 		task :no_rdfatests do
 			fail "RDFA specs not defined: %s: %s" % [ err.class.name, err.message ]
 		end
-		
+
 		task :run => :no_rdfatests
 		task :generate => :no_rdfatests
 	end

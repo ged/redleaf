@@ -43,13 +43,14 @@ begin
 		require 'zip/zip'
 
 		task :default => :generate
-	
+
 		# Generate the three spec files
 		desc "Generate W3C specs"
 		task :generate => [ PARSER_SPECFILE, ENTAILMENT_SPECFILE, MISCELLANEOUS_SPECFILE ]
 
 		# The spec/data directory
 		directory W3C_TEST_DIR.to_s
+		CLOBBER.include( W3C_TEST_DIR )
 
 		# Download the latest testcase zipfile
 		file TESTCASE_ARCHIVE => W3C_TEST_DIR do
@@ -74,8 +75,8 @@ begin
 			touch( W3C_TEST_MANIFEST, :verbose => $trace )
 		end
 
-		
-		
+
+
 		# The specfile that runs examples built from the 'parser' W3C testcases
 		file PARSER_SPECFILE => [ PARSER_SPEC_TEMPLATE, W3C_TEST_MANIFEST ] do
 			gen = SpecGenerator.new( W3C_TEST_MANIFEST )
@@ -114,13 +115,13 @@ begin
 		CLOBBER.include( MISCELLANEOUS_SPECFILE )
 
 	end
-	
+
 rescue LoadError => err
 	namespace :w3ctests do
 		task :no_w3ctests do
 			fail "W3C specs not defined: %s: %s" % [ err.class.name, err.message ]
 		end
-		
+
 		task :run => :no_w3ctests
 		task :generate => :no_w3ctests
 	end

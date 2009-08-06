@@ -54,42 +54,42 @@ describe Redleaf::Archetypes do
 		klass = Class.new do
 			include Redleaf::Archetypes
 		end
-		
+
 		klass.should respond_to( :include_archetype )
 	end
 
 
 	describe "-enabled class" do
-		
+
 		before( :each ) do
 			setup_logging( :fatal )
-			
+
 			@extended_class = Class.new do
 				include Redleaf::Archetypes, Redleaf::Constants::CommonNamespaces
 			end
-			
+
 			Redleaf::Graph.stub!( :load )
 		end
-		
+
 		after( :each ) do
 			reset_logging()
 		end
-		
-		
+
+
 		it "can add an archetype to itself" do
 			@extended_class.module_eval do
 				include_archetype DOAP[:Project]
 			end
 			@extended_class.archetypes.keys.should include( DOAP[:Project] )
 		end
-		
+
 		it "can add an archetype to itself as a string" do
 			@extended_class.module_eval do
 				include_archetype DOAP[:Project].to_s
 			end
 			@extended_class.archetypes.keys.should include( DOAP[:Project] )
 		end
-		
+
 		it "can add multiple archetypes to itself" do
 			@extended_class.module_eval do
 				include_archetype DOAP[:Project]
@@ -98,7 +98,7 @@ describe Redleaf::Archetypes do
 			@extended_class.archetypes.should have(2).members
 			@extended_class.archetypes.keys.should include( DOAP[:Project], FOAF[:Project] )
 		end
-		
+
 		it "can include superclasses when adding archetypes to itself" do
 			pending "completion of the archetypes system"
 			@extended_class.module_eval do
@@ -107,12 +107,12 @@ describe Redleaf::Archetypes do
 			@extended_class.archetypes.should have(2).members
 			@extended_class.archetypes.keys.should include( DOAP[:Project], FOAF[:Project] )
 		end
-		
+
 	end
-	
-	
+
+
 	describe Redleaf::Archetypes::MixinFactory do
-		
+
 		before( :each ) do
 			@store = mock( "archetypes store" )
 			@graph = mock( "archetypes graph" )
@@ -122,7 +122,7 @@ describe Redleaf::Archetypes do
 
 		it "fetches the vocabulary from the store if the store has it" do
 		end
-		
+
 	end
 end
 
