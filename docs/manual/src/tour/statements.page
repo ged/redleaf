@@ -78,8 +78,10 @@ include Redleaf::Constants::CommonNamespaces
 paper = URI( 'http://www.ics.uci.edu/~fielding/pubs/dissertation/' )
 
 st = Redleaf::Statement.new( paper, DC[:creator], "Roy T. Fielding" )
+# => 
 st2 = Redleaf::Statement.new( paper, DC[:title], "Architectural Styles and the Design " +
  	"of Network-based Software Architectures" )
+# => 
 <?end?>
 
 h4(#blanknodes). Blank Nodes

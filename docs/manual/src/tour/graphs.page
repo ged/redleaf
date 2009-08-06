@@ -114,11 +114,37 @@ h4(#indexop). The @#search@ Method
 The easiest way is to use the @#search@ method, which takes a subject, a predicate, and an object that specify what triples to search for. Any of those three that are @nil@ will be treated as a wildcard, and will match any value for that part of the triples it finds.
 
 <?example { language: ruby, caption: "Searching for triples.", testable: true } ?>
+graph = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+graph <<
+	[ exstaff["85740"],  exterms[:address],    :johnaddress ] <<
+	[ :johnaddress,      exterms[:street],     "1501 Grant Avenue" ] <<
+	[ :johnaddress,      exterms[:city],       "Bedford" ] <<
+	[ :johnaddress,      exterms[:state],      "Massachusetts" ] <<
+	[ :johnaddress,      exterms[:postalCode], "01730" ]
+
+graph.search( nil, exterms[:city], 'Bedford' )
+# =>
 <?end?>
 
 The @#search@ method is also aliased to @#[]@, so searching a graph looks much the same as appending a triple to it:
 
 <?example { language: ruby, caption: "Searching for triples with #[].", testable: true } ?>
+graph = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+graph <<
+	[ exstaff["85740"],  exterms[:address],    :johnaddress ] <<
+	[ :johnaddress,      exterms[:street],     "1501 Grant Avenue" ] <<
+	[ :johnaddress,      exterms[:city],       "Bedford" ] <<
+	[ :johnaddress,      exterms[:state],      "Massachusetts" ] <<
+	[ :johnaddress,      exterms[:postalCode], "01730" ]
+
+graph[ nil, exterms[:postalCode], nil ]
+# =>
 <?end?>
 
 h4(#enumerable). Graphs are Enumerable
@@ -142,12 +168,52 @@ If you require a more exact way to search your graph, Redland also comes with a 
 
 There are four kinds of responses you can expect from a query, all of which are specializations of the <?api Redleaf::QueryResult ?> class; which one will be returned depends on what kind of query you use:
 
+h4(#select-queries). @SELECT@ Queries
+
+From "the W3C recommendation":http://www.w3.org/TR/rdf-sparql-query/#select:
+
+bq. The SELECT form of results returns variables and their bindings directly. The syntax SELECT * is an abbreviation that selects all of the variables in a query.
+
+Returns a <?api Redleaf::BindingQueryResult ?>:
+
+<?example { language: ruby, caption: "A simple SELECT SPARQL query.", testable: true } ?>
+graph = Redleaf::Graph.new
+exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
+exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+
+graph <<
+  [ myfoaf[:me], RDF[:type], FOAF[:Person] ] <<
+  [ myfoaf[:me], FOAF[:name], "Michael Granger" ] <<
+  [ myfoaf[:me], FOAF[:homepage], URI('http://deveiate.org/') ]
+  [ myfoaf[:me], FOAF[:myersBriggs], 'INTP' ]
+
+sparql = <<-END_SPARQL
+PREFIX exstaff <#{exstaff}>
+PREFIX exterms <#{exstaff}>
+
+SELECT 
+END_SPARQL
+<?end?>
+
+
+h4(#construct-queries). @CONSTRUCT@ 
+
+Returns a <?api Redleaf::GraphQueryResult ?>
+
+h4(#ask-queries). @ASK@ 
+
+Returns a <?api Redleaf::BooleanQueryResult ?>
+
+h4(#describe-queries). @DESCRIBE@ 
+
+Returns a <?api Redleaf::SyntaxQueryResult ?>
+
 - @SELECT@ := Returns a <?api Redleaf::BindingQueryResult ?>
 - @CONSTRUCT@ := Returns a <?api Redleaf::GraphQueryResult ?>
 - @ASK@ := Returns a <?api Redleaf::BooleanQueryResult ?>
 - @DESCRIBE@ := Returns a <?api Redleaf::SyntaxQueryResult ?>
 
-These four result types have different result data (e.g., @BindingQueryResult@s have _bindings_ which map to keywords in the query, whereas @BooleanQueryResult@s just contain @true@ or @false@), but all of them support the @Enumerable@ interface. See the individual API documentation for more on how to use the result type you're expecting.
+These four result types have different result data (e.g., @BindingQueryResult@ objects have _bindings_ which map to keywords in the query, whereas @BooleanQueryResult@ objects just contain @true@ or @false@). All of them support the @Enumerable@ interface, however. See the individual API documentation for more on how to use the result type you're expecting.
 
 h4(#query-result-formatters). Formatting Query Results
 
@@ -168,9 +234,9 @@ pp Redleaf::QueryResult.formatters
 # 	   :label=>"JSON"}}
 <?end?>
 
-There are convenience methods (@#to_json@ and @#to_xml@) for formatting results in one of the two common formats:
+There are convenience methods (@#to_json@ and @#to_xml@) for formatting results as well:
 
-<?example { language: ruby, caption: "Checking available query result formatters.", testable: true } ?>
+<?example { language: ruby, caption: "Getting search results as JSON.", testable: true } ?>
 require 'redleaf/constants'
 include Redleaf::Constants::CommonNamespaces
 
@@ -191,7 +257,7 @@ END_SPARQL
 
 result = graph.query( sparql, :foaf => FOAF, :org => ORG )
 # => 
-result.to_json
+result.to_json.gsub( /\s+/, ' ' )
 # => 
 <?end?>
 

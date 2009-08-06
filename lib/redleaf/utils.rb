@@ -125,7 +125,7 @@ module Redleaf # :nodoc:
 			Redleaf.logger.debug "Making typed literal from object %p" % [ object ]
 
 			if entry = @@class_registry[ object.class ]
-				uri, converter = *entry 
+				uri, converter = *entry
 				Redleaf.logger.debug "  literal type URI is: %p" % [ uri ]
 				if converter.is_a?( Symbol )
 					Redleaf.logger.debug "  converter is %p#%s" % [ object.class, converter ]
@@ -184,7 +184,7 @@ module Redleaf # :nodoc:
 	#
 	# == Authors
 	#
-	# * Michael Granger <mgranger@laika.com>
+	# * Michael Granger <ged@FaerieMUD.org>
 	#
 	# :include: LICENSE
 	#
@@ -261,7 +261,7 @@ module Redleaf # :nodoc:
 	#
 	# == Authors
 	#
-	# * Michael Granger <mgranger@laika.com>
+	# * Michael Granger <ged@FaerieMUD.org>
 	#
 	# :include: LICENSE
 	#

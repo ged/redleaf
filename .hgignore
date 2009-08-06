@@ -1,0 +1,17 @@
+docs/manual/output
+docs/api
+^ext/Makefile$
+^ext/conftest\.dSYM/
+\.o$
+\.log$
+\.(bundle|dll|so)$
+\.db$
+^commit-msg\.txt$
+test-config\.yml$
+^\.DS_Store$
+^docs/\.DS_Store$
+^docs/manual/\.DS_Store$
+^docs/manual/resources/\.DS_Store$
+^docs/manual/resources/images/\.DS_Store$
+^ChangeLog
+~$

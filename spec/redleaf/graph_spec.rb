@@ -130,7 +130,7 @@ describe Redleaf::Graph do
 			@graph.statements.should include( *stmts )
 		end
 
-		it "can have statements appended to it as simple triples" do
+		it "can have statements appended to it as simple array triples" do
 			stmt = Redleaf::Statement.new( ME, FOAF[:knows], :mahlon )
 			stmt2 = Redleaf::Statement.new( :mahlon, FOAF[:knows], ME )
 
@@ -140,6 +140,45 @@ describe Redleaf::Graph do
 
 			@graph.statements.should have( 2 ).members
 			@graph.statements.should include( stmt, stmt2 )
+		end
+
+		# <file:spec/data/mgranger-foaf.xml#me>
+		#     a <http://xmlns.com/foaf/0.1/Person> ;
+		#     <http://xmlns.com/foaf/0.1/family_name> "Granger" ;
+		#     <http://xmlns.com/foaf/0.1/givenname> "Michael" ;
+		#     <http://xmlns.com/foaf/0.1/homepage> <http://deveiate.org/> ;
+		#     <http://xmlns.com/foaf/0.1/knows> [
+		#         a <http://xmlns.com/foaf/0.1/Person> ;
+		#         <http://xmlns.com/foaf/0.1/mbox_sha1sum> "fd2b68f1f42cf523276824cb93261b0de58621b6" ;
+		#         <http://xmlns.com/foaf/0.1/name> "Mahlon E Smith"
+		#     ] ;
+		#     <http://xmlns.com/foaf/0.1/mbox_sha1sum> "8680b054d586d747a6fcb7046e9ce7cb39554404" ;
+		#     <http://xmlns.com/foaf/0.1/name> "Michael Granger" ;
+		#     <http://xmlns.com/foaf/0.1/phone> <tel:971.645.5490> ;
+		#     <http://xmlns.com/foaf/0.1/workplaceHomepage> <http://laika.com/> .
+		it "can have statements appended to it as hashes" do
+			pending "implementation of hash-append" do
+				@graph << {
+					ME => {
+						RDF[:type] => FOAF[:Person],  # No equivalent 'a' shortcut yet...
+						FOAF[:family_name] => "Granger",
+						FOAF[:givenname] => "Michael",
+						FOAF[:homepage] => URI('http://deveiate.org/'),
+						FOAF[:knows] => {
+							RDF[:type] => FOAF[:Person],
+							FOAF[:mbox_sha1sum] => "fd2b68f1f42cf523276824cb93261b0de58621b6",
+							FOAF[:name] => "Mahlon E Smith",
+						},
+						FOAF[:mbox_sha1sum] => "8680b054d586d747a6fcb7046e9ce7cb39554404",
+						FOAF[:name] => "Michael Granger",
+						FOAF[:phone] => URI('tel:971.645.5490'),
+						FOAF[:workplaceHomepage] => URI('http://laika.com/'),
+					},
+				}
+
+				@graph.statements.should have( 12 ).members
+				@graph.subjects( RDF[:type], FOAF[:Person] ).should have( 2 ).members
+			end
 		end
 
 		it "can load URIs that point to RDF data" do

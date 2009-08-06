@@ -8,10 +8,10 @@ functionality that is offered by Redland. It should be considered to be of alpha
 we've already started building projects using it, we expect that the API may have to change
 somewhat as we learn more, and it has not yet been throughly tested in a production setting.
 
-In the meantime, you can help out by checking out the current development source with Subversion
+In the meantime, you can help out by checking out the current development source with Mercurial
 from the following URL:
 
-    svn://deveiate.org/Redleaf/trunk
+    http://repo.deveiate.org/Redleaf
 
 The project page also has more details and the most-recent API documentation:
 
@@ -30,14 +30,13 @@ the corresponding bindings are to be testable. Connection errors should be handl
 == Authors
 
 * Michael Granger (ged@FaerieMUD.org)
-* Michael Granger (ged@FaerieMUD.org)
 
 
 == Contributors
 
 * Thanks to Leslie Wu (lwu2 at graphics.stanford.edu) for her suggestions and bug reports.
 * Thanks to Gregg Kellogg (gregg at kellogg-assoc.com) for suggestions regarding the testing of the 
-	RDBMS-backed stores.
+  RDBMS-backed stores.
 
 
 == License
