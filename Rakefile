@@ -209,7 +209,6 @@ DEVELOPMENT_DEPENDENCIES = {
 	'termios'     => '>= 0',
 	'text-format' => '>= 1.0.0',
 	'tmail'       => '>= 1.2.3.1',
-	'ultraviolet' => '>= 0.10.2',
 	'libxml-ruby' => '>= 0.8.3',
 	'rdoc'        => '>= 2.4.3',
 	'rubyzip' => '>= 0.9.1',
@@ -217,7 +216,7 @@ DEVELOPMENT_DEPENDENCIES = {
 
 # Non-gem requirements: packagename => version
 REQUIREMENTS = {
-	'Redland' => '>= 1.0.8',
+	'Redland' => '>= 1.0.9',
 }
 
 # RubyGem specification
@@ -267,14 +266,6 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		gem.add_runtime_dependency( name, version )
 	end
 
-	# Developmental dependencies don't work as of RubyGems 1.2.0
-	unless Gem::Version.new( Gem::RubyGemsVersion ) <= Gem::Version.new( "1.2.0" )
-		DEVELOPMENT_DEPENDENCIES.each do |name, version|
-			version = '>= 0' if version.length.zero?
-			gem.add_development_dependency( name, version )
-		end
-	end
-
 	REQUIREMENTS.each do |name, version|
 		gem.requirements << [ name, version ].compact.join(' ')
 	end
@@ -282,7 +273,7 @@ end
 
 $trace = Rake.application.options.trace ? true : false
 $dryrun = Rake.application.options.dryrun ? true : false
-
+$include_dev_dependencies = false
 
 # Load any remaining task libraries
 RAKE_TASKLIBS.each do |tasklib|
@@ -314,7 +305,6 @@ task :default  => [:clean, :local, :spec, :rdoc, :package]
 
 ### Task the local Rakefile can append to -- no-op by default
 task :local
-
 
 ### Task: clean
 CLEAN.include 'coverage'

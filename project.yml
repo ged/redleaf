@@ -4,7 +4,7 @@ excluded_pkgfiles:
 - spec/redleaf/archetypes*
 rubyforge_project: redleaf
 project_requirements: 
-  Redland: ">= 1.0.8"
+  Redland: ">= 1.0.9"
 project_pubdir: /usr/local/www/public/code
 project_description: |-
   Redleaf is an RDF library for Ruby. It's composed of a hand-written binding 
