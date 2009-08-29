@@ -220,6 +220,20 @@ rleaf_redleaf_make_literal_string( VALUE mod, VALUE obj ) {
 
 void Init_redleaf_ext( void ) {
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );
+	
+	/* version constants */
+	rb_define_const( rleaf_mRedleaf, "LIBRDF_SHORT_COPYRIGHT", 
+		rb_str_new2(librdf_short_copyright_string) );
+	rb_define_const( rleaf_mRedleaf, "LIBRDF_COPYRIGHT", 
+		rb_str_new2(librdf_copyright_string) );
+	rb_define_const( rleaf_mRedleaf, "LIBRDF_VERSION_STRING", 
+		rb_str_new2(librdf_version_string) );
+
+	rb_define_const( rleaf_mRedleaf, "LIBRDF_VERSION_MAJOR",   INT2FIX(librdf_version_major) );
+	rb_define_const( rleaf_mRedleaf, "LIBRDF_VERSION_MINOR",   INT2FIX(librdf_version_minor) );
+	rb_define_const( rleaf_mRedleaf, "LIBRDF_VERSION_RELEASE", INT2FIX(librdf_version_release) );
+	rb_define_const( rleaf_mRedleaf, "LIBRDF_VERSION_DECIMAL", INT2FIX(librdf_version_decimal) );
+	
 	rleaf_mRedleafNodeUtils = rb_define_module_under( rleaf_mRedleaf, "NodeUtils" );
 	rleaf_cRedleafNamespace = rb_define_class_under( rleaf_mRedleaf, "Namespace", rb_cObject );
 

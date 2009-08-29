@@ -3,18 +3,8 @@
 require 'mkmf'
 require 'fileutils'
 
-ADDITIONAL_LIBRARY_DIRS = %w[
-	/usr/local/lib
-	/opt/lib
-	/opt/local/lib
-]
-ADDITIONAL_INCLUDE_DIRS = %w[
-	/usr/local/include
-	/opt/include
-	/opt/local/include
-]
-
-$CFLAGS << ' -Wall' << ' -ggdb' << ' -DDEBUG'
+$CFLAGS << ' -Wall'
+$CFLAGS << ' -ggdb' << ' -DDEBUG' if $DEBUG
 
 def fail( *messages )
 	$stderr.puts( *messages )
@@ -23,10 +13,17 @@ end
 
 
 dir_config( 'redland' )
+if redland_config = find_executable( 'redland-config' )
+	ver = `#{redland_config} --version`.chomp
+	$CFLAGS << ' ' + `#{redland_config} --cflags`.chomp
+	$LDFLAGS << ' ' + `#{redland_config} --libs`.chomp
+else
+	warn "No 'redland-config' in your path. Attempting to configure without it."
+end
 
-find_library( 'rdf', 'librdf_new_world', *ADDITIONAL_LIBRARY_DIRS ) or
+find_library( 'rdf', 'librdf_new_world' ) or
 	fail( "Could not find Redland RDF library (http://librdf.org/)." )
-find_header( 'redland.h', *ADDITIONAL_INCLUDE_DIRS )  or fail( "missing redland.h" )
+find_header( 'redland.h' )  or fail( "missing redland.h" )
 
 have_header( 'stdio.h' )    or fail( "missing stdio.h" )
 have_header( 'string.h' )   or fail( "missing string.h" )

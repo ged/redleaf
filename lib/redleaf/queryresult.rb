@@ -52,9 +52,7 @@ class Redleaf::QueryResult
 		json = self.formatted_as( self.class.formatters['json'][:uri] )
 
 		# Work around the doubled-quotes bug
-		json.gsub!( %r{""(ordered|distinct)}, %{"\\1} )
-
-		return json
+		return json.gsub( %r{""(ordered|distinct)}, %{"\\1} )
 	end
 
 

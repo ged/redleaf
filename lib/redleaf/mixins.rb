@@ -49,7 +49,7 @@ module Redleaf # :nodoc:
 				@classname   = klass.name
 				@force_debug = force_debug
 			end
-			
+
 			### Delegate calls the global logger with the class name as the 'progname' 
 			### argument.
 			def method_missing( sym, msg=nil, &block )
@@ -143,7 +143,7 @@ module Redleaf # :nodoc:
 		alias_method :internify_keys, :symbolify_keys
 
 	end
-	
+
 
 	### A collection of utilities for working with Arrays.
 	module ArrayUtilities
@@ -184,7 +184,7 @@ module Redleaf # :nodoc:
 		end
 
 	end
-	
+
 
 end # module Redleaf
 
