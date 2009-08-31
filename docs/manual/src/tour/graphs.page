@@ -152,6 +152,15 @@ h4(#enumerable). Graphs are Enumerable
 @Redleaf::Graph@ mixes in @Enumerable@, so you can use any of the methods it adds to work with the Graph's statements:
 
 <?example { language: ruby, caption: "Silly Enumerable tricks.", testable: true } ?>
+include Redleaf::Constants::CommonNamespaces
+graph = Redleaf::Graph.new
+graph.load( 'http://deveiant.livejournal.com/data/foaf' )
+
+graph.any? {|stmt| stmt.object == FOAF[:Person] }
+graph.collect {|stmt| stmt.predicate }.uniq
+
+counts = Hash.new( 0 )
+graph.inject(counts) {|counts,stmt| counts[stmt.predicate] += 1; counts }
 <?end?>
 
 h4(#nodematch). Node-Match Methods
@@ -174,44 +183,54 @@ From "the W3C recommendation":http://www.w3.org/TR/rdf-sparql-query/#select:
 
 bq. The SELECT form of results returns variables and their bindings directly. The syntax SELECT * is an abbreviation that selects all of the variables in a query.
 
-Returns a <?api Redleaf::BindingQueryResult ?>:
+The bindings are returned via a <?api Redleaf::BindingQueryResult ?>:
 
 <?example { language: ruby, caption: "A simple SELECT SPARQL query.", testable: true } ?>
 graph = Redleaf::Graph.new
-exstaff = Redleaf::Namespace[ 'http://www.example.org/staffid/' ]
-exterms = Redleaf::Namespace[ 'http://www.example.org/terms/' ]
+include Redleaf::Constants::CommonNamespaces
 
 graph <<
-  [ myfoaf[:me], RDF[:type], FOAF[:Person] ] <<
-  [ myfoaf[:me], FOAF[:name], "Michael Granger" ] <<
-  [ myfoaf[:me], FOAF[:homepage], URI('http://deveiate.org/') ]
-  [ myfoaf[:me], FOAF[:myersBriggs], 'INTP' ]
+	[ :_a, FOAF[:name],   "Alice" ] <<
+	[ :_a, FOAF[:knows],  :_b     ] <<
+	[ :_a, FOAF[:knows],  :_c     ] <<
+	[ :_b, FOAF[:name],   "Bob"   ] <<
+	[ :_c, FOAF[:name],   "Clare" ] <<
+	[ :_c, FOAF[:nick],   "CT"    ]
 
-sparql = <<-END_SPARQL
-PREFIX exstaff <#{exstaff}>
-PREFIX exterms <#{exstaff}>
+sparql = %|
+  SELECT ?nameX ?nameY ?nickY
+	WHERE
+	  { ?x foaf:knows ?y ;
+	       foaf:name ?nameX .
+	    ?y foaf:name ?nameY .
+	    OPTIONAL { ?y foaf:nick ?nickY }
+	  }
+|
 
-SELECT 
-END_SPARQL
+result = graph.query( sparql, :foaf => FOAF )
+# =>
+result.length 
+# =>
+result.rows
+# =>
 <?end?>
 
 
-h4(#construct-queries). @CONSTRUCT@ 
+h4(#construct-queries). @CONSTRUCT@ Queries
+
+Again, from the "W3C recommendation":http://www.w3.org/TR/rdf-sparql-query/#construct:
+
+bq. The CONSTRUCT query form returns a single RDF graph specified by a graph template. The result is an RDF graph formed by taking each query solution in the solution sequence, substituting for the variables in the graph template, and combining the triples into a single RDF graph by set union.
 
 Returns a <?api Redleaf::GraphQueryResult ?>
 
-h4(#ask-queries). @ASK@ 
+h4(#ask-queries). @ASK@ Queries
 
 Returns a <?api Redleaf::BooleanQueryResult ?>
 
-h4(#describe-queries). @DESCRIBE@ 
+h4(#describe-queries). @DESCRIBE@ Queries
 
 Returns a <?api Redleaf::SyntaxQueryResult ?>
-
-- @SELECT@ := Returns a <?api Redleaf::BindingQueryResult ?>
-- @CONSTRUCT@ := Returns a <?api Redleaf::GraphQueryResult ?>
-- @ASK@ := Returns a <?api Redleaf::BooleanQueryResult ?>
-- @DESCRIBE@ := Returns a <?api Redleaf::SyntaxQueryResult ?>
 
 These four result types have different result data (e.g., @BindingQueryResult@ objects have _bindings_ which map to keywords in the query, whereas @BooleanQueryResult@ objects just contain @true@ or @false@). All of them support the @Enumerable@ interface, however. See the individual API documentation for more on how to use the result type you're expecting.
 
@@ -261,11 +280,11 @@ result.to_json.gsub( /\s+/, ' ' )
 # => 
 <?end?>
 
-** Future goals
-*** DSL
-*** Sequel-like datasets
+h3. Future goals
 
-* RDQL
+* Construction of queries via a DSL
+* Sequel-like datasets
+* Support for altenative query syntaxes like "RDQL":http://www.w3.org/Submission/RDQL/ and "MQL":http://mql.freebaseapps.com/.
 
 
 h3(#triplestores). Persistent Graphs via Redleaf::Store

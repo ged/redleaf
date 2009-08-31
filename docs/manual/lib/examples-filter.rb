@@ -1,7 +1,6 @@
 #!/usr/bin/ruby 
 # 
 # A collection of standard filters for the manual generation tasklib.
-# $Id$
 # 
 # Authors:
 #   Michael Granger <ged@FaerieMUD.org>

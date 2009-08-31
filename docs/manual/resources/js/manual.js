@@ -1,5 +1,4 @@
 
-
 // Auto generate a table of contents if a #auto-toc div exists.
 //
 function generate_toc() {
@@ -28,5 +27,4 @@ $(document).ready(function() {
 	generate_toc();
 	highlight_examples();
 });
-
 
