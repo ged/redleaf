@@ -19,3 +19,5 @@ spec/data/(w3ctests|rdfatests)
 spec/data/latest_All\.zip$
 spec/data/rdfa-xhtml1-test-manifest\.rdf$
 spec/w3c_(entailment|miscellaneous|parser|rdfa)_spec\.rb$
+^pkg/
+^ruby\-committers\.yml$
