@@ -44,6 +44,8 @@
 VALUE rleaf_cRedleafGraph;
 librdf_uri *rleaf_contexts_feature;
 
+static VALUE rleaf_set_serializer_ns( VALUE, VALUE );
+
 
 /* --------------------------------------------------
  *	Memory-management functions
@@ -754,19 +756,39 @@ rleaf_redleaf_graph_contexts( VALUE self ) {
 
 /*
  *  call-seq:
- *     graph.serialized_as( format )   -> string
+ *     graph.serialized_as( format, nshash={} )  -> string
  *
  *  Return the graph serialized to a String in the specified +format+. Valid +format+s are keys
  *  of the Hash returned by ::serializers.
+ * 
+ *  The +nshash+ argument can be used to set namespaces in the output (for serializers that
+ *  support them). It should be of the form:
+ * 
+ *    { :nsname => <namespace URI> }
+ * 
+ *  Examples:
+ *     turtle = graph.serialized_as( 'turtle' )
+ *     xml = graph.serialized_as( 'rdfxml-abbrev', :foaf => 'http://xmlns.com/foaf/0.1/' )
  *
  */
 static VALUE
-rleaf_redleaf_graph_serialized_as( VALUE self, VALUE format ) {
+rleaf_redleaf_graph_serialized_as( int argc, VALUE *argv, VALUE self ) {
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
 	librdf_serializer *serializer;
 	size_t length = 0;
 	const char *formatname;
 	unsigned char *serialized;
+	VALUE format = Qnil;
+	VALUE nshash = Qnil;
+
+	rb_scan_args( argc, argv, "11", &format, &nshash );
+	rleaf_log_with_context(
+		self,
+		"debug",
+		"Serializing as %s. Namespace hash is: %s",
+		RSTRING_PTR(rb_inspect( format )),
+		RSTRING_PTR(rb_inspect( nshash ))
+	  );
 	
 	formatname = StringValuePtr( format );
 	rleaf_log_with_context( self, "debug", "trying to serialize as '%s'", formatname );
@@ -779,6 +801,10 @@ rleaf_redleaf_graph_serialized_as( VALUE self, VALUE format ) {
 	if ( !serializer )
 		rb_raise( rleaf_eRedleafError, "could not create a '%s' serializer", formatname );
 
+	/* Set namespaces in the serializer for entries in the argshash */
+	if ( RTEST(nshash) )
+		rb_iterate( rb_each, nshash, rleaf_set_serializer_ns, (VALUE)serializer );
+
 	/* :TODO: Support for the 'baseuri' argument? */
 	serialized = librdf_serializer_serialize_model_to_counted_string( serializer, NULL, ptr->model, &length );
 	librdf_free_serializer( serializer );
@@ -788,6 +814,29 @@ rleaf_redleaf_graph_serialized_as( VALUE self, VALUE format ) {
 
 	rleaf_log_with_context( self, "debug", "got %d bytes of '%s'", length, formatname );
 	return rb_str_new( (char *)serialized, length );
+}
+
+
+/*
+ * Iterator function: map a [namespace, uri] tuple into a namespace registered with
+ * the serializer_value, which is a librdf_serializer pointer cast as a VALUE.
+ */
+static VALUE
+rleaf_set_serializer_ns( VALUE nspair, VALUE serializer_value ) {
+	librdf_serializer *serializer = (librdf_serializer *)serializer_value;
+	VALUE ns = Qnil;
+	librdf_uri *nsuri;
+	
+	Check_Type( nspair, T_ARRAY );
+	if ( RARRAY_LEN(nspair) != 2 )
+		rb_raise( rb_eArgError, "namespace pair must be [key, value]" );
+
+	ns    = rb_obj_as_string( rb_ary_entry(nspair, 0) );
+	nsuri = rleaf_object_to_librdf_uri( rb_ary_entry(nspair, 1) );
+	
+	librdf_serializer_set_namespace( serializer, nsuri, (const char *)RSTRING_PTR(ns) );
+
+	return Qnil;
 }
 
 
@@ -1383,7 +1432,7 @@ rleaf_init_redleaf_graph( void ) {
 
 	rb_define_method( rleaf_cRedleafGraph, "contexts", rleaf_redleaf_graph_contexts, 0 );
 
-	rb_define_method( rleaf_cRedleafGraph, "serialized_as", rleaf_redleaf_graph_serialized_as, 1 );
+	rb_define_method( rleaf_cRedleafGraph, "serialized_as", rleaf_redleaf_graph_serialized_as, -1 );
 
 	rb_define_method( rleaf_cRedleafGraph, "execute_query", rleaf_redleaf_graph_execute_query, -1 );
 	

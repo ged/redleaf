@@ -397,6 +397,28 @@ describe Redleaf::Graph do
 				%r{<\?xml version=\"1.0\" encoding=\"utf-8\"\?>\n<rdf:RDF}
 		end
 
+		it "can be serialized with namespaces" do
+			@graph.serialized_as( 'rdfxml', :foaf => FOAF ).should =~
+				%r{xmlns:foaf="#{FOAF}"}
+		end
+
+		it "allows an Array of tuples to set namespaces" do
+			@graph.serialized_as( 'rdfxml', [['foaf', FOAF]] ).should =~
+				%r{xmlns:foaf="#{FOAF}"}
+		end
+
+		it "raises an exception if its passed a Symbol instead of a namespace hash" do
+			expect {
+				@graph.serialized_as( 'rdfxml', :foaf )
+			}.to raise_error( NoMethodError, /undefined method `each'/i )
+		end
+
+		it "raises an exception if its passed a single-element Array instead of a namespace hash" do
+			expect {
+				@graph.serialized_as( 'rdfxml', [:foaf] )
+			}.to raise_error( TypeError, /wrong argument type symbol/i )
+		end
+
 		it "can sync itself to the underlying store" do
 			@graph.sync.should be_true()
 		end

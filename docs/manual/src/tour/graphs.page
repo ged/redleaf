@@ -280,7 +280,9 @@ result.to_json.gsub( /\s+/, ' ' )
 # => 
 <?end?>
 
-h3. Future goals
+** Future goals
+*** DSL
+*** Sequel-like datasets
 
 * Construction of queries via a DSL
 * Sequel-like datasets
