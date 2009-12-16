@@ -2,18 +2,18 @@
 excluded_pkgfiles: 
 - lib/redleaf/archetypes*
 - spec/redleaf/archetypes*
-rubyforge_project: redleaf
 project_requirements: 
   Redland: ">= 1.0.9"
 project_pubdir: /usr/local/www/public/code
 project_description: |-
   Redleaf is an RDF library for Ruby. It's composed of a hand-written binding 
   for the Redland RDF Library, and a high-level, more idiomatic Ruby layer.
-rubyforge_group: deveiate
 project_pubhost: deveiate
 project_homepage: http://deveiate.org/projects/Redleaf
+release_mailto: Ruby-Talk List <ruby-talk@ruby-lang.org>
 project_dependencies: {}
 
+release_smtphost: mail.faeriemud.org
 project_summary: An RDF library for Ruby
 project_name: Redleaf
 version_file: redleaf.rb
