@@ -4,6 +4,7 @@
 # http://deveiate.org/projects/Redleaf/wiki/Archetypes)
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).expand_path.dirname.parent
 	libdir = basedir + 'lib'

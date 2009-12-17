@@ -2,11 +2,12 @@
 # coding: utf-8
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent
 
 	libdir = basedir + "lib"
-	extdir = basedir + "ext"
+	extdir = libdir + Config::CONFIG['sitearch']
 
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )

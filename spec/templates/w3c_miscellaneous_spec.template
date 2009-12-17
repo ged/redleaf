@@ -6,6 +6,7 @@
 #   It was generated from: <%= template %>
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
 

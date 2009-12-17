@@ -1,11 +1,12 @@
 #!/usr/bin/env ruby
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent
 	
 	libdir = basedir + "lib"
-	extdir = basedir + "ext"
+	extdir = libdir + Config::CONFIG['sitearch']
 	
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )

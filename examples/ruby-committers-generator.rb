@@ -11,6 +11,7 @@
 #   http://homemastar.blogdb.jp/share/browser/lang/ruby/ruby-committers/ruby-committers.yml
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname( __FILE__ ).dirname.parent
 	libdir = basedir + 'lib'

@@ -1,5 +1,7 @@
 #!rake
 
+require 'rake/extensiontask'
+
 SPEC_DATADIR     = SPECDIR + 'data'
 SPEC_TEMPLATEDIR = SPECDIR + 'templates'
 
@@ -19,27 +21,39 @@ task :build_specs => 'w3ctests:generate'
 desc "Build the W3C RDFa test suite"
 task :build_specs => 'rdfatests:generate'
 
-# C extension constants
-EXT_MAKEFILE  = EXTDIR + 'Makefile'
-EXT_SOURCES   = FileList[ EXTDIR + '*.c' ]
-EXT_SO        = EXTDIR + "redleaf_ext.#{CONFIG['DLEXT']}"
-
 
 #####################################################################
 ###	T A S K S
 #####################################################################
 
+SITEARCH_DIR  = LIBDIR + Config::CONFIG['sitearch']
+
 # Make both the default task and the spec task depend on building the extension
-task :local => :build
-task :spec => :build
+task :local => :compile
+task :spec => :compile
 namespace :spec do
-	task :doc   => [ :build ]
-	task :quiet => [ :build ]
-	task :html  => [ :build ]
-	task :text  => [ :build ]
+    task :doc   => [ :compile ]
+    task :quiet => [ :compile ]
+    task :html  => [ :compile ]
+    task :text  => [ :compile ]
+end
+
+Rake::ExtensionTask.new do |ext|
+    ext.name = 'redleaf_ext'
+    ext.gem_spec = GEMSPEC
+    ext.ext_dir = 'ext'
+    ext.lib_dir = "lib/#{Config::CONFIG['sitearch']}"
+    # ext.source_pattern = "ext/*.{c,h}"
+    # ext.cross_compile = true
+    # ext.cross_platform = 'i386-mswin32'
+end
+
+
+# Make both the default task and the spec task depend on building the extension
+namespace :spec do
 
 	desc "Run specs under gdb"
-	task :gdb do |task|
+	task :gdb => [ :compile ] do |task|
 		require 'tempfile'
 
 	    cmd_parts = ['run']
@@ -56,46 +70,5 @@ namespace :spec do
 	end
 end
 
-# Nasty, I know, but I can't find any builtin way to prepend a prerequisite
-#Rake::Task[ 'manual:build' ].prerequisites.unshift( 'rake:build' )
 
-
-desc "Make the Makefile for the C extension"
-file EXT_MAKEFILE.to_s => EXT_SOURCES do
-	log "Configuring Redleaf C extension"
-	in_subdirectory( EXTDIR ) do
-		ruby 'extconf.rb'
-	end
-end
-CLOBBER.include( EXTDIR + 'mkmf.log', EXTDIR + 'conftest.dSYM', EXT_SO )
-
-desc "Build the C extension"
-task :build => EXT_SO
-file EXT_SO => [ EXT_MAKEFILE.to_s, *EXT_SOURCES ] do
-	in_subdirectory( EXTDIR ) do
-		sh 'make'
-	end
-end
-
-
-desc "Rebuild the C extension"
-task :rebuild => [ :clean, :build ]
-
-
-task :clean do
-	if EXT_MAKEFILE.exist?
-		in_subdirectory( EXTDIR ) do
-			sh 'make clean'
-		end
-	end
-end	
-
-task :clobber do
-	if EXT_MAKEFILE.exist?
-		in_subdirectory( EXTDIR ) do
-			sh 'make distclean'
-		end
-	end
-end	
-CLOBBER.include( EXT_MAKEFILE )
 

@@ -3,6 +3,7 @@
 # Port of a Python RDFlib example from http://code.google.com/p/rdflib/wiki/IntroSparql
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).expand_path.dirname.parent
 	libdir = basedir + 'lib'

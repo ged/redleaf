@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent
-	
+
 	libdir = basedir + "lib"
-	extdir = basedir + "ext"
-	
+	extdir = libdir + Config::CONFIG['sitearch']
+
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
@@ -57,12 +58,12 @@ describe Redleaf do
 	it "returns a version string with a build number if asked" do
 		Redleaf.version_string(true).should =~ /\w+ [\d.]+ \(build \d+\)/
 	end
-	
-	
+
+
 	it "can convert a Ruby String into its equivalent literal string" do
 		Redleaf.make_literal_string( "foo" ).should == '"foo"'
 	end
-	
+
 	it "can convert a Ruby String with a language tag into its equivalent literal string" do
 		str = "foo"
 		str.extend( Redleaf::StringExtensions )
@@ -77,11 +78,11 @@ describe Redleaf do
 	it "can convert a Ruby Integer into its equivalent literal string" do
 		Redleaf.make_literal_string( 5 ).should == "5^^<%s>" % [ XSD[:integer].to_s ]
 	end
-	
+
 	it "can convert a Ruby Float into its equivalent literal string" do
 		Redleaf.make_literal_string( 5.0 ).should == "5.0^^<%s>" % [ XSD[:float].to_s ]
 	end
-	
+
 
 	describe " logging subsystem" do
 		before(:each) do
@@ -91,8 +92,8 @@ describe Redleaf do
 		after(:each) do
 			Redleaf.reset_logger
 		end
-	
-	
+
+
 		it "has the default logger instance after being reset" do
 			Redleaf.logger.should equal( Redleaf.default_logger )
 		end
@@ -100,7 +101,7 @@ describe Redleaf do
 		it "has the default log formatter instance after being reset" do
 			Redleaf.logger.formatter.should equal( Redleaf.default_log_formatter )
 		end
-	
+
 	end
 
 
@@ -119,7 +120,7 @@ describe Redleaf do
 		it "uses the new defaults when the logging subsystem is reset" do
 			logger = mock( "dummy logger", :null_object => true )
 			formatter = mock( "dummy logger" )
-			
+
 			Redleaf.default_logger = logger
 			Redleaf.default_log_formatter = formatter
 
@@ -128,7 +129,7 @@ describe Redleaf do
 			Redleaf.reset_logger
 			Redleaf.logger.should equal( logger )
 		end
-		
+
 	end
 
 end

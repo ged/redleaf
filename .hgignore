@@ -24,3 +24,4 @@ spec/w3c_(entailment|miscellaneous|parser|rdfa)_spec\.rb$
 \.orig$
 ^pkg/
 ^ruby\-committers\.yml$
+tmp/

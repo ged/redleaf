@@ -3,6 +3,7 @@
 # Port of the example from foaf1.rb using Redleaf Archetypes
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).expand_path.dirname.parent
 	libdir = basedir + 'lib'

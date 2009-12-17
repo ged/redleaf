@@ -4,6 +4,7 @@
 #   http://svn.foaf-project.org/foaftown/2009/skosdex/src/jena_skos.rb
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname( __FILE__ ).dirname.parent
 	libdir = basedir + 'lib'

@@ -5,10 +5,11 @@
 # be unzipped  into spec/data/feedparser-tests-4.1
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.expand_path
 	libdir = basedir + "lib"
-	extdir = basedir + "ext"
+	extdir = libdir + Config::CONFIG['sitearch']
 
 	puts ">>> Adding #{libdir} to load path..."
 	$LOAD_PATH.unshift( libdir.to_s )
