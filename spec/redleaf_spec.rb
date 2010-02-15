@@ -56,7 +56,7 @@ describe Redleaf do
 
 
 	it "returns a version string with a build number if asked" do
-		Redleaf.version_string(true).should =~ /\w+ [\d.]+ \(build \d+\)/
+		Redleaf.version_string(true).should =~ /\w+ [\d.]+ \(build [[:xdigit:]]+\)/
 	end
 
 
