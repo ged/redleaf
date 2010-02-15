@@ -9,7 +9,7 @@ require 'redleaf/mixins'
 
 # An RDF graph class
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -34,12 +34,6 @@ require 'redleaf/mixins'
 class Redleaf::Graph
 	include Redleaf::Loggable,
 	        Enumerable
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	### A convenience class for keeping track of node mappings between two graphs while
@@ -104,6 +98,45 @@ class Redleaf::Graph
 	alias_method :is_empty?, :empty?
 
 
+	# Append objects to the graph, either as Redleaf::Statements, valid
+	# triples in Arrays, or a subgraph of nodes expressed in a Hash.
+	# 
+	#   require 'redleaf/constants'
+	#   incude Redleaf::Constants::CommonNamespaces # (for the FOAF namespace constant)
+	#   
+	#   MY_FOAF = Redleaf::Namspace.new( 'http://deveiate.org/foaf.xml#' )
+	#   michael = MY_FOAF[:me]
+	#   
+	#   graph = Redleaf::Graph.new
+	#   
+	#   statement1 = Redleaf::Statement.new( michael, FOAF[:family_name], 'Granger' )
+	#   statement2 = [ michael, FOAF[:givenname], 'Michael' ]
+	#   graph.append( statement1, statement2 )
+	#   
+	#   graph << [ michael, FOAF[:homepage], URI('http://deveiate.org/') ]
+	# 
+	#   graph << {
+	#     michael => {
+	#       RDF[:type] => FOAF[:Person],
+	#       FOAF[:knows] => {
+	#         RDF[:type] => FOAF[:Person],
+	#         FOAF[:givenname] => "Mahlon",
+	#         FOAF[:family_name] => "Smith",
+	#       }
+	#     }
+	def append( *objects )
+		statements = objects.collect do |obj|
+			Redleaf.log.debug "Appending object %p" % [ obj ]
+			stmt = obj.is_a?( Redleaf::Statement ) ? obj : Redleaf::Statement.create( obj )
+			Redleaf.log.debug "  object statement: %p" % [ stmt ]
+			stmt
+		end.flatten
+
+		return self.append_statements( *statements )
+	end
+	alias_method :<<, :append
+
+
 	### Run a SPARQL +query+ against the graph. The optional +prefixes+ hash can be
 	### used to set up prefixes in the query.
 	###
@@ -124,10 +157,10 @@ class Redleaf::Graph
 	###    end
 	###
 	def query( querystring, *args )
-		prefixes = args.last.is_a?( Hash ) ? args.last : {}
+		qnames = args.last.is_a?( Hash ) ? args.last : {}
+		self.log.debug "Qnames hash is: %p" % [ qnames ]
 
-
-		prelude = prefixes.collect {|prefix, uri| "PREFIX %s: <%s>\n" % [ prefix, uri ] }.join
+		prelude = qnames.collect {|prefix, uri| "PREFIX %s: <%s>\n" % [ prefix, uri ] }.join
 		querystring = prelude + querystring
 		self.log.debug "Querystring is: %p" % [ querystring ]
 
@@ -204,14 +237,14 @@ class Redleaf::Graph
 
 	### Defined explicitly so the 'json' library's default implementation doesn't override
 	### the serializer.
-	def to_json
-		return self.serialized_as( 'json' )
+	def to_json( qnames={} )
+		return self.serialized_as( 'json', qnames )
 	end
 
 
 	### Return the graph as RDF/XML.
-	def to_xml
-		return self.to_rdfxml
+	def to_xml( qnames={} )
+		return self.to_rdfxml( qnames )
 	end
 
 
@@ -228,11 +261,11 @@ class Redleaf::Graph
 		format = $1.tr( '_', '-' )
 		super unless self.class.valid_format?( format )
 
-		serializer = lambda { self.serialized_as(format) }
+		serializer = lambda {|*qnames| self.serialized_as(format, *qnames) }
 
 		# Install the closure as a new method and call it
 		self.class.send( :define_method, sym, &serializer )
-		return self.method( sym ).call
+		return self.method( sym ).call( *args )
 	end
 
 

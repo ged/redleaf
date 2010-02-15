@@ -5,7 +5,7 @@ require 'redleaf/parser'
 
 # A parser for the RDF+XML syntax.
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -20,12 +20,6 @@ require 'redleaf/parser'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::RDFXMLParser < Redleaf::Parser
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	# Use the 'rdfxml' Redland parser

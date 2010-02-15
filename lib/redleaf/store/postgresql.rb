@@ -27,12 +27,6 @@ require 'redleaf/mixins'
 class Redleaf::PostgreSQLStore < Redleaf::Store
 	include Redleaf::HashUtilities
 
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
-
 	# Default options -- the PostgreSQL backend requires that all of them be set,
 	# even if they're empty.
 	DEFAULT_OPTIONS = {

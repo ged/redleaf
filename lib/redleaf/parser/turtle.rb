@@ -22,12 +22,6 @@ require 'redleaf/parser'
 #
 class Redleaf::TurtleParser < Redleaf::Parser
 
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
-
 
 	# Use the 'turtle' Redland parser
 	parser_type :turtle

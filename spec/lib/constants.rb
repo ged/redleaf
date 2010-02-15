@@ -35,11 +35,11 @@ module Redleaf::TestConstants
 
 		BASEDIR = Pathname( __FILE__ ).dirname.parent.parent
 		TESTING_CONFIG_FILE = BASEDIR + 'test-config.yml'
-		
+
 		constants.each do |cname|
 			const_get(cname).freeze
 		end
 	end
-	
+
 end
 

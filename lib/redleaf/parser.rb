@@ -5,7 +5,7 @@ require 'redleaf/mixins'
 
 # An RDF parser object class
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -21,12 +21,6 @@ require 'redleaf/mixins'
 #
 class Redleaf::Parser
 	include Redleaf::Loggable
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	#################################################################

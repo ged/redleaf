@@ -84,6 +84,14 @@ describe Redleaf do
 	end
 
 
+	it "can generate a unique anonymous node ID" do
+		id = Redleaf.generate_id
+		id.should be_a( Symbol )
+		id.to_s =~ /r\d+r\d+r\d+/
+	end
+
+
+
 	describe " logging subsystem" do
 		before(:each) do
 			Redleaf.reset_logger

@@ -5,7 +5,7 @@ require 'redleaf/store'
 
 # An in-memory RDF triplestore (uses Redland's 'memory' store)
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -20,12 +20,6 @@ require 'redleaf/store'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::MemoryStore < Redleaf::Store
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	# Use the 'memory' Redland backend

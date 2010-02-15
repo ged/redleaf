@@ -5,7 +5,7 @@ require 'redleaf/queryresult'
 
 # A result from a SPARQL query that returns a yes or no answer.
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -20,12 +20,6 @@ require 'redleaf/queryresult'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::BooleanQueryResult < Redleaf::QueryResult
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	######

@@ -6,7 +6,7 @@ require 'redleaf/exceptions'
 
 # An RDF triplestore abstract base class
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -23,12 +23,6 @@ require 'redleaf/exceptions'
 #
 class Redleaf::Store
 	include Redleaf::Loggable
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	#################################################################

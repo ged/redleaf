@@ -4,19 +4,18 @@
 #
 # Based on various other Rakefiles, especially one by Ben Bleything
 #
-# Copyright (c) 2007-2009 The FaerieMUD Consortium
+# Copyright (c) 2007-2010 The FaerieMUD Consortium
 #
 # Authors:
 #  * Michael Granger <ged@FaerieMUD.org>
 #
 
 BEGIN {
-	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname
 
 	libdir = basedir + "lib"
-	extdir = libdir + Config::CONFIG['sitearch']
+	extdir = basedir + "ext"
 
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
@@ -74,9 +73,9 @@ if VERSION_FILE.exist? && buildrev = ENV['CC_BUILD_LABEL']
 	PKG_VERSION = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ] + '.' + buildrev
 elsif VERSION_FILE.exist?
 	PKG_VERSION = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ]
-else
-	PKG_VERSION = '0.0.0'
 end
+
+PKG_VERSION ||= '0.0.0'
 
 PKG_FILE_NAME = "#{PKG_NAME.downcase}-#{PKG_VERSION}"
 GEM_FILE_NAME = "#{PKG_FILE_NAME}.gem"
@@ -173,7 +172,7 @@ require RAKE_TASKDIR + 'helpers.rb'
 # Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
 	id = IO.read('|-') or exec hg.to_s, 'id', '-n'
-	PKG_BUILD = 'pre' + id.chomp[ /^[[:xdigit:]]+/ ]
+	PKG_BUILD = 'pre' + (id.chomp[ /^[[:xdigit:]]+/ ] || '1')
 else
 	PKG_BUILD = 'pre0'
 end
@@ -314,7 +313,7 @@ task :local
 
 ### Task: clean
 CLEAN.include 'coverage', '**/*.orig', '**/*.rej'
-CLOBBER.include 'artifacts', 'coverage.info', PKGDIR
+CLOBBER.include 'artifacts', 'coverage.info', 'ChangeLog', PKGDIR
 
 ### Task: changelog
 file 'ChangeLog' do |task|

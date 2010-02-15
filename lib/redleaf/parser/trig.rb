@@ -23,12 +23,6 @@ require 'redleaf/parser'
 #
 class Redleaf::TriGParser < Redleaf::Parser
 
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
-
 
 	# Use the 'trig' Redland parser
 	parser_type :trig

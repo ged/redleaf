@@ -5,7 +5,7 @@ require 'redleaf/mixins'
 
 # An abstract base class for encapsulating various kinds of query results.
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -21,12 +21,6 @@ require 'redleaf/mixins'
 #
 class Redleaf::QueryResult
 	include Redleaf::Loggable
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 	# Disallow direct instantiation
 	private_class_method :new

@@ -5,7 +5,7 @@ require 'redleaf/namespace'
 
 # A module of library-wide constants
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -20,12 +20,6 @@ require 'redleaf/namespace'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 module Redleaf::Constants
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	### A collection of useful RDF namespaces, expressed as Redleaf::NameSpace objects.

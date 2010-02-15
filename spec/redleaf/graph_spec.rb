@@ -158,28 +158,26 @@ describe Redleaf::Graph do
 		#     <http://xmlns.com/foaf/0.1/phone> <tel:971.645.5490> ;
 		#     <http://xmlns.com/foaf/0.1/workplaceHomepage> <http://laika.com/> .
 		it "can have statements appended to it as hashes" do
-			pending "implementation of hash-append" do
-				@graph << {
-					ME => {
-						RDF[:type] => FOAF[:Person],  # No equivalent 'a' shortcut yet...
-						FOAF[:family_name] => "Granger",
-						FOAF[:givenname] => "Michael",
-						FOAF[:homepage] => URI('http://deveiate.org/'),
-						FOAF[:knows] => {
-							RDF[:type] => FOAF[:Person],
-							FOAF[:mbox_sha1sum] => "fd2b68f1f42cf523276824cb93261b0de58621b6",
-							FOAF[:name] => "Mahlon E Smith",
-						},
-						FOAF[:mbox_sha1sum] => "8680b054d586d747a6fcb7046e9ce7cb39554404",
-						FOAF[:name] => "Michael Granger",
-						FOAF[:phone] => URI('tel:971.645.5490'),
-						FOAF[:workplaceHomepage] => URI('http://laika.com/'),
+			@graph << {
+				ME => {
+					RDF[:type] => FOAF[:Person],  # No equivalent 'a' shortcut yet...
+					FOAF[:family_name] => "Granger",
+					FOAF[:givenname] => "Michael",
+					FOAF[:homepage] => URI('http://deveiate.org/'),
+					FOAF[:knows] => {
+						RDF[:type] => FOAF[:Person],
+						FOAF[:mbox_sha1sum] => "fd2b68f1f42cf523276824cb93261b0de58621b6",
+						FOAF[:name] => "Mahlon E Smith",
 					},
-				}
+					FOAF[:mbox_sha1sum] => "8680b054d586d747a6fcb7046e9ce7cb39554404",
+					FOAF[:name] => "Michael Granger",
+					FOAF[:phone] => URI('tel:971.645.5490'),
+					FOAF[:workplaceHomepage] => URI('http://laika.com/'),
+				},
+			}
 
-				@graph.statements.should have( 12 ).members
-				@graph.subjects( RDF[:type], FOAF[:Person] ).should have( 2 ).members
-			end
+			@graph.statements.should have( 12 ).members
+			@graph.subjects( RDF[:type], FOAF[:Person] ).should have( 2 ).members
 		end
 
 		it "can load URIs that point to RDF data" do
@@ -470,33 +468,34 @@ describe Redleaf::Graph do
 
 
 		it "can be queried with a CONSTRUCT SPARQL statement" do
-			site = Redleaf::Namespace.new( 'http://example.org/stats#' )
 			@graph <<
-				[ :_a, FOAF[:name], "Alice" ] <<
-				[ :_a, site[:hits], 2349 ] <<
+				[ :_alice, RDF[:type],   FOAF[:Person]            ] <<
+				[ :_alice, FOAF[:name],  "Alice"                  ] <<
+				[ :_alice, FOAF[:mbox],  URI('mailto:alice@work') ] <<
+				[ :_alice, FOAF[:knows], :_bob                    ]
 
-				[ :_b, FOAF[:name], "Bob" ] <<
-				[ :_b, site[:hits], 105 ] <<
+			@graph <<
+				[ :_bob,   RDF[:type],   FOAF[:Person]            ] <<
+				[ :_bob,   FOAF[:name],  "Bob"                    ] <<
+				[ :_bob,   FOAF[:knows], :_alice                  ] <<
+				[ :_bob,   FOAF[:mbox],  URI('mailto:bob@work')   ] <<
+				[ :_bob,   FOAF[:mbox],  URI('mailto:bob@home')   ]
 
-				[ :_c, FOAF[:name], "Eve" ] <<
-				[ :_c, site[:hits], 181 ]
+			# Redleaf.logger.debug "Graph is: %p" % [ @graph.statements ]
 
 			sparql = %{
-				CONSTRUCT { [] foaf:name ?name }
-				WHERE
-				{ [] foaf:name ?name ;
-				     site:hits ?hits .
+				CONSTRUCT { ?s foaf:name ?o . }
+				WHERE {
+				  ?s foaf:name ?o .
 				}
-				ORDER BY desc(?hits)
-				LIMIT 2
 			}
 
 			expected_graph = Redleaf::Graph.new
 			expected_graph <<
-				[ :_x, FOAF[:name], "Alice" ] <<
-				[ :_y, FOAF[:name], "Eve" ]
+				[ :_alice, FOAF[:name], "Alice" ] <<
+				[ :_bob,   FOAF[:name], "Bob" ]
 
-			res = @graph.query( sparql, :foaf => FOAF, :site => site )
+			res = @graph.query( sparql, :foaf => FOAF, :rdf => RDF )
 			res.should be_an_instance_of( Redleaf::GraphQueryResult )
 			res.graph.should be_an_instance_of( Redleaf::Graph )
 			res.graph.should_not equal( @graph )
@@ -523,42 +522,52 @@ describe Redleaf::Graph do
 		end
 
 
-		it "can be queried with a DESCRIBE SPARQL statement with no WHERE clause" do
-			sparql = %{
-				DESCRIBE <http://example.org/>
-			}
+		describe "DESCRIBE query" do
 
-			res = @graph.query( sparql )
-			res.graph.should be_empty()
-		end
+			before( :each ) do
+				pending "until I figure out how DESCRIBE queries work"
+			end
 
-		it "can be queried with a DESCRIBE SPARQL statement" do
-			exOrg  = Redleaf::Namespace.new( 'http://org.example.com/employees#' )
 
-			# :FIXME:
-			# This example is taken from:
-			#   http://www.w3.org/TR/rdf-sparql-query/#descriptionsOfResources
-			# The query returns an empty graph, however, so I'm pretty sure I'm 
-			# missing something.
-			@graph <<
-				[ :_a, exOrg[:employeeId],    "1234"     ] <<
-				[ :_a, FOAF[:mbox_sha1sum],   "ABCD1234" ] <<
-				[ :_a, VCARD[:N],             :_b        ] <<
-				[ :_b, VCARD[:Family],        "Smith"    ] <<
-				[ :_b, VCARD[:Given],         "John"     ] <<
+			it "can be queried with a DESCRIBE SPARQL statement with no WHERE clause" do
+				sparql = %{
+					DESCRIBE <http://example.org/>
+				}
 
-				[ FOAF[:mbox_sha1sum], RDF[:type], OWL[:InverseFunctionalProperty] ]
-
-			sparql = %{
-				PREFIX ent:  <http://org.example.com/employees#>
-				DESCRIBE ?x WHERE { ?x ent:employeeId "1234" }
-			}
-
-			pending "figuring out what the hell I'm doing wrong" do
 				res = @graph.query( sparql )
-				res.graph.should_not be_empty()
+				res.graph.should be_empty()
+			end
+
+			it "can be queried with a DESCRIBE SPARQL statement" do
+				exOrg  = Redleaf::Namespace.new( 'http://org.example.com/employees#' )
+
+				# :FIXME:
+				# This example is taken from:
+				#   http://www.w3.org/TR/rdf-sparql-query/#descriptionsOfResources
+				# The query returns an empty graph, however, so I'm pretty sure I'm 
+				# missing something.
+				@graph <<
+					[ :_a, exOrg[:employeeId],    "1234"     ] <<
+					[ :_a, FOAF[:mbox_sha1sum],   "ABCD1234" ] <<
+					[ :_a, VCARD[:N],             :_b        ] <<
+					[ :_b, VCARD[:Family],        "Smith"    ] <<
+					[ :_b, VCARD[:Given],         "John"     ] <<
+
+					[ FOAF[:mbox_sha1sum], RDF[:type], OWL[:InverseFunctionalProperty] ]
+
+				sparql = %{
+					PREFIX ent:  <http://org.example.com/employees#>
+					DESCRIBE ?x WHERE { ?x ent:employeeId "1234" }
+				}
+
+				# pending "figuring out what the hell I'm doing wrong" do
+				Redleaf.logger.debug "Graph is: \n%s" % [ @graph.to_turtle({ :vcard => VCARD, :foaf => FOAF, :owl => OWL, :exOrg => exOrg }) ]
+					res = @graph.query( sparql )
+					res.graph.should_not be_empty()
+				# end
 			end
 		end
+
 	end
 
 end

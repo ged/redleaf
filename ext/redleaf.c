@@ -186,6 +186,24 @@ rleaf_rdflib_log_handler( void *user_data, librdf_log_message *message ) {
 
 
 /*
+ *  call-seq:
+ *     Redleaf.generate_id   -> symbol
+ *
+ *  Generate a unique ID (for anonymous bnodes) and return it as a Symbol.
+ */
+static VALUE
+rleaf_redleaf_generate_id( VALUE klass ) {
+	librdf_node *bnode = librdf_new_node_from_blank_identifier( rleaf_rdf_world, NULL );
+	unsigned char *genid = librdf_node_get_blank_identifier( bnode );
+	ID id = rb_intern( (char *)genid );
+	
+	rleaf_log( "debug", "Generated id: %s (%p)", genid, genid );
+	
+	return ID2SYM( id );
+}
+
+
+/*
  *
  */
 static VALUE
@@ -286,6 +304,7 @@ void Init_redleaf_ext( void ) {
 	/* Add Redleaf module functions */
 	rb_define_module_function( rleaf_mRedleaf, "make_literal_string", 
 		rleaf_redleaf_make_literal_string, 1 );
+	rb_define_module_function( rleaf_mRedleaf, "generate_id", rleaf_redleaf_generate_id, 0 );
 
 	rb_require( "redleaf" );
 	rb_require( "redleaf/exceptions" );

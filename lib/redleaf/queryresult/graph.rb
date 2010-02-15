@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
- 
+
 require 'redleaf'
 require 'redleaf/queryresult'
 
 # A result from a SPARQL query that returns a graph.
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -20,12 +20,6 @@ require 'redleaf/queryresult'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::GraphQueryResult < Redleaf::QueryResult
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	######
@@ -44,13 +38,13 @@ class Redleaf::GraphQueryResult < Redleaf::QueryResult
 	def to_json
 		return self.graph.to_json
 	end
-	
+
 
 	### Overloaded to return the result's graph as RDF/XML.
 	def to_xml
 		return self.graph.to_rdfxml_abbrev
 	end
-	
+
 end # class Redleaf::GraphQueryResult
 
 # vim: set nosta noet ts=4 sw=4:

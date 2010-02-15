@@ -26,12 +26,6 @@ require 'redleaf/store'
 #
 class Redleaf::MySQLStore < Redleaf::Store
 
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
-
 	# Default options
 	DEFAULT_OPTIONS = {
 		:new      => true,

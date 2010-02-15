@@ -14,7 +14,7 @@ require 'logger'
 # [Redleaf::QueryResult]
 #   Call Redleaf::Graph#query with a valid SPARQL query returns one of these. 
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -30,14 +30,11 @@ require 'logger'
 #
 module Redleaf
 
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
-
 	# Library version
 	VERSION = '0.0.1'
+
+	# Version control revision
+	REVISION = %q$Revision$
 
 
 	# Load the logformatters and some other stuff first
@@ -85,7 +82,7 @@ module Redleaf
 	### Return the library's version string
 	def self::version_string( include_buildnum=false )
 		vstring = "%s %s" % [ self.name, VERSION ]
-		vstring << " (build %d)" % [ SVNRev[/\d+/].to_i ] if include_buildnum
+		vstring << " (build %s)" % [ REVISION[/.*: ([[:xdigit:]]+)/, 1] || '0' ] if include_buildnum
 		return vstring
 	end
 
@@ -98,6 +95,11 @@ module Redleaf
 	require 'redleaf/parser'
 	require 'redleaf/store'
 	require 'redleaf/core_extensions'
+
+	### Create and return a Redleaf::Namespace for the specified +uristring+.
+	def self::Namespace( uristring )
+		Redleaf::Namespace.new( uristring )
+	end
 
 end # module Redleaf
 

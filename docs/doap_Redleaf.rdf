@@ -7,7 +7,7 @@
   <Project rdf:about="http://deveiate.org/projects/Redleaf">
     <created>2008-11-21</created>
     <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
-    <name>Apache Redleaf</name>
+    <name>Redleaf</name>
     <homepage rdf:resource="http://deveiate.org/projects/Redleaf" />
     <shortdesc>An RDF library for Ruby</shortdesc>
     <description>

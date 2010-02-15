@@ -41,17 +41,135 @@ describe Redleaf::Statement do
 
 	BOOK   = Redleaf::Namespace.new( 'http://purl.org/net/schemas/book/' )
 
-	TEST_ISBN_URN          = URI( 'urn:isbn:0297783297' )
 	TEST_EMAIL_URL         = URI( 'mailto:ged@FaerieMUD.org' )
 	TEST_FAVORITE_BOOK_URI = BOOK[:favourite]
+	TEST_ISBN_URN          = URI( 'urn:isbn:0297783297' )
+
+	TEST_PROJECT_URI       = URI( 'http://deveiate.org/projects/Redleaf' )
+	TEST_PROJECTNAME_URI   = DOAP[:name]
+	TEST_PROJECT_NAME      = 'Redleaf'
 
 	before( :all ) do
 		setup_logging( :fatal )
 	end
 
-
 	after( :all ) do
 		reset_logging()
+	end
+
+
+	describe "factory constructor" do
+
+		before( :each ) do
+			@subject    = TEST_EMAIL_URL
+			@predicate  = TEST_FAVORITE_BOOK_URI
+			@object     = TEST_ISBN_URN
+
+			@subject2   = TEST_PROJECT_URI
+			@predicate2 = TEST_PROJECTNAME_URI
+			@object2    = TEST_PROJECT_NAME
+		end
+
+		it "returns an existing statement as-is" do
+			stmt = Redleaf::Statement.new
+			Redleaf::Statement.create( stmt ).should == [ stmt ]
+		end
+
+		it "returns a single-statement Array when given a simple [subject, predicate, object] Array" do
+			Redleaf::Statement.create([ @subject, @predicate, @object ]).should ==
+				[ Redleaf::Statement.new(@subject, @predicate, @object) ]
+		end
+
+		it "returns a two-statement Array when given an array of two simple [s,p,o] Arrays" do
+			array = [
+				[ @subject, @predicate, @object ],
+				[ @subject2, @predicate2, @object2 ],
+			]
+			res = Redleaf::Statement.create( array )
+			res.should have( 2 ).members
+
+			res.collect {|st| st.subject }.should include( @subject, @subject2 )
+			res.collect {|st| st.predicate }.should include( @predicate, @predicate2 )
+			res.collect {|st| st.object }.should include( @object, @object2 )
+		end
+
+		it "returns a pair of statements with the same subject when given a semi-colon style " +
+		   "hash" do
+			# <subject> <predicate1> <object1> ;  | { :subject => { <predicate1> => <object1>,
+			#           <predicate2> <object2> .  |                 <predicate2> => <object2> }
+			hash = { @subject => { @predicate => @object,
+			                       @predicate2 => @object2 } }
+			res = Redleaf::Statement.create( hash )
+
+			res.should be_an( Array )
+			res.should have( 2 ).members
+
+			res.collect {|st| st.subject }.should == [ @subject, @subject ] # Both the same
+			res.collect {|st| st.predicate }.should include( @predicate, @predicate2 )
+			res.collect {|st| st.object }.should include( @object, @object2 )
+		end
+
+		it "returns a pair of statements with the same subject and predicate when given a " +
+		   "coma-style hash" do
+			# <subject> <predicate1> <object1> ,  | { :subject => 
+			#                        <object2> .  |        { <predicate1> => [<object1>, <object2>] }}
+			hash = { @subject => {@predicate => [ @object, @object2 ]} }
+			res = Redleaf::Statement.create( hash )
+
+			res.should be_an( Array )
+			res.should have( 2 ).members
+
+			res.collect {|st| st.subject }.should == [ @subject, @subject ] # Both the same
+			res.collect {|st| st.predicate }.should include( @predicate, @predicate )
+			res.collect {|st| st.object }.should include( @object, @object2 )
+		end
+
+		it "returns statements that make up a graph for a complex hash" do
+			# @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+			# @prefix dc: <http://purl.org/dc/elements/1.1/> .
+			# @prefix ex: <http://example.org/stuff/1.0/> .
+			# 
+			# <http://www.w3.org/TR/rdf-syntax-grammar>
+			#   dc:title "RDF/XML Syntax Specification (Revised)" ;
+			#   ex:editor [
+			#     ex:fullname "Dave Beckett";
+			#     ex:homePage <http://purl.org/net/dajobe/>
+			#   ] .
+			ex = Redleaf::Namespace( 'http://example.org/stuff/1.0/' )
+			graph = {
+				URI('http://www.w3.org/TR/rdf-syntax-grammar') => {
+					DC[:title] => "RDF/XML Syntax Specification (Revised)",
+					ex[:editor] => {
+						ex[:fullname] => 'Dave Beckett',
+						ex[:homePage] => URI('http://purl.org/net/dajobe/'),
+					}
+				}
+			}
+
+			res = Redleaf::Statement.create( graph ).sort
+			bnode = res.first.object
+
+			res.should be_an( Array )
+			res.should have( 4 ).members
+
+			res[0].subject.should == URI( 'http://www.w3.org/TR/rdf-syntax-grammar' )
+			res[0].predicate.should == ex[:editor]
+			res[0].object.should be_a( Symbol )
+
+			res[1].subject.should == URI( 'http://www.w3.org/TR/rdf-syntax-grammar' )
+			res[1].predicate.should == DC[:title]
+			res[1].object.should == "RDF/XML Syntax Specification (Revised)"
+
+			res[2].subject.should == bnode
+			res[2].predicate.should == ex[:fullname]
+			res[2].object.should == 'Dave Beckett'
+
+			res[3].subject.should == bnode
+			res[3].predicate.should == ex[:homePage]
+			res[3].object.should == URI('http://purl.org/net/dajobe/')
+		end
+
+
 	end
 
 
@@ -88,14 +206,14 @@ describe Redleaf::Statement do
 			@statement.subject = 'http://example.org/'
 			@statement.subject.should == URI('http://example.org/')
 		end
-		
+
 
 		it "allows its subject to be set to a Redleaf::Namespace" do
 			ns = Redleaf::Namespace.new( 'http://example.org/' )
 			@statement.subject = ns
 			@statement.subject.should == URI('http://example.org/')
 		end
-		
+
 
 		it "does not allow its subject to be set to a literal" do
 			lambda {
@@ -121,7 +239,7 @@ describe Redleaf::Statement do
 			@statement.predicate = TEST_FAVORITE_BOOK_URI.to_s
 			@statement.predicate.should == TEST_FAVORITE_BOOK_URI
 		end
-		
+
 
 		it "allows its subject to be set to a Redleaf::Namespace" do
 			ns = Redleaf::Namespace.new( TEST_FAVORITE_BOOK_URI )
@@ -405,7 +523,7 @@ describe Redleaf::Statement do
 		before( :all ) do
 			setup_logging( :fatal )
 		end
-		
+
 		after( :all ) do
 			reset_logging()
 		end

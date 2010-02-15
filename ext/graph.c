@@ -387,44 +387,14 @@ rleaf_redleaf_graph_statements( VALUE self ) {
 
 
 /*
- * TODO: Support hash-append like this:
- *     
- *     graph << {
- *       michael => {
- *         RDF[:type] => FOAF[:Person],
- *         FOAF[:knows] => {
- *           RDF[:type] => FOAF[:Person],
- *           FOAF[:givenname] => "Mahlon",
- *           FOAF[:family_name] => "Smith",
- *         }
- *     }
- */
-
-/*
- *  call-seq:
- *     graph.append( *statements )   -> Redleaf::Graph
- *     graph << statement            -> Redleaf::Graph
+ * call-seq:
+ *     graph.append_statements( *statements )   -> graph
  *
- *  Append statements to the graph, either as Redleaf::Statements, valid
- *  triples in Arrays, or a subgraph of nodes expressed in a Hash.
+ * Append one or more Redleaf::Statements to the graph.
  *
- *     require 'redleaf/constants'
- *     incude Redleaf::Constants::CommonNamespaces # (for the FOAF namespace constant)
- *     
- *     MY_FOAF = Redleaf::Namspace.new( 'http://deveiate.org/foaf.xml#' )
- *     michael = MY_FOAF[:me]
- *
- *     graph = Redleaf::Graph.new
- *
- *     statement1 = Redleaf::Statement.new( michael, FOAF[:family_name], 'Granger' )
- *     statement2 = [ michael, FOAF[:givenname], 'Michael' ]
- *     graph.append( statement1, statement2 )
- *     
- *     graph << [ michael, FOAF[:homepage], URI('http://deveiate.org/') ]
- *     
  */
 static VALUE
-rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
+rleaf_redleaf_graph_append_statements( int argc, VALUE *argv, VALUE self ) {
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
 	librdf_statement *stmt_ptr = NULL;
 	VALUE statement = Qnil;
@@ -434,28 +404,8 @@ rleaf_redleaf_graph_append( int argc, VALUE *argv, VALUE self ) {
 
 	for ( i = 0; i < argc; i++ ) {
 		statement = argv[i];
-		rleaf_log( "debug", "  adding statement %d: %s", i,
-		           RSTRING_PTR(rb_inspect(statement)) );
-		
-		/* Check argument to see if it's an array or statement, error otherwise */
-		switch ( TYPE(statement) ) {
-			case T_ARRAY:
-			if ( RARRAY_LEN(statement) != 3 )
-				rb_raise( rb_eArgError, "Statement must have three elements." );
-			statement = rb_class_new_instance( 3, RARRAY_PTR(statement), rleaf_cRedleafStatement );
-			/* fallthrough */
-		
-			case T_DATA:
-			if ( CLASS_OF(statement) != rleaf_cRedleafStatement )
-				rb_raise( rb_eArgError, "can't convert %s into Redleaf::Statement", 
-					rb_obj_classname(statement) );
-			stmt_ptr = rleaf_get_statement( statement );
-			break;
-		
-			default:
-			rb_raise( rb_eArgError, "can't convert %s into Redleaf::Statement",
-				rb_obj_classname(statement) );
-		}
+		rleaf_log( "debug", "  adding statement %d: %s", i, RSTRING_PTR(rb_inspect(statement)) );
+		stmt_ptr = rleaf_get_statement( statement );
 	
 		if ( librdf_model_add_statement(ptr->model, stmt_ptr) != 0 )
 			rb_raise( rleaf_eRedleafError, "could not add statement %s to graph",
@@ -923,6 +873,7 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 	if ( !res )
 		rb_raise( rleaf_eRedleafError, "Execution of query failed." );
 	
+	rleaf_log_with_context( self, "debug", "  creating result" );
 	return rleaf_new_queryresult( self, res );
 }
 
@@ -1411,8 +1362,7 @@ rleaf_init_redleaf_graph( void ) {
 	rb_define_alias ( rleaf_cRedleafGraph, "length", "size" );
 	rb_define_method( rleaf_cRedleafGraph, "statements", rleaf_redleaf_graph_statements, 0 );
 
-	rb_define_method( rleaf_cRedleafGraph, "append", rleaf_redleaf_graph_append, -1 );
-	rb_define_alias ( rleaf_cRedleafGraph, "<<", "append" );
+	rb_define_method( rleaf_cRedleafGraph, "append_statements", rleaf_redleaf_graph_append_statements, -1 );
 	rb_define_method( rleaf_cRedleafGraph, "remove", rleaf_redleaf_graph_remove, 1 );
 	rb_define_alias ( rleaf_cRedleafGraph, "delete", "remove" );
 	

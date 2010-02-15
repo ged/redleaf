@@ -8,7 +8,7 @@ require 'redleaf/mixins'
 
 # A convenience class for building Redleaf::Resource objects.
 # 
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -24,12 +24,6 @@ require 'redleaf/mixins'
 #
 class Redleaf::Namespace
 	include Redleaf::Loggable
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 
 	# Add a convenience constructor method

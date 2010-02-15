@@ -29,12 +29,6 @@ require 'redleaf/parser'
 #
 class Redleaf::RSSTagSoupParser < Redleaf::Parser
 
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
-
 
 	# Use the 'rss-tag-soup' Redland parser
 	parser_type :rss_tag_soup

@@ -29,12 +29,6 @@ require 'redleaf/store'
 class Redleaf::HashesStore < Redleaf::Store
 	include Redleaf::Loggable
 
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
-
 	# Default options hash
 	DEFAULT_OPTIONS = {
 		:new       => true,

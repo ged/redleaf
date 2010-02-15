@@ -7,7 +7,7 @@ require 'redleaf/store'
 
 # A Redleaf::Store that uses SQLite. 
 #
-# == Subversion Id
+# == Version-Control Id
 #
 #  $Id$
 # 
@@ -22,12 +22,6 @@ require 'redleaf/store'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::SQLiteStore < Redleaf::Store
-
-	# SVN Revision
-	SVNRev = %q$Rev$
-
-	# SVN Id
-	SVNId = %q$Id$
 
 	# Default store options
 	DEFAULT_OPTIONS = {
