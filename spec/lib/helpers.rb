@@ -59,6 +59,7 @@ module Redleaf::SpecHelpers
 		  }
 	end
 
+
 	###############
 	module_function
 	###############
@@ -142,7 +143,6 @@ module Redleaf::SpecHelpers
 			pending( msg )
 		end
 	end
-
 
 end
 

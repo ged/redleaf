@@ -21,10 +21,15 @@ require 'redleaf/parser'
 #
 class Redleaf::GRDDLParser < Redleaf::Parser
 
-
 	# Use the 'grddl' Redland parser
 	parser_type :grddl
-	
+
+
+	### Parse the specified +content+ in the context of the specified +baseuri+. This parser 
+	### requires a +baseuri+ argument.
+	def parse( content, baseuri )
+		super
+	end
 
 end # class Redleaf::GRDDLParser
 

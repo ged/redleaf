@@ -67,6 +67,7 @@ module Redleaf # :nodoc:
 			XSD[:decimal]  => lambda {|str| BigDecimal(str) },
 			XSD[:integer]  => lambda {|str| Integer(str) },
 			XSD[:dateTime] => DateTime.method( :parse ),
+			XSD[:date]     => Date.method( :parse ),
 			XSD[:duration] => Redleaf::NodeUtils.method( :parse_iso8601_duration ),
 		}
 		DEFAULT_TYPEURI_REGISTRY.freeze
@@ -75,6 +76,7 @@ module Redleaf # :nodoc:
 		# Conversion registry defaults for Ruby object -> RDF node conversion
 		DEFAULT_CLASS_REGISTRY = {
 			DateTime => [ XSD[:dateTime], :to_s ],
+			Date     => [ XSD[:date], :to_s ],
 		}
 		DEFAULT_CLASS_REGISTRY.freeze
 		@@class_registry = DEFAULT_CLASS_REGISTRY.dup

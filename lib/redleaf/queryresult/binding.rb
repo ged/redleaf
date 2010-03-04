@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'redleaf'
 require 'redleaf/queryresult'
 
@@ -20,11 +20,6 @@ require 'redleaf/queryresult'
 # Please see the file LICENSE in the BASE directory for licensing details.
 #
 class Redleaf::BindingQueryResult < Redleaf::QueryResult
-
-
-	######
-	public
-	######
 
 	### Iterate over the result's rows, yielding each one as a hash to the provided +block+.
 	def each( &block ) # :yields: row

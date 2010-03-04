@@ -197,8 +197,6 @@ rleaf_redleaf_generate_id( VALUE klass ) {
 	unsigned char *genid = librdf_node_get_blank_identifier( bnode );
 	ID id = rb_intern( (char *)genid );
 	
-	rleaf_log( "debug", "Generated id: %s (%p)", genid, genid );
-	
 	return ID2SYM( id );
 }
 

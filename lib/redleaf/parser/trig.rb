@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'redleaf'
 require 'redleaf/parser'
 
@@ -26,7 +26,7 @@ class Redleaf::TriGParser < Redleaf::Parser
 
 	# Use the 'trig' Redland parser
 	parser_type :trig
-	
+
 
 end # class Redleaf::TriGParser
 

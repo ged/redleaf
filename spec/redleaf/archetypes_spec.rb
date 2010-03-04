@@ -101,12 +101,13 @@ describe Redleaf::Archetypes do
 		end
 
 		it "can include superclasses when adding archetypes to itself" do
-			pending "completion of the archetypes system"
-			@extended_class.module_eval do
-				include_archetype DOAP[:Project], :follow_inheritance => true
+			pending "completion of the archetypes system" do
+				@extended_class.module_eval do
+					include_archetype DOAP[:Project], :follow_inheritance => true
+				end
+				@extended_class.archetypes.should have(2).members
+				@extended_class.archetypes.keys.should include( DOAP[:Project], FOAF[:Project] )
 			end
-			@extended_class.archetypes.should have(2).members
-			@extended_class.archetypes.keys.should include( DOAP[:Project], FOAF[:Project] )
 		end
 
 	end

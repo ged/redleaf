@@ -32,9 +32,15 @@ class Redleaf::RSSTagSoupParser < Redleaf::Parser
 
 	# Use the 'rss-tag-soup' Redland parser
 	parser_type :rss_tag_soup
-	
 
-end # class Redleaf::RDFXMLParser
+
+	### Parse the specified +content+ in the context of the specified +baseuri+. This parser 
+	### requires a +baseuri+ argument.
+	def parse( content, baseuri )
+		super
+	end
+
+end # class Redleaf::RSSTagSoupParser
 
 # vim: set nosta noet ts=4 sw=4:
 

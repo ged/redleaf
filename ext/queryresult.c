@@ -271,12 +271,19 @@ rleaf_redleaf_queryresult_formatted_as( VALUE self, VALUE format ) {
 	rleaf_log_with_context( self, "debug", "Serializing a %s as %s",
 		rb_obj_classname( self ), RSTRING_PTR(rb_obj_as_string(format)) );
 	formaturi = rleaf_object_to_librdf_uri( format );
+	
+	rleaf_log_with_context( self, "debug", "Format URI is: %p (%s)",
+		formaturi, librdf_uri_as_string(formaturi) );
+	
 	result = librdf_query_results_to_counted_string( res, formaturi, NULL, &length );
+	
+	if ( !result ) {
+		unsigned char *msg = librdf_uri_as_string( formaturi );
+		librdf_free_uri( formaturi ); 
+		rb_raise( rleaf_eRedleafError, "Could not fetch results as %s", msg );
+	}
+	
 	librdf_free_uri( formaturi ); 
-	
-	if ( !result )
-		rb_raise( rleaf_eRedleafError, "Could not fetch results as %s", librdf_uri_as_string(formaturi) );
-	
 	rval = rb_str_new( (char *)result, length );
 	xfree( result );
 	

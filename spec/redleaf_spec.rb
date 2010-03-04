@@ -39,8 +39,13 @@ describe Redleaf do
 	        Redleaf::Constants::CommonNamespaces
 
 	before( :all ) do
+		setup_logging( :fatal )
+	end
+
+	after( :all ) do
 		reset_logging()
 	end
+
 
 	it "should know if its default logger is replaced" do
 		Redleaf.reset_logger

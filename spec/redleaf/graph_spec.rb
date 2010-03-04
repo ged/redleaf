@@ -525,7 +525,8 @@ describe Redleaf::Graph do
 		describe "DESCRIBE query" do
 
 			before( :each ) do
-				pending "until I figure out how DESCRIBE queries work"
+				pending "DESCRIBE implementation in librdf/rasqal" +
+				        " (http://bugs.librdf.org/mantis/view.php?id=135)"
 			end
 
 
@@ -560,11 +561,8 @@ describe Redleaf::Graph do
 					DESCRIBE ?x WHERE { ?x ent:employeeId "1234" }
 				}
 
-				# pending "figuring out what the hell I'm doing wrong" do
-				Redleaf.logger.debug "Graph is: \n%s" % [ @graph.to_turtle({ :vcard => VCARD, :foaf => FOAF, :owl => OWL, :exOrg => exOrg }) ]
-					res = @graph.query( sparql )
-					res.graph.should_not be_empty()
-				# end
+				res = @graph.query( sparql )
+				res.graph.should_not be_empty()
 			end
 		end
 

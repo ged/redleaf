@@ -4,10 +4,10 @@ BEGIN {
 	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
-	
+
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
@@ -46,7 +46,7 @@ describe Redleaf::BindingQueryResult do
 			?s ?p ?o
 		}
 	}
-	
+
 
 	before( :each ) do
 		setup_logging( :fatal )
@@ -71,7 +71,7 @@ describe Redleaf::BindingQueryResult do
 
 	it "can iterate over its rows" do
 		@result.rows.should have(12).members
-		
+
 		@result.rows.each do |row|
 			row.keys.should include( :s, :p, :o )
 		end
