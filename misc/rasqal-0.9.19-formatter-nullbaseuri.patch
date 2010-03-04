@@ -1,0 +1,20 @@
+From: Lauri Aalto <laalto@iki.fi>
+Date: Tue, 16 Feb 2010 11:00:33 +0000 (+0200)
+Subject: (rasqal_query_results_formatter_write): NULL base_uri is valid.
+X-Git-Url: http://git.librdf.org/view?p=rasqal.git;a=commitdiff_plain;h=efaa73cceca98b4ef762b06964fc2603e0ad8e0a
+
+(rasqal_query_results_formatter_write): NULL base_uri is valid.
+---
+
+diff --git a/src/rasqal_result_formats.c b/src/rasqal_result_formats.c
+index b0af16f..ee52dae 100644
+--- a/src/rasqal_result_formats.c
++++ b/src/rasqal_result_formats.c
+@@ -423,7 +423,6 @@ rasqal_query_results_formatter_write(raptor_iostream *iostr,
+   RASQAL_ASSERT_OBJECT_POINTER_RETURN_VALUE(iostr, raptor_iostream, 1);
+   RASQAL_ASSERT_OBJECT_POINTER_RETURN_VALUE(formatter, rasqal_query_results_formatter, 1);
+   RASQAL_ASSERT_OBJECT_POINTER_RETURN_VALUE(results, rasqal_query_results, 1);
+-  RASQAL_ASSERT_OBJECT_POINTER_RETURN_VALUE(base_uri, raptor_uri, 1);
+ 
+   if(!formatter->factory->writer)
+      return 1;
