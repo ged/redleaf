@@ -26,3 +26,5 @@ spec/w3c_(entailment|miscellaneous|parser|rdfa)_spec\.rb$
 ^ruby\-committers\.yml$
 tmp/
 \.DS_Store
+.yardoc
+^doc/

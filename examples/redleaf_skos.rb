@@ -8,8 +8,8 @@ BEGIN {
 	require 'pathname'
 	basedir = Pathname( __FILE__ ).dirname.parent
 	libdir = basedir + 'lib'
-	extdir = basedir + 'ext'
-	
+	extdir = libdir + Config::CONFIG['arch']
+
 	$LOAD_PATH.unshift( libdir, extdir )
 }
 
@@ -191,7 +191,7 @@ if __FILE__ == $0
 	sources = [
 		"http://norman.walsh.name/knows/taxonomy",
 		"http://www.wasab.dk/morten/blog/archives/author/mortenf/skos.rdf",
-		"file:skos_ukatdata_20040822.xml",
+		"file:skos_ukatdata_20090316.xml",
 		#"file:samples/archives.rdf", # this isn't in svn, so I'm not sure what it contains
 	]
 
