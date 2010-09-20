@@ -1,31 +1,25 @@
-= Redleaf
+# Redleaf
 
-Redleaf is an RDF library for Ruby. It's composed of a hand-written binding
-for the Redland RDF Library, and a high-level layer that adds some idioms that
-Rubyists might find familiar.
+Redleaf is an RDF library for Ruby. It's composed of a hand-written binding for the Redland RDF Library, and a high-level layer that adds some idioms that Rubyists might find familiar.
 
-It currently binds a good slice of the functionality that is offered by
-Redland, but is still missing a few features. There are plans to add them in
-the near future. We've built and deployed projects using it, but the API may
-have to change somewhat as we learn more.
+It currently binds a good slice of the functionality that is offered by Redland, but is still missing a few features. There are plans to add them in the near future. We've built and deployed projects using it, but the API may have to change somewhat as we learn more.
 
-You can help out by checking out the current development source with Mercurial
-from the following URL:
+You can help out by checking out the current development source with Mercurial from the following URL:
 
-    http://repo.deveiate.org/Redleaf
+> http://repo.deveiate.org/Redleaf
 
 The project page also has more details and the most-recent API documentation:
 
-    http://deveiate.org/projects/Redleaf
+> http://deveiate.org/projects/Redleaf
 
-== Testing
+## Testing
 
 Provided you have Rake and RSpec (`gem install rake rspec` if you don't)
 installed, you can run the tests in this directory with the command:
 
-  $ rake spec
+    $ rake spec
 
-=== RDBMS-backed Store Tests
+### RDBMS-backed Store Tests
 
 Note that the Redleaf::Store classes that store triples in an RDBMS actually
 do connect to a database. While this is not ideal (I'd much rather they work
@@ -36,7 +30,7 @@ file called 'test-config.yml' in the base directory, and add a Hash for each
 backend you wish to test with the requisite connection information. An example
 is provided as 'test-config.yml.example'.
 
-=== W3C and RDFa Auto-Generated Tests
+### W3C and RDFa Auto-Generated Tests
 
 Redleaf includes an optional (and only partially-finished) implementation of
 the W3C RDF test suite (http://www.w3.org/TR/rdf-testcases/) and the RDFa test
@@ -58,12 +52,12 @@ peoples' servers (albeit with a sleep between each request).
 See the spec/README file for more information on what the various files under
 spec/ do.
 
-== Authors
+## Authors
 
 * Michael Granger (ged@FaerieMUD.org)
 
 
-== Contributors
+## Contributors
 
 * Thanks to Leslie Wu (lwu2 at graphics.stanford.edu) for her suggestions and
   bug reports.
@@ -71,10 +65,6 @@ spec/ do.
   regarding the testing of the RDBMS-backed stores.
 
 
-== License
-
-:include: LICENSE
-
---
+## License
 
 See the LICENSE file for additional licensing details.
