@@ -1,363 +1,170 @@
-#!rake -*- ruby -*-
-#
-# Redleaf rakefile
-#
-# Based on various other Rakefiles, especially one by Ben Bleything
-#
-# Copyright (c) 2007-2010 The FaerieMUD Consortium
-#
-# Authors:
-#  * Michael Granger <ged@FaerieMUD.org>
-#
-
-BEGIN {
-	require 'rbconfig'
-	require 'pathname'
-	basedir = Pathname.new( __FILE__ ).dirname
-
-	libdir = basedir + "lib"
-	extdir = libdir + Config::CONFIG['sitearch']
-
-	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
-	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
-}
-
-begin
-	require 'readline'
-	include Readline
-rescue LoadError
-	# Fall back to a plain prompt
-	def readline( text )
-		$stderr.print( text.chomp )
-		return $stdin.gets
-	end
-end
-
-begin
-	require 'rubygems'
-rescue LoadError
-	module Gem
-		class Specification; end
-	end
-end
+#!/usr/bin/env rake
 
 require 'rbconfig'
-require 'rake'
-require 'rake/testtask'
-require 'rake/packagetask'
-require 'rake/clean'
-# require 'rake/191_compat.rb'
+require 'pathname'
 
-$dryrun = false
-
-### Config constants
-BASEDIR       = Pathname.new( __FILE__ ).dirname.relative_path_from( Pathname.getwd )
-BINDIR        = BASEDIR + 'bin'
-LIBDIR        = BASEDIR + 'lib'
-EXTDIR        = BASEDIR + 'ext'
-DOCSDIR       = BASEDIR + 'docs'
-PKGDIR        = BASEDIR + 'pkg'
-DATADIR       = BASEDIR + 'data'
-
-MANUALDIR     = DOCSDIR + 'manual'
-
-PROJECT_NAME  = 'Redleaf'
-PKG_NAME      = PROJECT_NAME.downcase
-PKG_SUMMARY   = 'An RDF library for Ruby'
-
-# Cruisecontrol stuff
-CC_BUILD_LABEL     = ENV['CC_BUILD_LABEL']
-CC_BUILD_ARTIFACTS = ENV['CC_BUILD_ARTIFACTS'] || 'artifacts'
-
-VERSION_FILE  = LIBDIR + 'redleaf.rb'
-if VERSION_FILE.exist? && buildrev = ENV['CC_BUILD_LABEL']
-	PKG_VERSION = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ] + '.' + buildrev
-elsif VERSION_FILE.exist?
-	PKG_VERSION = VERSION_FILE.read[ /VERSION\s*=\s*['"](\d+\.\d+\.\d+)['"]/, 1 ]
+begin
+	require 'rake/extensiontask'
+rescue LoadError
+	abort "This Rakefile requires rake-compiler (gem install rake-compiler)"
 end
 
-PKG_VERSION ||= '0.0.0'
+begin
+	require 'hoe'
+rescue LoadError
+	abort "This Rakefile requires hoe (gem install hoe)"
+end
 
-PKG_FILE_NAME = "#{PKG_NAME.downcase}-#{PKG_VERSION}"
-GEM_FILE_NAME = "#{PKG_FILE_NAME}.gem"
+BASEDIR          = Pathname( __FILE__ ).dirname
+SPECDIR          = BASEDIR + 'spec'
+EXTDIR           = BASEDIR + 'ext'
 
-# Universal VCS constants
-DEFAULT_EDITOR  = 'vi'
-COMMIT_MSG_FILE = 'commit-msg.txt'
-FILE_INDENT     = " " * 12
-LOG_INDENT      = " " * 3
+SPEC_DATADIR     = SPECDIR + 'data'
+SPEC_TEMPLATEDIR = SPECDIR + 'templates'
 
-EXTCONF       = EXTDIR + 'extconf.rb'
+W3CTEST_TASKLIB  = SPECDIR + 'w3ctest-tasks.rb'
+RDFATEST_TASKLIB = SPECDIR + 'rdfatest-tasks.rb'
 
-ARTIFACTS_DIR = Pathname.new( CC_BUILD_ARTIFACTS )
+# Load the W3C test rake tasks
+$stderr.puts "Adding tasks from #{W3CTEST_TASKLIB}" if Rake.application.options.trace
+load W3CTEST_TASKLIB
+$stderr.puts "Adding tasks from #{RDFATEST_TASKLIB}" if Rake.application.options.trace
+load RDFATEST_TASKLIB
 
-TEXT_FILES    = Rake::FileList.new( %w[Rakefile ChangeLog README LICENSE] )
-BIN_FILES     = Rake::FileList.new( "#{BINDIR}/*" )
-LIB_FILES     = Rake::FileList.new( "#{LIBDIR}/**/*.rb" )
-EXT_FILES     = Rake::FileList.new( "#{EXTDIR}/**/*.{c,h,rb}" )
-DATA_FILES    = Rake::FileList.new( "#{DATADIR}/**/*" )
+# Hoe plugins
+Hoe.plugin :mercurial
+Hoe.plugin :yard
+Hoe.plugin :signing
+Hoe.plugin :manualgen
 
-SPECDIR       = BASEDIR + 'spec'
-SPECLIBDIR    = SPECDIR + 'lib'
-SPEC_FILES    = Rake::FileList.new( "#{SPECDIR}/**/*_spec.rb", "#{SPECLIBDIR}/**/*.rb" )
+Hoe.plugins.delete :rubyforge
 
-TESTDIR       = BASEDIR + 'tests'
-TEST_FILES    = Rake::FileList.new( "#{TESTDIR}/**/*.tests.rb" )
+# Main hoespec
+hoespec = Hoe.spec 'redleaf' do
+	self.readme_file = 'README.md'
+	self.history_file = 'History.md'
 
-RAKE_TASKDIR  = BASEDIR + 'rake'
-RAKE_TASKLIBS = Rake::FileList.new( "#{RAKE_TASKDIR}/*.rb" )
-PKG_TASKLIBS  = Rake::FileList.new( "#{RAKE_TASKDIR}/{191_compat,helpers,packaging,rdoc,testing}.rb" )
-PKG_TASKLIBS.include( "#{RAKE_TASKDIR}/manual.rb" ) if MANUALDIR.exist?
+	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
-RAKE_TASKLIBS_URL = 'http://repo.deveiate.org/rake-tasklibs'
+	self.extra_dev_deps.push *{
+		'rspec' => '~> 2.4',
+	}
 
-LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
+	self.spec_extras[:licenses] = ["BSD"]
+	self.spec_extras[:signing_key] = '/Volumes/Keys/ged-private_gem_key.pem'
+	self.spec_extras[:extensions] = [ EXTDIR + 'extconf.rb' ]
 
-EXTRA_PKGFILES = Rake::FileList.new
-EXTRA_PKGFILES.include( "#{BASEDIR}/spec/templates" )
-EXTRA_PKGFILES.include( "#{BASEDIR}/spec/spec_generator.rb" )
-EXTRA_PKGFILES.include( "#{BASEDIR}/examples/*.rb" )
+	self.require_ruby_version( '>=1.8.7' )
 
-RELEASE_FILES = TEXT_FILES + 
-	SPEC_FILES + 
-	TEST_FILES + 
-	BIN_FILES +
-	LIB_FILES + 
-	EXT_FILES + 
-	DATA_FILES + 
-	RAKE_TASKLIBS +
-	EXTRA_PKGFILES
+	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags= )
+	self.yard_opts = [ '--protected', '--verbose' ] if self.respond_to?( :yard_opts= )
 
-RELEASE_FILES.exclude( "#{BASEDIR}/lib/redleaf/archetypes*" )
-RELEASE_FILES.exclude( "#{BASEDIR}/spec/redleaf/archetypes*" )
+	self.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
+end
 
-RELEASE_FILES << LOCAL_RAKEFILE.to_s if LOCAL_RAKEFILE.exist?
+ENV['VERSION'] ||= hoespec.spec.version.to_s
 
-RELEASE_ANNOUNCE_ADDRESSES = [
-	"Ruby-Talk List <ruby-talk@ruby-lang.org>",
-]
+# Ensure the specs pass before checking in
+task 'hg:precheckin' => :spec
 
-COVERAGE_MINIMUM = ENV['COVERAGE_MINIMUM'] ? Float( ENV['COVERAGE_MINIMUM'] ) : 85.0
-RCOV_EXCLUDES = 'spec,tests,/Library/Ruby,/var/lib,/usr/local/lib'
-RCOV_OPTS = [
-	'--exclude', RCOV_EXCLUDES,
-	'--xrefs',
-	'--save',
-	'--callsites',
-	#'--aggregate', 'coverage.data' # <- doesn't work as of 0.8.1.2.0
-  ]
+# Support for 'rvm specs'
+task :specs => :spec
+
+# Compile before testing
+task :spec => :compile
+namespace :spec do
+    task :doc   => [ :compile ]
+    task :quiet => [ :compile ]
+    task :html  => [ :compile ]
+    task :text  => [ :compile ]
+end
 
 
-### Load some task libraries that need to be loaded early
-if !RAKE_TASKDIR.exist?
-	$stderr.puts "It seems you don't have the build task directory. Shall I fetch it "
-	ans = readline( "for you? [y]" )
-	ans = 'y' if !ans.nil? && ans.empty?
+# Rake-compiler task
+Rake::ExtensionTask.new do |ext|
+	ext.name           = 'redleaf_ext'
+	ext.gem_spec       = hoespec.spec
+	ext.ext_dir        = 'ext'
+	ext.lib_dir        = "lib/#{Config::CONFIG['sitearch']}"
+	ext.source_pattern = "*.{c,h}"
+	ext.cross_compile  = true
+	ext.cross_platform = %w[i386-mswin32 i386-mingw32]
+end
 
-	if ans =~ /^y/i
-		$stderr.puts "Okay, fetching #{RAKE_TASKLIBS_URL} into #{RAKE_TASKDIR}..."
-		system 'hg', 'clone', RAKE_TASKLIBS_URL, "./#{RAKE_TASKDIR}"
-		if ! $?.success?
-			fail "Damn. That didn't work. Giving up; maybe try manually fetching?"
+
+begin
+	include Hoe::MercurialHelpers
+
+	### Task: prerelease
+	desc "Append the package build number to package versions"
+	task :pre do
+		rev = get_numeric_rev()
+		trace "Current rev is: %p" % [ rev ]
+		hoespec.spec.version.version << "pre#{rev}"
+		Rake::Task[:gem].clear
+
+		Gem::PackageTask.new( hoespec.spec ) do |pkg|
+			pkg.need_zip = true
+			pkg.need_tar = true
 		end
-	else
-		$stderr.puts "Then I'm afraid I can't continue. Best of luck."
-		fail "Rake tasklibs not present."
 	end
 
-	RAKE_TASKLIBS.include( "#{RAKE_TASKDIR}/*.rb" )
+	### Make the ChangeLog update if the repo has changed since it was last built
+	file '.hg/branch'
+	file 'ChangeLog' => '.hg/branch' do |task|
+		$stderr.puts "Updating the changelog..."
+		content = make_changelog()
+		File.open( task.name, 'w', 0644 ) do |fh|
+			fh.print( content )
+		end
+	end
+
+	# Rebuild the ChangeLog immediately before release
+	task :prerelease => 'ChangeLog'
+
+rescue NameError => err
+	task :no_hg_helpers do
+		fail "Couldn't define the :pre task: %s: %s" % [ err.class.name, err.message ]
+	end
+
+	task :pre => :no_hg_helpers
+	task 'ChangeLog' => :no_hg_helpers
+
 end
 
-require RAKE_TASKDIR + 'helpers.rb'
-include RakefileHelpers
 
-# Set the build ID if the mercurial executable is available
-if hg = which( 'hg' )
-	id = IO.read('|-') or exec hg.to_s, 'id', '-n'
-	PKG_BUILD = 'pre' + (id.chomp[ /^[[:xdigit:]]+/ ] || '1')
-else
-	PKG_BUILD = 'pre0'
-end
-SNAPSHOT_PKG_NAME = "#{PKG_FILE_NAME}.#{PKG_BUILD}"
-SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
+### Generated specs (W3C and RDFa)
+desc "Build the W3C conformance test suite"
+task :build_specs => 'w3ctests:generate'
 
-# Documentation constants
-API_DOCSDIR = DOCSDIR + 'api'
-RDOC_OPTIONS = [
-	'-w', '4',
-	'-HN',
-	'-i', '.',
-	'-m', 'README',
-	'-t', PKG_NAME,
-	'-W', 'http://deveiate.org/projects/Redleaf/browser/'
-  ]
-YARD_OPTIONS = [
-    '--protected',
-    '-r', 'README',
-	'--exclude', 'extconf\\.rb',
-    '--files', 'ChangeLog,LICENSE',
-	'--output-dir', API_DOCSDIR.to_s,
-  ]
-
-# Release constants
-SMTP_HOST = "mail.faeriemud.org"
-SMTP_PORT = 465 # SMTP + SSL
-
-# Project constants
-PROJECT_HOST = 'deveiate'
-PROJECT_PUBDIR = '/usr/local/www/public/code'
-PROJECT_DOCDIR = "#{PROJECT_PUBDIR}/#{PKG_NAME}"
-PROJECT_SCPPUBURL = "#{PROJECT_HOST}:#{PROJECT_PUBDIR}"
-PROJECT_SCPDOCURL = "#{PROJECT_HOST}:#{PROJECT_DOCDIR}"
-
-# Gem dependencies: gemname => version
-DEPENDENCIES = {
-}
-
-# Developer Gem dependencies: gemname => version
-DEVELOPMENT_DEPENDENCIES = {
-	'rake'        => '>= 0.8.7',
-	'rcodetools'  => '>= 0.7.0.0',
-	'rcov'        => '>= 0.8.1.2.0',
-	'rdoc'        => '>= 2.4.3',
-	'RedCloth'    => '>= 4.0.3',
-	'rspec'       => '>= 1.2.6',
-	'termios'     => '>= 0',
-	'text-format' => '>= 1.0.0',
-	'tmail'       => '>= 1.2.3.1',
-	'diff-lcs'    => '>= 1.1.2',
-	'rubyzip' => '>= 0.9.1',
-}
-
-# Non-gem requirements: packagename => version
-REQUIREMENTS = {
-	'Redland' => '>= 1.0.9',
-}
-
-# RubyGem specification
-GEMSPEC   = Gem::Specification.new do |gem|
-	gem.name              = PKG_NAME.downcase
-	gem.version           = PKG_VERSION
-
-	gem.summary           = PKG_SUMMARY
-	gem.description       = [
-		"Redleaf is an RDF library for Ruby. It's composed of a hand-written binding ",
-		"for the Redland RDF Library, and a high-level, more idiomatic Ruby layer.",
-  	  ].join( "\n" )
-	gem.post_install_message = [
-		"Thanks for installing Redleaf!",
-		"",
-		"If you have questions, comments, suggestions or find a bug, please contact us via",
-		"the bug-tracker on the project page:",
-		"",
-		"  http://deveiate.org/projects/Redleaf",
-		"",
-		"Happy RDFing!",
-	  ].join( "\n" )
-
-	gem.authors           = "Michael Granger"
-	gem.email             = ["ged@FaerieMUD.org"]
-	gem.homepage          = 'http://deveiate.org/projects/Redleaf'
-
-	gem.has_rdoc          = true
-	gem.rdoc_options      = RDOC_OPTIONS
-	gem.extra_rdoc_files  = %w[ChangeLog README LICENSE]
-
-	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
-	gem.executables       = BIN_FILES.select {|pn| File.executable?(pn) }.
-	                            collect {|pn| File.basename(pn) }
-	gem.require_paths << EXTDIR.relative_path_from( BASEDIR ).to_s if EXTDIR.exist?
-
-	if EXTCONF.exist?
-		gem.extensions << EXTCONF.relative_path_from( BASEDIR ).to_s
-	end
-
-	gem.files             = RELEASE_FILES
-	gem.test_files        = SPEC_FILES
-
-	DEPENDENCIES.each do |name, version|
-		version = '>= 0' if version.length.zero?
-		gem.add_runtime_dependency( name, version )
-	end
-
-	REQUIREMENTS.each do |name, version|
-		gem.requirements << [ name, version ].compact.join(' ')
-	end
-end
-
-$trace = Rake.application.options.trace ? true : false
-$dryrun = Rake.application.options.dryrun ? true : false
-$include_dev_dependencies = false
-
-# Load any remaining task libraries
-RAKE_TASKLIBS.each do |tasklib|
-	next if tasklib.to_s =~ %r{/helpers\.rb$}
-	begin
-		trace "  loading tasklib %s" % [ tasklib ]
-		import tasklib
-	rescue ScriptError => err
-		fail "Task library '%s' failed to load: %s: %s" %
-			[ tasklib, err.class.name, err.message ]
-		trace "Backtrace: \n  " + err.backtrace.join( "\n  " )
-	rescue => err
-		log "Task library '%s' failed to load: %s: %s. Some tasks may not be available." %
-			[ tasklib, err.class.name, err.message ]
-		trace "Backtrace: \n  " + err.backtrace.join( "\n  " )
-	end
-end
-
-# Load any project-specific rules defined in 'Rakefile.local' if it exists
-import LOCAL_RAKEFILE if LOCAL_RAKEFILE.exist?
+desc "Build the W3C RDFa test suite"
+task :build_specs => 'rdfatests:generate'
 
 
 #####################################################################
-###	T A S K S 	
+###	T A S K S
 #####################################################################
 
-### Default task
-task :default  => [:clean, :local, :spec, :apidocs, :package]
+# Add a target for running the specs under GDB for debugging
+namespace :spec do
 
-### Task the local Rakefile can append to -- no-op by default
-task :local
+	desc "Run specs under gdb"
+	task :gdb => [ :compile ] do |task|
+		require 'tempfile'
 
-### Task: clean
-CLEAN.include 'coverage', '**/*.orig', '**/*.rej'
-CLOBBER.include 'artifacts', 'coverage.info', 'ChangeLog', PKGDIR
+	    cmd_parts = ['run']
+	    cmd_parts << '-Ilib:ext'
+	    cmd_parts << '/usr/bin/spec'
+	    cmd_parts += SPEC_FILES.collect { |fn| %["#{fn}"] }
+	    cmd_parts += COMMON_SPEC_OPTS + ['-f', 's', '-c']
 
-### Task: changelog
-file 'ChangeLog' do |task|
-	log "Updating #{task.name}"
+		script = Tempfile.new( 'spec-gdbscript' )
+		script.puts( cmd_parts.join(' ') )
+		script.flush
 
-	changelog = make_changelog()
-	File.open( task.name, 'w' ) do |fh|
-		fh.print( changelog )
+		run 'gdb', '-x', script.path, RUBY
 	end
 end
 
 
-### Task: cruise (Cruisecontrol task)
-desc "Cruisecontrol build"
-task :cruise => [:clean, 'spec:quiet', :package] do |task|
-	raise "Artifacts dir not set." if ARTIFACTS_DIR.to_s.empty?
-	artifact_dir = ARTIFACTS_DIR.cleanpath + (CC_BUILD_LABEL || Time.now.strftime('%Y%m%d-%T'))
-	artifact_dir.mkpath
-
-	coverage = BASEDIR + 'coverage'
-	if coverage.exist? && coverage.directory?
-		$stderr.puts "Copying coverage stats..."
-		FileUtils.cp_r( 'coverage', artifact_dir )
-	end
-
-	$stderr.puts "Copying packages..."
-	FileUtils.cp_r( FileList['pkg/*'].to_a, artifact_dir )
-end
-
-
-desc "Update the build system to the latest version"
-task :update_build do
-	log "Updating the build system"
-	run 'hg', '-R', RAKE_TASKDIR, 'pull', '-u'
-	log "Updating the Rakefile"
-	sh 'rake', '-f', RAKE_TASKDIR + 'Metarakefile'
-end
 

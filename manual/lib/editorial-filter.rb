@@ -7,11 +7,6 @@
 # 
 # 
 
-### Avoid declaring the class if the tasklib hasn't been loaded yet.
-unless Object.const_defined?( :Manual )
-	raise LoadError, "not intended for standalone use: try the 'manual.rb' rake tasklib"
-end
-
 
 
 ### A filter for making editorial marks in manual content.
@@ -22,7 +17,7 @@ end
 ###   <?ed "This is an editor's note." ?>
 ###   <?ed verify:"this content needs checking or verification" ?>
 ### 
-class EditorialFilter < Manual::Page::Filter
+class Hoe::ManualGen::EditorialFilter < Hoe::ManualGen::Page::Filter
 	
 	# PI	   ::= '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
 	LinkPI = %r{

@@ -7,11 +7,6 @@
 # * Mahlon E. Smith <mahlon@martini.nu>
 # 
 
-### Avoid declaring the class if the tasklib hasn't been loaded yet.
-unless Object.const_defined?( :Manual )
-	raise LoadError, "not intended for standalone use: try the 'manual.rb' rake tasklib"
-end
-
 
 ### A filter for generating links from the generated API documentation. This allows you to refer
 ### to class documentation by simply referencing a class name.
@@ -21,7 +16,7 @@ end
 ###   <?api Class::Name ?>
 ###   <?api "click here":Class::Name ?>
 ### 
-class APIFilter < Manual::Page::Filter
+class Hoe::ManualGen::APIFilter < Hoe::ManualGen::Page::Filter
 
 	# PI	   ::= '<?' PITarget (S (Char* - (Char* '?>' Char*)))? '?>'
 	ApiPI = %r{
@@ -35,8 +30,8 @@ class APIFilter < Manual::Page::Filter
 			\s+
 		\?>
 	  }x
-	
-	
+
+
 	######
 	public
 	######
@@ -51,12 +46,12 @@ class APIFilter < Manual::Page::Filter
 			# Grab the tag values
 			link_text = $1
 			classname = $2
-			
+
 			self.generate_link( page, apipath, classname, link_text )
 		end
 	end
-	
-	
+
+
 	### Create an HTML link fragment from the parsed ApiPI.
 	###
 	def generate_link( current_page, apipath, classname, link_text=nil )

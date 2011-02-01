@@ -1,23 +1,44 @@
 # Redleaf
 
-Redleaf is an RDF library for Ruby. It's composed of a hand-written binding for the Redland RDF Library, and a high-level layer that adds some idioms that Rubyists might find familiar.
+* http://deveiate.org/projects/Redleaf
 
-It currently binds a good slice of the functionality that is offered by Redland, but is still missing a few features. There are plans to add them in the near future. We've built and deployed projects using it, but the API may have to change somewhat as we learn more.
+## Description
 
-You can help out by checking out the current development source with Mercurial from the following URL:
+Redleaf is an RDF library for Ruby. It's composed of a hand-written binding
+for the Redland RDF Library, and a high-level layer that adds some idioms that
+Rubyists might find more familiar.
 
-> http://repo.deveiate.org/Redleaf
+It currently binds a good slice of the functionality that is offered by
+Redland, but is still missing a few features. There are plans to add them in
+the near future. We've built and deployed projects using it, but the API may
+have to change somewhat as we learn more.
 
-The project page also has more details and the most-recent API documentation:
 
-> http://deveiate.org/projects/Redleaf
+## Installation
 
-## Testing
+After installing Redland from http://librdf.org/:
 
-Provided you have Rake and RSpec (`gem install rake rspec` if you don't)
-installed, you can run the tests in this directory with the command:
+    gem install redleaf
 
-    $ rake spec
+
+## Contributing
+
+You can check out the current development source with Mercurial like so:
+
+    hg clone http://repo.deveiate.org/Redleaf
+
+Or if you prefer Git, via its Github mirror:
+
+    https://github.com/ged/redleaf
+
+After checking out the source, install Hoe (gem install hoe) if you haven't 
+already and run:
+
+	$ rake newb
+
+This task will install any missing dependencies, run the tests/specs, and
+generate the API documentation.
+
 
 ### RDBMS-backed Store Tests
 
@@ -52,10 +73,6 @@ peoples' servers (albeit with a sleep between each request).
 See the spec/README file for more information on what the various files under
 spec/ do.
 
-## Authors
-
-* Michael Granger (ged@FaerieMUD.org)
-
 
 ## Contributors
 
@@ -67,4 +84,31 @@ spec/ do.
 
 ## License
 
-See the LICENSE file for additional licensing details.
+Copyright (c) 2008-2011, Michael Granger
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the author/s, nor the names of the project's
+  contributors may be used to endorse or promote products derived from this
+  software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
