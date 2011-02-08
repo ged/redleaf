@@ -23,3 +23,5 @@ tmp/
 ruby\-committers\.yml$
 ^skos_ukatdata.*
 ~$
+^doc/
+^coverage/
