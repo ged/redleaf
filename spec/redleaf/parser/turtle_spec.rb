@@ -84,7 +84,7 @@ describe Redleaf::TurtleParser do
 		it "requires that #parse be called with a baseuri" do
 			lambda {
 				@parser.parse( @turtle )
-			}.should raise_error( ArgumentError, /wrong number of arguments \(1 for 2\)/i )
+			}.should raise_error( ArgumentError, /1 for 2/i )
 		end
 
 
