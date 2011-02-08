@@ -169,6 +169,7 @@ if !RAKE_TASKDIR.exist?
 end
 
 require RAKE_TASKDIR + 'helpers.rb'
+include RakefileHelpers
 
 # Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
@@ -181,7 +182,7 @@ SNAPSHOT_PKG_NAME = "#{PKG_FILE_NAME}.#{PKG_BUILD}"
 SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
 
 # Documentation constants
-RDOCDIR = DOCSDIR + 'api'
+API_DOCSDIR = DOCSDIR + 'api'
 RDOC_OPTIONS = [
 	'-w', '4',
 	'-HN',
@@ -189,6 +190,13 @@ RDOC_OPTIONS = [
 	'-m', 'README',
 	'-t', PKG_NAME,
 	'-W', 'http://deveiate.org/projects/Redleaf/browser/'
+  ]
+YARD_OPTIONS = [
+    '--protected',
+    '-r', 'README',
+	'--exclude', 'extconf\\.rb',
+    '--files', 'ChangeLog,LICENSE',
+	'--output-dir', API_DOCSDIR.to_s,
   ]
 
 # Release constants
@@ -307,7 +315,7 @@ import LOCAL_RAKEFILE if LOCAL_RAKEFILE.exist?
 #####################################################################
 
 ### Default task
-task :default  => [:clean, :local, :spec, :rdoc, :package]
+task :default  => [:clean, :local, :spec, :apidocs, :package]
 
 ### Task the local Rakefile can append to -- no-op by default
 task :local

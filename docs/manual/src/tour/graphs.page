@@ -90,6 +90,27 @@ graph.statements
 # =>
 <?end?>
 
+If you want to append something a bit more complex, you can append entire subgraphs in the form of Hashes similar in structure to the "Turtle":http://www.w3.org/TeamSubmission/turtle/ syntax:
+
+<?example { language: ruby, caption: "Appending subgraphs as Hashes", testable: true } ?>
+ex = Redleaf::Namespace( 'http://example.org/stuff/1.0/' )
+graph = Redleaf::Graph.new
+
+graph << {
+	URI('http://www.w3.org/TR/rdf-syntax-grammar') => {
+		DC[:title] => "RDF/XML Syntax Specification (Revised)",
+		ex[:editor] => {
+			ex[:fullname] => 'Dave Beckett',
+			ex[:homePage] => URI('http://purl.org/net/dajobe/'),
+		}
+	}
+}
+
+graph.statements
+# =>
+<?end?>
+
+
 h4(#load). Loading Serialized RDF
 
 Chances are you'll quickly grow bored of inserting all those example statements, and will want to load a useful set of triples to work with. You can load statements from serialized RDF via the @Redleaf::Graph#load@ method. It supports several different URL schemes, including @http@ and @file@, so you can load triples from a remote resource or from a local file:

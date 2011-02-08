@@ -151,6 +151,8 @@ st3.object    = "Example"
 st3  # =>
 <?end?>
 
+As you'll see in the next section, though, there are much easier ways of creating statements _en masse_, using methods that are more familiar to people who think in Ruby.
+
 h3. Moving On To Graphs
 
 Eventually, you'll probably tire of creating nodes, rejoicing in their three-ness, and want to save them off somewhere so you can take them with you on picnics. To do that, you'll need a <?link "Graph":Working With Graphs ?>.
