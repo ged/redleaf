@@ -29,9 +29,9 @@ have_header( 'stdio.h' )    or fail( "missing stdio.h" )
 have_header( 'string.h' )   or fail( "missing string.h" )
 have_header( 'inttypes.h' ) or fail( "missing inttypes.h" )
 
-have_function( 'librdf_serializer_get_description' ) or
+have_func( 'librdf_serializer_get_description' ) or
 	fail( "Your librdf is too old!" )
-have_function( 'librdf_parser_get_description' ) or
+have_func( 'librdf_parser_get_description' ) or
 	fail( "Your librdf is too old!" )
 
 
