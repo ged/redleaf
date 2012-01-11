@@ -4,36 +4,23 @@ BEGIN {
 	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
-	
+
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
+require 'spec/lib/helpers'
+require 'redleaf/core_extensions'
 
-	require 'redleaf/core_extensions'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
-
-
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf, " core extensions" do
 	include Redleaf::SpecHelpers
 
@@ -65,13 +52,13 @@ describe Redleaf, " core extensions" do
 			ary.should === statement
 		end
 	end
-	
+
 	describe Redleaf::StringExtensions do
 		before( :each ) do
 			@string = ''
 			@string.extend( Redleaf::StringExtensions )
 		end
-		
+
 
 		it "adds a language-code setter to Strings" do
 			@string.lang = 'en'
@@ -100,7 +87,7 @@ describe Redleaf, " core extensions" do
 		before( :each ) do
 			extend Redleaf::KernelExtensions
 		end
-		
+
 
 		it "adds a casting method for Redleaf::Namespace" do
 			Namespace( 'http://google.com/' ).should be_an_instance_of( Redleaf::Namespace )

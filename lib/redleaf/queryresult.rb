@@ -26,6 +26,17 @@ class Redleaf::QueryResult
 	private_class_method :new
 
 
+	### Inheritance hook -- re-enable instantiation for concrete subclasses.
+	def self::inherited( subclass )
+		subclass.class_eval { public_class_method :new }
+		super
+	end
+
+
+	#################################################################
+	###	I N S T A N C E   M E T H O D S
+	#################################################################
+
 	### Set the graph that the result belongs to
 	def initialize( graph )
 		@source_graph = graph

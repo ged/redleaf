@@ -8,36 +8,23 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/parser'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
+require 'redleaf/parser'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf::Parser do
-	include Redleaf::SpecHelpers
-
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -63,9 +50,9 @@ describe Redleaf::Parser do
 			parser_type :gazelles
 		end
 
-		lambda {
+		expect {
 			unimpl_storeclass.new
-		}.should raise_error( Redleaf::FeatureError, /unsupported/ )
+		}.to raise_error( Redleaf::FeatureError, /unsupported/ )
 	end
 
 

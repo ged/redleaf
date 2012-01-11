@@ -4,41 +4,28 @@ BEGIN {
 	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
-	
+
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
-	require 'spec/lib/parser_behavior'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/parser/rdfxml'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
+require 'redleaf/parser/rdfxml'
+require 'redleaf/behavior/parser'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf::RDFXMLParser do
-	include Redleaf::SpecHelpers
-
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -49,7 +36,7 @@ describe Redleaf::RDFXMLParser do
 		pending "no rdfxml parser type; will not test" unless 
 			Redleaf::RDFXMLParser.is_supported?
 	end
-	
+
 
 	after( :all ) do
 		reset_logging()
@@ -57,15 +44,15 @@ describe Redleaf::RDFXMLParser do
 
 
 	describe "instance" do
-		
+
 		before( :each ) do
 			setup_logging( :fatal )
 			@parser = Redleaf::RDFXMLParser.new
 		end
-		
-		
-		it_should_behave_like "A Parser"
-		
+
+
+		it_should_behave_like "a Redleaf::Parser"
+
 
 		it "parses valid RDF/XML and returns a graph" do
 			rdfxml = <<-EOF
@@ -85,12 +72,12 @@ describe Redleaf::RDFXMLParser do
 			graph.statements.map {|st| st.predicate }.
 				should include( DC[:creator], DC[:publisher] )
 		end
-		
+
 		it "raises an error when asked to parse invalid RDF/XML input" do
 			not_rdfxml = "I like bees. No, BEEEEEEEES!"
-			lambda {
+			expect {
 				@parser.parse( not_rdfxml, 'a' )
-			}.should raise_error( Redleaf::ParseError, /1 error/i )
+			}.to raise_error( Redleaf::ParseError, /1 error/i )
 		end
 	end
 

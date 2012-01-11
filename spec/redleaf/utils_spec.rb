@@ -8,37 +8,24 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'ipaddr'
+require 'rspec'
+require 'ipaddr'
 
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'spec/lib/helpers'
 
-	require 'redleaf'
-	require 'redleaf/utils'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'redleaf'
+require 'redleaf/utils'
 
-
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf::NodeUtils do
-	include Redleaf::SpecHelpers
 
 	before( :all ) do
 		setup_logging( :fatal )

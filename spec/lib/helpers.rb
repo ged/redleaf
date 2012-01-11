@@ -13,19 +13,17 @@ BEGIN {
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
 }
 
-begin
-	require 'pp'
-	require 'yaml'
-	require 'redleaf'
+# require 'simplecov'
+# SimpleCov.start do
+# 	add_filter 'spec'
+# end
 
-	require 'spec/lib/constants'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'rspec'
+require 'pp'
+require 'yaml'
+
+require 'redleaf'
+require 'spec/lib/constants'
 
 
 ### RSpec helper functions.
@@ -63,6 +61,12 @@ module Redleaf::SpecHelpers
 	###############
 	module_function
 	###############
+
+	### Make an easily-comparable version vector out of +ver+ and return it.
+	def vvec( ver )
+		return ver.split('.').collect {|char| char.to_i }.pack('N*')
+	end
+
 
 	### Reset the logging subsystem to its default state.
 	def reset_logging
@@ -145,6 +149,21 @@ module Redleaf::SpecHelpers
 	end
 
 end
+
+
+
+### Mock with Rspec
+Rspec.configure do |config|
+	config.mock_with :rspec
+
+	config.include( Redleaf::TestConstants )
+	config.include( Redleaf::SpecHelpers )
+
+	config.filter_run_excluding( :ruby_1_9_only => true ) if
+		Redleaf::SpecHelpers.vvec( RUBY_VERSION ) < Redleaf::SpecHelpers.vvec('1.9.0')
+end
+
+
 
 # vim: set nosta noet ts=4 sw=4:
 

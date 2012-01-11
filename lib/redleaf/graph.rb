@@ -307,6 +307,7 @@ class Redleaf::Graph
 			self.log.debug "Anchoring a subject (%p) and an object (%p)" %
 				[ subject, object ]
 			equivalent = self[ nil, predicate, nil ].find do |stmt|
+				self.log.debug "  examining %p" % [ stmt ]
 				if stmt.subject.is_a?( Symbol ) &&
 				   stmt.object.is_a?( Symbol ) &&
 				   bnode_map.valid?( subject, stmt.subject ) &&
@@ -324,6 +325,7 @@ class Redleaf::Graph
 		elsif subject_is_floating
 			self.log.debug "Anchoring a subject (%p)" % [ subject ]
 			equivalent = self[ nil, predicate, object ].find do |stmt|
+				self.log.debug "  examining %p" % [ stmt ]
 				if stmt.subject.is_a?( Symbol ) &&
 				   bnode_map.valid?( subject, stmt.subject )
 
@@ -336,6 +338,7 @@ class Redleaf::Graph
 		elsif object_is_floating
 			self.log.debug "Anchoring an object (%p)" % [ object ]
 			equivalent = self[ subject, predicate, nil ].find do |stmt|
+				self.log.debug "  examining %p" % [ stmt ]
 				if stmt.object.is_a?( Symbol ) &&
 				   bnode_map.valid?( object, stmt.object )
 

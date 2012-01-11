@@ -8,51 +8,38 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
-	require 'spec/lib/store_behavior'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/store/hashes'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
+require 'redleaf/store/hashes'
+require 'redleaf/behavior/store'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf::HashesStore do
-	include Redleaf::SpecHelpers
-
 
 	before( :all ) do
 		setup_logging( :fatal )
 	end
 
-
 	before( :each ) do
 		pending "no sqlite backend; will not test" unless Redleaf::HashesStore.is_supported?
 	end
 
-
 	after( :all ) do
 		reset_logging()
 	end
+
+	it_should_behave_like "a Redleaf::Store"
 
 	# nil and an options hash that specifies nothing  (memory)
 	it "normalizes options without any arguments" do
@@ -80,9 +67,9 @@ describe Redleaf::HashesStore do
 	# nil and options hash that says bdb (error)
 	it "throws an exception when bdb type is specified and no name is given" do
 		opts = { :hash_type => :bdb }
-		lambda {
+		expect {
 			Redleaf::HashesStore.normalize_options( nil, opts )
-		}.should raise_error( Redleaf::Error, /you must specify a name argument for the bdb/i )
+		}.to raise_error( Redleaf::Error, /you must specify a name argument for the bdb/i )
 	end
 
 	# name, {} -> basename(name), {:hash_type => :bdb, :dir => dirname(name)}
@@ -116,25 +103,13 @@ describe Redleaf::HashesStore do
 	end
 
 
-	describe "instance" do
-
-		before( :each ) do
-			@store = Redleaf::HashesStore.new
-		end
-
-
-		it_should_behave_like "A Store"
-
-	end
-
-
-	describe "instance created with a name" do
+	context "created with a name" do
 
 		before( :each ) do
 			@store = Redleaf::HashesStore.new( 'hashesstore_spec', :new => true )
 		end
 
-		it_should_behave_like "A Store"
+		it_should_behave_like "a Redleaf::Store"
 
 	end
 

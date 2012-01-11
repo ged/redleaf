@@ -4,32 +4,21 @@ BEGIN {
 	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
-	
+
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/mixins'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
-
-include Redleaf::TestConstants
-include Redleaf::Constants
+require 'redleaf'
+require 'redleaf/mixins'
 
 #####################################################################
 ###	C O N T E X T S
@@ -48,7 +37,7 @@ describe Redleaf, "mixin" do
 				def log_test_message( level, msg )
 					self.log.send( level, msg )
 				end
-			
+
 				def logdebug_test_message( msg )
 					self.log_debug.debug( msg )
 				end
@@ -83,9 +72,9 @@ describe Redleaf, "mixin" do
 					:barang => { :kerklang => 'dumdumdum' },
 				}
 			}
-			
+
 			result = Redleaf::HashUtilities.stringify_keys( testhash )
-			
+
 			result.should be_an_instance_of( Hash )
 			result.should_not be_equal( testhash )
 			result.should == {
@@ -106,9 +95,9 @@ describe Redleaf, "mixin" do
 					'barang' => { 'kerklang' => 'dumdumdum' },
 				}
 			}
-			
+
 			result = Redleaf::HashUtilities.symbolify_keys( testhash )
-			
+
 			result.should be_an_instance_of( Hash )
 			result.should_not be_equal( testhash )
 			result.should == {
@@ -124,9 +113,9 @@ describe Redleaf, "mixin" do
 	describe Redleaf::ArrayUtilities do
 		it "includes a function for stringifying Array elements" do
 			testarray = [:a, :b, :c, [:d, :e, [:f, :g]]]
-			
+
 			result = Redleaf::ArrayUtilities.stringify_array( testarray )
-			
+
 			result.should be_an_instance_of( Array )
 			result.should_not be_equal( testarray )
 			result.should == ['a', 'b', 'c', ['d', 'e', ['f', 'g']]]
@@ -135,9 +124,9 @@ describe Redleaf, "mixin" do
 
 		it "includes a function for symbolifying Array elements" do
 			testarray = ['a', 'b', 'c', ['d', 'e', ['f', 'g']]]
-			
+
 			result = Redleaf::ArrayUtilities.symbolify_array( testarray )
-			
+
 			result.should be_an_instance_of( Array )
 			result.should_not be_equal( testarray )
 			result.should == [:a, :b, :c, [:d, :e, [:f, :g]]]

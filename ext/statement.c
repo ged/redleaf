@@ -1,29 +1,29 @@
-/* 
+/*
  * Redleaf::Statement -- RDF statement class
  * $Id$
  * --
  * Authors
- * 
+ *
  * - Michael Granger <ged@FaerieMUD.org>
- * 
+ *
  * Copyright (c) 2008, 2009 Michael Granger
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *  * Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
- *  
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice, this
  *    list of conditions and the following disclaimer in the documentation and/or
  *    other materials provided with the distribution.
- *  
+ *
  *  * Neither the name of the authors, nor the names of its contributors may be used to
  *    endorse or promote products derived from this software without specific prior
  *    written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -35,8 +35,8 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * 
+ *
+ *
  */
 
 #include "redleaf.h"
@@ -71,7 +71,7 @@ rleaf_statement_alloc() {
 
 /*
  * GC Mark function
-static void 
+static void
 rleaf_statement_gc_mark( librdf_statement *ptr ) {}
  */
 
@@ -80,7 +80,7 @@ rleaf_statement_gc_mark( librdf_statement *ptr ) {}
 /*
  * GC Free function
  */
-static void 
+static void
 rleaf_statement_gc_free( librdf_statement *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
 		librdf_free_statement( ptr );
@@ -100,7 +100,7 @@ check_statement( VALUE self ) {
 		rb_raise( rb_eTypeError, "wrong argument type %s (expected Redleaf::Statement)",
 				  rb_obj_classname( self ) );
     }
-	
+
 	return DATA_PTR( self );
 }
 
@@ -130,7 +130,7 @@ VALUE
 rleaf_librdf_statement_to_value( librdf_statement *statement ) {
 	VALUE object = rleaf_redleaf_statement_s_allocate( rleaf_cRedleafStatement );
 	librdf_statement *stmt = librdf_new_statement_from_statement( statement );
-	
+
 	DATA_PTR( object ) = stmt;
 	return rb_funcall( object, rb_intern("initialize"), 0 );
 }
@@ -157,22 +157,22 @@ rleaf_value_to_librdf_statement( VALUE object ) {
 		predicate_node = rleaf_value_to_predicate_node( RARRAY_PTR(object)[1] );
 		object_node    = rleaf_value_to_object_node( RARRAY_PTR(object)[2] );
 
-		stmt_copy = librdf_new_statement_from_nodes( rleaf_rdf_world, 
+		stmt_copy = librdf_new_statement_from_nodes( rleaf_rdf_world,
 			subject_node, predicate_node, object_node );
 	}
-	
+
 	else if ( rb_obj_is_kind_of(object, rleaf_cRedleafStatement) ) {
 		rleaf_log( "debug", "extracting a copy of a librdf_statement from a %s",
 		           rb_obj_classname(object) );
 
 		stmt_copy = librdf_new_statement_from_statement( check_statement(object) );
 	}
-	
+
 	else {
-		rb_raise( rb_eArgError, "can't convert a %s to a statement", 
+		rb_raise( rb_eArgError, "can't convert a %s to a statement",
 		          rb_obj_classname(object) );
 	}
-	
+
 	if ( stmt_copy == NULL )
 		rb_raise( rleaf_eRedleafError, "failed to create a new librdf_statement from nodes" );
 
@@ -206,12 +206,12 @@ rleaf_redleaf_statement_s_allocate( VALUE klass ) {
  *     Redleaf::Statement.new()                               -> statement
  *     Redleaf::Statement.new( subject, predicate, object )   -> statement
  *
- *  Create a new Redleaf::Statement object. If the optional +subject+ (a URI or nil), 
- *  +predicate+ (a URI), and +object+ (a URI, nil, or any immediate Ruby object) are given, 
+ *  Create a new Redleaf::Statement object. If the optional +subject+ (a URI or nil),
+ *  +predicate+ (a URI), and +object+ (a URI, nil, or any immediate Ruby object) are given,
  *  the statement will be initialized with them.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE self ) {
 	if ( !check_statement(self) ) {
 		librdf_statement *stmt;
@@ -220,7 +220,7 @@ rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE self ) {
 		rb_scan_args( argc, argv, "03", &subject, &predicate, &object );
 
 		DATA_PTR( self ) = stmt = rleaf_statement_alloc();
-		
+
 		if ( argc >= 1 ) rleaf_redleaf_statement_subject_eq( self, subject );
 		if ( argc >= 2 ) rleaf_redleaf_statement_predicate_eq( self, predicate );
 		if ( argc == 3 ) rleaf_redleaf_statement_object_eq( self, object );
@@ -237,7 +237,7 @@ rleaf_redleaf_statement_initialize( int argc, VALUE *argv, VALUE self ) {
  *  Clear all nodes from the statement.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_clear( VALUE self ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 
@@ -254,13 +254,16 @@ rleaf_redleaf_statement_clear( VALUE self ) {
  *  Return the subject (node) of the statement.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_subject( VALUE self ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_node *node;
-	
-	if ( (node = librdf_statement_get_subject( stmt )) == NULL )
+
+	if ( (node = librdf_statement_get_subject( stmt )) == NULL ) {
+		rleaf_log_with_context( self, "error", "Failed to fetch the subject of statement: %s",
+		                        RSTRING_PTR(rb_inspect(self)) );
 		return Qnil;
+	}
 
 	return rleaf_librdf_node_to_value( node );
 }
@@ -273,11 +276,11 @@ rleaf_redleaf_statement_subject( VALUE self ) {
  *  Set the subject (node) of the statement.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject ) {
 	librdf_node *node = NULL;
 	librdf_statement *stmt = rleaf_get_statement( self );
-	
+
 	node = rleaf_value_to_subject_node( new_subject );
 	librdf_statement_set_subject( stmt, node );
 
@@ -292,11 +295,11 @@ rleaf_redleaf_statement_subject_eq( VALUE self, VALUE new_subject ) {
  *  Return the predicate (node) of the statement.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_predicate( VALUE self ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_node *node;
-	
+
 	if ( (node = librdf_statement_get_predicate( stmt )) == NULL )
 		return Qnil;
 
@@ -311,11 +314,11 @@ rleaf_redleaf_statement_predicate( VALUE self ) {
  *  Set the predicate (node) of the statement.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_predicate_eq( VALUE self, VALUE new_predicate ) {
 	librdf_node *node = NULL;
 	librdf_statement *stmt = rleaf_get_statement( self );
-	
+
 	node = rleaf_value_to_predicate_node( new_predicate );
 	librdf_statement_set_predicate( stmt, node );
 
@@ -330,11 +333,11 @@ rleaf_redleaf_statement_predicate_eq( VALUE self, VALUE new_predicate ) {
  *  Return the object (node) of the statement.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_object( VALUE self ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_node *node;
-	
+
 	if ( (node = librdf_statement_get_object( stmt )) == NULL )
 		return Qnil;
 
@@ -349,11 +352,11 @@ rleaf_redleaf_statement_object( VALUE self ) {
  *  Set the object (node) of the statement.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_object_eq( VALUE self, VALUE new_object ) {
 	librdf_node *node;
 	librdf_statement *stmt = rleaf_get_statement( self );
-	
+
 	node = rleaf_value_to_object_node( new_object );
 	librdf_statement_set_object( stmt, node );
 
@@ -361,19 +364,19 @@ rleaf_redleaf_statement_object_eq( VALUE self, VALUE new_object ) {
 }
 
 
-/* 
+/*
  * call-seq:
  *    statement.complete?   -> true or false
- * 
+ *
  * Check if statement is a complete and legal RDF triple. Checks that
  * all subject, predicate, object fields are present and they have the
  * allowed node types.
- * 
+ *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_complete_p( VALUE self ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
-	
+
 	if ( librdf_statement_is_complete(stmt) ) {
 		return Qtrue;
 	} else {
@@ -382,35 +385,35 @@ rleaf_redleaf_statement_complete_p( VALUE self ) {
 }
 
 
-/* 
+/*
  * call-seq:
  *    statement.to_s   -> string
- * 
- * Format the librdf_statement as a string. 
- * 
+ *
+ * Format the librdf_statement as a string.
+ *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_to_s( VALUE self ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	unsigned char *string;
 	VALUE rb_string;
-	
+
 	string = librdf_statement_to_string( stmt );
 	rb_string = rb_str_new2( (char *)string );
 	xfree( string );
-	
+
 	return rb_string;
 }
 
 
-/* 
+/*
  * call-seq:
  *    statement.eql?( other_statement )   -> true or false
- * 
+ *
  * Returns true if the receiver is equal to +other_statement+.
- * 
+ *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_statement *other_stmt;
@@ -424,7 +427,7 @@ rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
 
 	/* Statements with incomplete nodes can't be equal to any other statement */
 	if ( !librdf_statement_is_complete(stmt) || !librdf_statement_is_complete(other_stmt) ) {
-		rleaf_log_with_context( self, "debug", 
+		rleaf_log_with_context( self, "debug",
 			"one of the statements is incomplete: returning false" );
 		return Qfalse;
 	}
@@ -443,26 +446,26 @@ rleaf_redleaf_statement_eql_p( VALUE self, VALUE other ) {
  * Convert the specified VALUE to a librdf_statement. The caller is responsible for freeing the
  * resulting statement, and for catching the ArgumentError this function raises if it can't
  * figure out how to convert the +object+.
- * 
+ *
  * The caller is responsible for catching the ArgumentError that results if the
  * +object+ can't be converted to a statement.
  */
 librdf_statement *
 rleaf_obj_to_librdf_statement( VALUE rbobj ) {
 	librdf_statement *ptr = NULL;
-	
+
 	if ( IsStatement(rbobj) ) {
 		rleaf_log( "debug", "Copying a librdf_statement from a Redleaf::Statement" );
 		ptr = librdf_new_statement_from_statement( rleaf_get_statement(rbobj) );
 	}
-	
+
 	else if ( TYPE(rbobj) == T_ARRAY ) {
 		librdf_node *subject, *predicate, *object;
 
 		subject   = rleaf_value_to_subject_node( rb_ary_entry(rbobj, 0) );
 		predicate = rleaf_value_to_predicate_node( rb_ary_entry(rbobj, 1) );
 		object    = rleaf_value_to_object_node( rb_ary_entry(rbobj, 2) );
-		
+
 		rleaf_log( "debug", "Creating a statement from an Array" );
 		ptr = librdf_new_statement_from_nodes( rleaf_rdf_world, subject, predicate, object );
 	}
@@ -475,18 +478,18 @@ rleaf_obj_to_librdf_statement( VALUE rbobj ) {
 }
 
 
-/* 
+/*
  * call-seq: statement === other_statement      -> true or false
  * statement === [node, node, node]   -> true or false
- * 
+ *
  * Case equality: Returns true if the receiver matches +other_statement+
  * (or the statement created from the Array of nodes), where some parts
  * of the receiving statement - subject, predicate or object - can be
  * empty (nil). Empty parts match against any value, parts with values
  * must match exactly.
- * 
+ *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	librdf_statement *other_stmt = rleaf_obj_to_librdf_statement( other );
@@ -508,7 +511,7 @@ rleaf_redleaf_statement_threequal_op( VALUE self, VALUE other ) {
  *  (Marshal API) Serialize the object to a String.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_marshal_dump( VALUE self ) {
 	librdf_statement *stmt = rleaf_get_statement( self );
 	unsigned char *buf = NULL;
@@ -528,7 +531,7 @@ rleaf_redleaf_statement_marshal_dump( VALUE self ) {
  *  (Marshal API) Deserialize the object state in +data+ back into the receiver.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
 
 	if ( !check_statement(self) ) {
@@ -536,11 +539,11 @@ rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
 		librdf_statement *stmt;
 
 		DATA_PTR( self ) = stmt = rleaf_statement_alloc();
-		
+
 		if ( librdf_statement_decode(stmt, (unsigned char *)RSTRING_PTR(datastring),
 		     RSTRING_LEN(datastring)) == 0 )
 			rb_raise( rleaf_eRedleafError, "librdf_statement_decode() failed." );
-	
+
 	} else {
 		rb_raise( rleaf_eRedleafError,
 				  "Cannot load marshalled data into a statement once it's been created." );
@@ -557,9 +560,9 @@ rleaf_redleaf_statement_marshal_load( VALUE self, VALUE data ) {
 void rleaf_init_redleaf_statement( void ) {
 	rb_require( "redleaf/statement" );
 	rleaf_cRedleafStatement = rb_define_class_under( rleaf_mRedleaf, "Statement", rb_cObject );
-	
+
 	rleaf_log( "debug", "Initializing Redleaf::Statement" );
-	
+
 	rb_define_alloc_func( rleaf_cRedleafStatement, rleaf_redleaf_statement_s_allocate );
 
 	rb_define_method( rleaf_cRedleafStatement, "initialize", rleaf_redleaf_statement_initialize, -1 );
@@ -569,7 +572,7 @@ void rleaf_init_redleaf_statement( void ) {
 	rb_define_method( rleaf_cRedleafStatement, "subject", rleaf_redleaf_statement_subject, 0 );
 	rb_define_method( rleaf_cRedleafStatement, "subject=", rleaf_redleaf_statement_subject_eq, 1 );
 	rb_define_method( rleaf_cRedleafStatement, "predicate", rleaf_redleaf_statement_predicate, 0 );
-	rb_define_method( rleaf_cRedleafStatement, "predicate=", 
+	rb_define_method( rleaf_cRedleafStatement, "predicate=",
 		rleaf_redleaf_statement_predicate_eq, 1 );
 	rb_define_method( rleaf_cRedleafStatement, "object", rleaf_redleaf_statement_object, 0 );
 	rb_define_method( rleaf_cRedleafStatement, "object=", rleaf_redleaf_statement_object_eq, 1 );
@@ -582,10 +585,10 @@ void rleaf_init_redleaf_statement( void ) {
 	rb_define_alias( rleaf_cRedleafStatement, "==", "eql?" );
 	rb_define_method( rleaf_cRedleafStatement, "===", rleaf_redleaf_statement_threequal_op, 1 );
 
-	rb_define_method( rleaf_cRedleafStatement, "marshal_dump", 
+	rb_define_method( rleaf_cRedleafStatement, "marshal_dump",
 		rleaf_redleaf_statement_marshal_dump, 0 );
-	rb_define_method( rleaf_cRedleafStatement, "marshal_load", 
+	rb_define_method( rleaf_cRedleafStatement, "marshal_load",
 		rleaf_redleaf_statement_marshal_load, 1 );
-	
+
 }
 

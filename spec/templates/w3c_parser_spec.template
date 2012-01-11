@@ -8,28 +8,19 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir.to_s ) unless $LOAD_PATH.include?( basedir.to_s )
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
 }
 
-begin
-	require 'redleaf'
-	require 'redleaf/graph'
-	require 'redleaf/parser/ntriples'
-	require 'redleaf/parser/rdfxml'
+require 'rspec'
 
-	require 'spec'
-	require 'spec/lib/helpers'
-	require 'spec/lib/constants'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
-
+require 'redleaf'
+require 'redleaf/graph'
+require 'redleaf/parser/ntriples'
+require 'redleaf/parser/rdfxml'
 
 #####################################################################
 ###	C O N T E X T S
@@ -64,9 +55,9 @@ describe "W3C RDF Test Suite: Parser Tests" do
 	it "correctly holds the document '<%= example.input_doc %>' to be in error" do
  		inputfile = @datadir + '<%= example.input_doc %>'
 		inputuri = "file:#{inputfile}"
-		lambda {
+		expect {
 			@rdfxml_parser.parse( inputfile.read, inputuri )
-		}.should raise_error( Redleaf::ParseError )
+		}.to raise_error( Redleaf::ParseError )
 	end
 <% else %>
 	it "correctly parses the document '<%= example.input_doc %>'" do

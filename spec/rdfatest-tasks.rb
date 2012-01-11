@@ -134,10 +134,10 @@ begin
 		file RDFA_TEST_MANIFEST do
 			download RDFA_TEST_MANIFEST_URI, RDFA_TEST_MANIFEST
 		end
-		CLOBBER.include( RDFA_TEST_MANIFEST )
+		CLOBBER.include( RDFA_TEST_MANIFEST.to_s )
 
 		directory RDFA_TEST_DATADIR.to_s
-		CLOBBER.include( RDFA_TEST_DATADIR )
+		CLOBBER.include( RDFA_TEST_DATADIR.to_s )
 
 		# Download the RDFa test suite data into RDFA_TEST_DATADIR
 		task RDFA_TEST_DATAFILE => [RDFA_TEST_DATADIR, RDFA_TEST_MANIFEST] do
@@ -149,7 +149,7 @@ begin
 			examples = find_approved_tests( RDFA_TEST_MANIFEST )
 			write_specfile( examples, RDFA_SPEC_TEMPLATE, RDFA_SPECFILE )
 		end
-		CLOBBER.include( RDFA_SPECFILE )
+		CLOBBER.include( RDFA_SPECFILE.to_s )
 
 	end
 

@@ -8,36 +8,25 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/archetypes'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
-
-include Redleaf::TestConstants
-include Redleaf::Constants
+require 'redleaf'
+require 'redleaf/archetypes'
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
 
 describe Redleaf::Archetypes do
-	include Redleaf::SpecHelpers,
-		Redleaf::Constants::CommonNamespaces
+	include Redleaf::Constants,
+	        Redleaf::Constants::CommonNamespaces
 
 	TEST_ARCHETYPE_VOCABULARY = Redleaf::Namespace.new( 'http://purl.org/net/schemas/book/' )
 
@@ -66,7 +55,8 @@ describe Redleaf::Archetypes do
 			setup_logging( :fatal )
 
 			@extended_class = Class.new do
-				include Redleaf::Archetypes, Redleaf::Constants::CommonNamespaces
+				include Redleaf::Archetypes
+				extend Redleaf::Constants::CommonNamespaces
 			end
 
 			Redleaf::Graph.stub!( :load )

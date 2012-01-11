@@ -8,35 +8,22 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
 
-	require 'redleaf'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf do
-	include Redleaf::SpecHelpers,
-	        Redleaf::Constants::CommonNamespaces
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -81,11 +68,11 @@ describe Redleaf do
 	end
 
 	it "can convert a Ruby Integer into its equivalent literal string" do
-		Redleaf.make_literal_string( 5 ).should == "5^^<%s>" % [ XSD[:integer].to_s ]
+		Redleaf.make_literal_string( 5 ).should == %{"5"^^<%s>} % [ XSD[:integer].to_s ]
 	end
 
 	it "can convert a Ruby Float into its equivalent literal string" do
-		Redleaf.make_literal_string( 5.0 ).should == "5.0^^<%s>" % [ XSD[:float].to_s ]
+		Redleaf.make_literal_string( 5.0 ).should == %{"5.0"^^<%s>} % [ XSD[:float].to_s ]
 	end
 
 
@@ -131,7 +118,7 @@ describe Redleaf do
 
 
 		it "uses the new defaults when the logging subsystem is reset" do
-			logger = mock( "dummy logger", :null_object => true )
+			logger = mock( "dummy logger" ).as_null_object
 			formatter = mock( "dummy logger" )
 
 			Redleaf.default_logger = logger

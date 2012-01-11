@@ -4,41 +4,29 @@ BEGIN {
 	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
-	
+
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
-	require 'spec/lib/queryresult_behavior'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/queryresult/graph'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
+require 'redleaf/queryresult/graph'
+require 'redleaf/behavior/queryresult'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
 
 describe Redleaf::GraphQueryResult do
-	include Redleaf::SpecHelpers
-
 
 	CONSTRUCT_SPARQL_QUERY = %{
 		PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
@@ -46,7 +34,7 @@ describe Redleaf::GraphQueryResult do
 		CONSTRUCT   { <http://example.org/person#Alice> vcard:FN ?name }
 		WHERE       { ?x foaf:name ?name }
 	}
-	
+
 
 	before( :each ) do
 		setup_logging( :fatal )
@@ -58,7 +46,7 @@ describe Redleaf::GraphQueryResult do
 		@result = @graph.query( CONSTRUCT_SPARQL_QUERY )
 	end
 
-	it_should_behave_like "A QueryResult"
+	it_should_behave_like "a Redleaf::QueryResult"
 
 
 	it "is a graph query result" do

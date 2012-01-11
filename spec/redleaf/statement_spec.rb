@@ -8,37 +8,25 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/statement'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
+require 'redleaf/statement'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf::Statement do
-	include Redleaf::SpecHelpers,
-		Redleaf::Constants::CommonNamespaces
 
+	DOAP   = Redleaf::Namespace.new( 'http://usefulinc.com/ns/doap#' )
 	BOOK   = Redleaf::Namespace.new( 'http://purl.org/net/schemas/book/' )
 
 	TEST_EMAIL_URL         = URI( 'mailto:ged@FaerieMUD.org' )
@@ -146,27 +134,20 @@ describe Redleaf::Statement do
 				}
 			}
 
-			res = Redleaf::Statement.create( graph ).sort
-			bnode = res.first.object
+			result = Redleaf::Statement.create_from_hash( graph )
+			bnode = result.find {|stmt| stmt.subject.is_a?(Symbol) }.subject
 
-			res.should be_an( Array )
-			res.should have( 4 ).members
+			result.should be_an( Array )
+			result.should have( 4 ).members
 
-			res[0].subject.should == URI( 'http://www.w3.org/TR/rdf-syntax-grammar' )
-			res[0].predicate.should == ex[:editor]
-			res[0].object.should be_a( Symbol )
+			result.should include(
+				Redleaf::Statement.new(bnode, ex[:fullname], 'Dave Beckett'),
+				Redleaf::Statement.new(bnode, ex[:homePage], URI('http://purl.org/net/dajobe/')),
+				Redleaf::Statement.new(URI('http://www.w3.org/TR/rdf-syntax-grammar'), ex[:editor], bnode),
+				Redleaf::Statement.new(URI('http://www.w3.org/TR/rdf-syntax-grammar'), DC[:title], "RDF/XML Syntax Specification (Revised)")
+			)
 
-			res[1].subject.should == URI( 'http://www.w3.org/TR/rdf-syntax-grammar' )
-			res[1].predicate.should == DC[:title]
-			res[1].object.should == "RDF/XML Syntax Specification (Revised)"
 
-			res[2].subject.should == bnode
-			res[2].predicate.should == ex[:fullname]
-			res[2].object.should == 'Dave Beckett'
-
-			res[3].subject.should == bnode
-			res[3].predicate.should == ex[:homePage]
-			res[3].object.should == URI('http://purl.org/net/dajobe/')
 		end
 
 
@@ -216,9 +197,9 @@ describe Redleaf::Statement do
 
 
 		it "does not allow its subject to be set to a literal" do
-			lambda {
+			expect {
 				@statement.subject = 11.411
-			}.should raise_error( ArgumentError, /subject must be blank or a URI/i )
+			}.to raise_error( ArgumentError, /subject must be blank or a URI/i )
 		end
 
 
@@ -248,15 +229,15 @@ describe Redleaf::Statement do
 		end
 
 		it "does not allow its predicate to be set to a blank node" do
-			lambda {
+			expect {
 				@statement.predicate = :glar
-			}.should raise_error( ArgumentError, /predicate must be a URI/i )
+			}.to raise_error( ArgumentError, /predicate must be a URI/i )
 		end
 
 		it "does not allow its predicate to be set to a literal" do
-			lambda {
+			expect {
 				@statement.predicate = Time.now
-			}.should raise_error( ArgumentError, /predicate must be a URI/i )
+			}.to raise_error( ArgumentError, /predicate must be a URI/i )
 		end
 
 		it "allows its predicate to be cleared by setting it to nil" do
@@ -316,7 +297,7 @@ describe Redleaf::Statement do
 		end
 
 		it "can be stringified" do
-			@statement.to_s.should == '{(null), (null), (null)}'
+			@statement.to_s.should == '(null) (null) (null)'
 		end
 
 	end
@@ -358,11 +339,13 @@ describe Redleaf::Statement do
 		end
 
 		it "can be stringified" do
-			@statement.to_s.should == "{[#@subject], [#@predicate], [#@object]}"
+			@statement.to_s.should == "<#@subject> <#@predicate> <#@object>"
 		end
 
 		it "can be serialized" do
-			Marshal.load( Marshal.dump(@statement) ).should == @statement
+			pending "updating for Redland 1.0.13" do
+				Marshal.load( Marshal.dump(@statement) ).should == @statement
+			end
 		end
 
 		it "case-matches an Array with identical nodes" do

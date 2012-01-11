@@ -4,40 +4,26 @@ BEGIN {
 	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname.parent.parent
-	
+
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
-	
+
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/namespace'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
-
-include Redleaf::TestConstants
-include Redleaf::Constants
+require 'redleaf'
+require 'redleaf/namespace'
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf::Namespace do
-	include Redleaf::SpecHelpers
-
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -52,14 +38,14 @@ describe Redleaf::Namespace do
 		Redleaf::Namespace[ 'http://xmlns.com/foaf/0.1/' ].
 			should be_an_instance_of( Redleaf::Namespace )
 	end
-	
+
 
 	describe "for a directory-style namespace URI" do
 
 		before( :each ) do
 			@namespace = Redleaf::Namespace.new( 'http://xmlns.com/foaf/0.1/' )
 		end
-	
+
 
 		it "returns its stringified URI when stringified" do
 			@namespace.to_s.should == @namespace.uri.to_s
@@ -72,20 +58,20 @@ describe Redleaf::Namespace do
 		it "accepts Symbols as terms as well as Strings" do
 			@namespace[ :member_name ].to_s.should == @namespace.uri.to_s + 'member_name'
 		end
-		
+
 		it "knows it's not a fragment-style namespace" do
 			@namespace.should_not be_fragment_style()
 		end
-		
+
 	end	
-	
-	
+
+
 	describe "for a fragment-style namespace URI" do
 
 		before( :each ) do
 			@namespace = Redleaf::Namespace.new( 'http://www.w3.org/2001/XMLSchema#' )
 		end
-	
+
 
 		it "returns its stringified URI when stringified" do
 			@namespace.to_s.should == @namespace.uri.to_s
@@ -102,10 +88,10 @@ describe Redleaf::Namespace do
 		it "knows it's a fragment-style namespace" do
 			@namespace.should be_fragment_style()
 		end
-		
+
 	end	
-	
-	
+
+
 end
 
 # vim: set nosta noet ts=4 sw=4:

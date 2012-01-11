@@ -25,3 +25,5 @@ ruby\-committers\.yml$
 ~$
 ^doc/
 ^coverage/
+^doc/
+^coverage/

@@ -8,39 +8,27 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/graph'
-	require 'redleaf/statement'
-	require 'redleaf/constants'
-	require 'redleaf/namespace'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
+require 'redleaf/graph'
+require 'redleaf/statement'
+require 'redleaf/constants'
+require 'redleaf/namespace'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
 
 describe Redleaf::Graph do
-	include Redleaf::SpecHelpers,
-	        Redleaf::Constants::CommonNamespaces
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -67,9 +55,16 @@ describe Redleaf::Graph do
 	end
 
 	it "raises an error if created with anything other than a Store" do
-		lambda {
+		expect {
 			Redleaf::Graph.new( "not a store" )
-		}.should raise_error( TypeError, /wrong argument type String/i )
+		}.to raise_error( TypeError, /wrong argument type String/i )
+	end
+
+	it "knows what serializers are available" do
+		result = Redleaf::Graph.serializers
+
+		result.should be_a( Hash )
+		result.should include( "rdfxml", "turtle" )
 	end
 
 
@@ -90,7 +85,10 @@ describe Redleaf::Graph do
 		it "assigns an anonymous bnode when given the special token :_ as a subject" do
 			@graph << [ :_, FOAF[:knows], ME ]
 			stmt = @graph[ nil, FOAF[:knows], ME ].first
+			Redleaf.log.debug "Resulting statement is: %p" % [ stmt ]
+
 			stmt.subject.should_not == :_
+			stmt.subject.should_not be_nil()
 
 			# :FIXME: This is Redland's identifier pattern; not sure if I should be testing it
 			# this specifically or not
@@ -279,12 +277,12 @@ describe Redleaf::Graph do
 		end
 
 		it "raises an error if you try to #remove anything but a statement or triple" do
-			lambda {
+			expect {
 				@graph.remove( :glar )
-			}.should raise_error( ArgumentError, /can't convert a Symbol to a statement/i )
-			lambda {
+			}.to raise_error( ArgumentError, /can't convert a Symbol to a statement/i )
+			expect {
 				@graph.remove( @graph )
-			}.should raise_error( ArgumentError, /can't convert a Redleaf::Graph to a statement/i )
+			}.to raise_error( ArgumentError, /can't convert a Redleaf::Graph to a statement/i )
 		end
 
 		it "can find statements which contain nodes that match specified ones" do
@@ -381,9 +379,9 @@ describe Redleaf::Graph do
 		end
 
 		it "raises a FeatureError if asked to serialize to a format that isn't supported" do
-			lambda {
+			expect {
 				@graph.serialized_as( 'zebras' )
-			}.should raise_error( Redleaf::FeatureError, /unsupported/i )
+			}.to raise_error( Redleaf::FeatureError, /unsupported/i )
 		end
 
 		it "can be serialized as RDF/XML" do

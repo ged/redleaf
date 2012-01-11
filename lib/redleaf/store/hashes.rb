@@ -50,9 +50,9 @@ class Redleaf::HashesStore < Redleaf::Store
 		return new( path, options )
 	end
 
-	### Normalize +options+ into a options has that is appropriate for Redland
+	### Normalize +options+ into a options hash that is appropriate for Redland
 	### given an optional +name+ path.
-	### Returns an array of +name+ and a normalized +options+ hash.
+	### @return [Array]  an array of +name+ and a normalized +options+ hash.
 	def self::normalize_options( name=nil, options={} )
 		if name.is_a?( Hash )
 			options.merge!( name )

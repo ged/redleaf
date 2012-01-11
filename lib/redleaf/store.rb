@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
- 
+
 require 'redleaf'
 require 'redleaf/mixins'
 require 'redleaf/exceptions'
@@ -24,10 +24,13 @@ require 'redleaf/exceptions'
 class Redleaf::Store
 	include Redleaf::Loggable
 
-
 	#################################################################
 	###	C L A S S   M E T H O D S
 	#################################################################
+
+	# Prevent the base class from being instantiated
+	private_class_method :new
+
 
 	@derivatives = {}
 	class << self
@@ -38,13 +41,21 @@ class Redleaf::Store
 		attr_reader :derivatives
 	end
 
-	
-	### Register the given +subclass+ as being implemented by the specified +backend+.
+
+	### Inheritance hook -- mark the inheriting subclass as instantiatable.
+	def self::inherited( subclass )
+		subclass.module_eval do
+			public_class_method :new
+		end
+	end
+
+
+	### Register the given +backend+ as being implemented by the specified +subclass+.
 	def self::register( subclass, backend )
 		Redleaf.logger.debug "Registering %p as the %p backend" % [ subclass, backend ]
 		@derivatives[ backend.to_sym ] = subclass
 	end
-	
+
 
 	### Set the class's Redland backend to +new_setting+ if given, and return the current
 	### (new) setting.
@@ -62,17 +73,17 @@ class Redleaf::Store
 
 		return @backend
 	end
-	
-	
+
+
 	### Get the backend name for the class after making sure it's valid and supported by
 	### the local installation. Raises a Redleaf::FeatureError if there is a problem.
 	def self::validated_backend
 		raise Redleaf::FeatureError, "unsupported backend %p" % [ self.backend ] unless
 		 	self.is_supported?
-		
+
 		return self.backend
 	end
-	
+
 
 
 	### Returns +true+ if the Redland backend required by the receiving store class is
@@ -103,10 +114,10 @@ class Redleaf::Store
 		        else
 		        	value
 		        end
-		
+
 		return "%s='%s'" % [ name, value ]
 	end
-	
+
 
 	### Make a librdf_hash-style optstring from the given +opthash+ and return it.
 	def self::make_optstring( opthash )
@@ -114,7 +125,7 @@ class Redleaf::Store
 		filter = self.method( :make_optpair )
 		optstring = opthash.collect( &filter ).join( ', ' )
 		Redleaf.logger.debug "  optstring is: %p" % [ optstring ]
-		
+
 		return optstring
 	end
 
@@ -125,22 +136,22 @@ class Redleaf::Store
 		require "redleaf/store/#{backend}"
 		subclass = self.derivatives[ backend.to_sym ] or
 			raise "Ack! Loading the %p backend didn't register a subclass." % [ backend ]
-		
+
 		return subclass.new( *args )
 	end
-	
-	
+
+
 	### Attempt to load the Redleaf::Store concrete class that wraps the given +backend+, load
 	### one (via its ::load method) with the specified +args+, and return it.
 	def self::load( backend, *args )
 		require "redleaf/store/#{backend}"
 		subclass = self.derivatives[ backend.to_sym ] or
 			raise "Ack! Loading the %p backend didn't register a subclass." % [ backend ]
-		
+
 		return subclass.load( *args )
 	end
-	
-	
+
+
 	#################################################################
 	###	I N S T A N C E   M E T H O D S
 	#################################################################
@@ -161,7 +172,7 @@ class Redleaf::Store
 			self.graph,
 		]
 	end
-	
+
 
 end # class Redleaf::Store
 

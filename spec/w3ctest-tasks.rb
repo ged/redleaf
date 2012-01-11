@@ -50,13 +50,13 @@ begin
 
 		# The spec/data directory
 		directory W3C_TEST_DIR.to_s
-		CLOBBER.include( W3C_TEST_DIR )
+		CLOBBER.include( W3C_TEST_DIR.to_s )
 
 		# Download the latest testcase zipfile
 		file TESTCASE_ARCHIVE => W3C_TEST_DIR do
 			download TESTCASE_URL, TESTCASE_ARCHIVE
 		end
-		CLOBBER.include( TESTCASE_ARCHIVE )
+		CLOBBER.include( TESTCASE_ARCHIVE.to_s )
 
 
 		# Need the data files from the W3C test suite -- download it and unpack it
@@ -100,7 +100,7 @@ begin
 				examples << gen.find_negative_entailment_tests
 			end
 		end
-		CLOBBER.include( ENTAILMENT_SPECFILE )
+		CLOBBER.include( ENTAILMENT_SPECFILE.to_s )
 
 
 		# The specfile that runs examples built from the 'miscellaneous' W3C testcases
@@ -112,7 +112,7 @@ begin
 				examples << gen.find_miscellaneous_tests
 			end
 		end
-		CLOBBER.include( MISCELLANEOUS_SPECFILE )
+		CLOBBER.include( MISCELLANEOUS_SPECFILE.to_s )
 
 	end
 

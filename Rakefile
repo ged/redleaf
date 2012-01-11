@@ -47,7 +47,8 @@ hoespec = Hoe.spec 'redleaf' do
 	self.developer 'Michael Granger', 'ged@FaerieMUD.org'
 
 	self.extra_dev_deps.push *{
-		'rspec' => '~> 2.4',
+		'rake-compiler' => '~> 0.7',
+		'rspec'         => '~> 2.4',
 	}
 
 	self.spec_extras[:licenses] = ["BSD"]
@@ -57,7 +58,6 @@ hoespec = Hoe.spec 'redleaf' do
 	self.require_ruby_version( '>=1.8.7' )
 
 	self.hg_sign_tags = true if self.respond_to?( :hg_sign_tags= )
-	self.yard_opts = [ '--protected', '--verbose' ] if self.respond_to?( :yard_opts= )
 
 	self.rdoc_locations << "deveiate:/usr/local/www/public/code/#{remote_rdoc_dir}"
 end
@@ -79,6 +79,10 @@ namespace :spec do
     task :text  => [ :compile ]
 end
 
+desc "Turn on warnings and debugging in the build."
+task :maint do
+	ENV['MAINTAINER_MODE'] = 'yes'
+end
 
 # Rake-compiler task
 Rake::ExtensionTask.new do |ext|

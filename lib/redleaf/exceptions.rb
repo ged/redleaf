@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'e2mmap' 
+require 'e2mmap'
 require 'redleaf'
 
 #--

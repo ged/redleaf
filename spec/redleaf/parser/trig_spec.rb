@@ -8,37 +8,24 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir ) unless $LOAD_PATH.include?( basedir )
 	$LOAD_PATH.unshift( libdir ) unless $LOAD_PATH.include?( libdir )
 	$LOAD_PATH.unshift( extdir ) unless $LOAD_PATH.include?( extdir )
 }
 
-begin
-	require 'spec'
-	require 'spec/lib/constants'
-	require 'spec/lib/helpers'
-	require 'spec/lib/parser_behavior'
+require 'rspec'
 
-	require 'redleaf'
-	require 'redleaf/parser/trig'
-rescue LoadError
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		retry
-	end
-	raise
-end
+require 'spec/lib/helpers'
 
+require 'redleaf'
+require 'redleaf/parser/trig'
+require 'redleaf/behavior/parser'
 
-include Redleaf::TestConstants
-include Redleaf::Constants
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
-
 describe Redleaf::TriGParser do
-	include Redleaf::SpecHelpers
-
 
 	before( :all ) do
 		@specdir     = Pathname( __FILE__ ).dirname.parent.parent
@@ -66,7 +53,7 @@ describe Redleaf::TriGParser do
 		end
 
 
-		it_should_behave_like "A Parser"
+		it_should_behave_like "a Redleaf::Parser"
 
 
 		it "parses valid TriG content and returns a graph" do

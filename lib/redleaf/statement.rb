@@ -121,10 +121,14 @@ class Redleaf::Statement
 
 	### Comparable interface
 	def <=>( other )
+		self.log.debug "%p <=> %p" % [ self, other ]
 		return 0 unless other
-		return ( self.subject.to_s <=> other.subject.to_s ).nonzero? ||
+		result = ( self.subject.to_s <=> other.subject.to_s ).nonzero? ||
 		       ( self.predicate.to_s <=> other.predicate.to_s ).nonzero? ||
 		       ( self.object.to_s <=> other.object.to_s )
+		return result
+	ensure
+		self.log.debug "--> %p" % [ result ]
 	end
 
 
