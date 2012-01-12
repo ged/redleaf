@@ -19,16 +19,13 @@ require 'spec/lib/helpers'
 
 require 'redleaf'
 require 'redleaf/archetypes'
+require 'redleaf/constants'
 
 #####################################################################
 ###	C O N T E X T S
 #####################################################################
 
 describe Redleaf::Archetypes do
-	include Redleaf::Constants,
-	        Redleaf::Constants::CommonNamespaces
-
-	TEST_ARCHETYPE_VOCABULARY = Redleaf::Namespace.new( 'http://purl.org/net/schemas/book/' )
 
 	before( :all ) do
 		setup_logging( :fatal )
@@ -56,7 +53,6 @@ describe Redleaf::Archetypes do
 
 			@extended_class = Class.new do
 				include Redleaf::Archetypes
-				extend Redleaf::Constants::CommonNamespaces
 			end
 
 			Redleaf::Graph.stub!( :load )

@@ -23,7 +23,7 @@ require 'pp'
 require 'yaml'
 
 require 'redleaf'
-require 'spec/lib/constants'
+require 'spec/lib/testconstants'
 
 
 ### RSpec helper functions.
@@ -154,8 +154,14 @@ end
 
 ### Mock with Rspec
 RSpec.configure do |config|
+	include Redleaf::Constants,
+	        Redleaf::Constants::CommonNamespaces,
+			Redleaf::TestConstants
+
 	config.mock_with :rspec
 
+	config.include( Redleaf::Constants )
+	config.include( Redleaf::Constants::CommonNamespaces )
 	config.include( Redleaf::TestConstants )
 	config.include( Redleaf::SpecHelpers )
 

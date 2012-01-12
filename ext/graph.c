@@ -13,16 +13,16 @@
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
  *
- *  * Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
  *
- *  * Redistributions in binary form must reproduce the above copyright notice, this
- *    list of conditions and the following disclaimer in the documentation and/or
- *    other materials provided with the distribution.
+ * * Redistributions in binary form must reproduce the above copyright notice, this
+ *   list of conditions and the following disclaimer in the documentation and/or
+ *   other materials provided with the distribution.
  *
- *  * Neither the name of the authors, nor the names of its contributors may be used to
- *    endorse or promote products derived from this software without specific prior
- *    written permission.
+ * * Neither the name of the authors, nor the names of its contributors may be used to
+ *   endorse or promote products derived from this software without specific prior
+ *   written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -45,6 +45,17 @@ VALUE rleaf_cRedleafGraph;
 librdf_uri *rleaf_contexts_feature;
 
 static VALUE rleaf_set_serializer_ns( VALUE, VALUE );
+static VALUE rleaf_raptor_syntax_desc_to_hash( const raptor_syntax_description * );
+
+static VALUE name_sym;
+static VALUE aliases_sym;
+static VALUE q_sym;
+static VALUE mime_types_sym;
+static VALUE uris_sym;
+static VALUE flags_sym;
+
+static ID graph_eq;
+static ID valid_format_p;
 
 
 /* --------------------------------------------------
@@ -137,10 +148,10 @@ rleaf_get_graph( VALUE self ) {
  * -------------------------------------------------------------- */
 
 /*
- *  call-seq:
- *     Redleaf::Graph.allocate   -> graph
+ * call-seq:
+ *   Redleaf::Graph.allocate   -> graph
  *
- *  Allocate a new Redleaf::Graph object.
+ * Allocate a new Redleaf::Graph object.
  *
  */
 static VALUE
@@ -150,11 +161,11 @@ rleaf_redleaf_graph_s_allocate( VALUE klass ) {
 
 
 /*
- *  call-seq:
- *     Redleaf::Graph.model_types   -> hash
+ * call-seq:
+ *   Redleaf::Graph.model_types   -> hash
  *
- *  Return a hash describing all model types supported by the underlying Redland
- *  library.
+ * Return a hash describing all model types supported by the underlying Redland
+ * library.
  *
  */
 static VALUE
@@ -178,38 +189,49 @@ static VALUE
 
 
 /*
- *  call-seq:
- *     Redleaf::Graph.serializers   -> hash
+ * call-seq:
+ *   Redleaf::Graph.serializers   -> hash
  *
- *  Return a Hash of supported serializers from the underlying Redland library.
+ * The serializers supported by the underlying Redland library.
+ * Returns the hash describing the supported serializers, keyed by name.
  *
- *     Redleaf::Graph.serializers
- *     # => { "rss-1.0"       => "RSS 1.0",
- *     #      "rdfxml"        => "RDF/XML",
- *     #      "json-triples"  => "RDF/JSON Triples",
- *     #      "rdfxml-abbrev" => "RDF/XML (Abbreviated)",
- *     #      "rdfxml-xmp"    => "RDF/XML (XMP Profile)",
- *     #      "turtle"        => "Turtle",
- *     #      "ntriples"      => "N-Triples",
- *     #      "json"          => "RDF/JSON Resource-Centric",
- *     #      "dot"           => "GraphViz DOT format",
- *     #      "atom"          => "Atom 1.0" }
+ *   Redleaf::Graph.serializers
+ *   # => {
+ *   #   "html"=> {
+ *   #     :mime_types=> [
+ *   #       {:q=>10, :name=>"application/xhtml+xml"},
+ *   #       {:q=>10, :name=>"text/html"},
+ *   #     ],
+ *   #     :uris=>["http://www.w3.org/1999/xhtml"],
+ *   #     :aliases=>[],
+ *   #     :flags=>0,
+ *   #   },
+ *   #   "nquads"=> {
+ *   #     :mime_types=>[{:q=>10, :name=>"text/x-nquads"}],
+ *   #     :uris=>["http://sw.deri.org/2008/07/n-quads/#n-quads"],
+ *   #     :aliases=>[],
+ *   #     :flags=>0,
+ *   #   },
+ *   #   ...
+ *   # }
  */
 static VALUE
 rleaf_redleaf_graph_s_serializers( VALUE klass ) {
-	const raptor_syntax_description *syntax;
+	const raptor_syntax_description *desc;
 	unsigned int counter = 0, name = 0;
 	VALUE rhash = rb_hash_new();
+	VALUE deschash = Qnil;
 
 	_UNUSED( klass );
 
 	rleaf_log( "debug", "Enumerating serializers." );
-	while( (syntax = librdf_serializer_get_description(rleaf_rdf_world, counter)) ) {
-		for ( name = 0; name < syntax->names_count; name++ ) {
-			// rleaf_log( "debug", "  serializer [%d]: name = '%s', desc = '%s'", counter, name, desc );
-			rb_hash_aset( rhash, rb_str_new2(syntax->names[name]), rb_str_new2(syntax->label) );
-		}
+	while ( (desc = librdf_serializer_get_description(rleaf_rdf_world, counter)) != NULL ) {
+		deschash = rb_hash_new();
 
+		rleaf_log( "debug", "  serializer [%d]: name = '%s', desc = '%s'", counter, desc->names[0], desc->label );
+
+		deschash = rleaf_raptor_syntax_desc_to_hash( desc );
+		rb_hash_aset( rhash, rb_str_new2(desc->names[0]), deschash );
 		counter++;
 	}
 	rleaf_log( "debug", "  got %d serializers.", counter );
@@ -218,6 +240,49 @@ rleaf_redleaf_graph_s_serializers( VALUE klass ) {
 }
 
 
+/*
+ * Create a Ruby Hash out of the given raptor_syntax_description and return it.
+ */
+static VALUE
+rleaf_raptor_syntax_desc_to_hash( const raptor_syntax_description *desc ) {
+	VALUE deschash = rb_hash_new();
+	VALUE aliases, mime_types, uris, flags;
+	int i;
+
+	/* Name + aliases */
+	aliases = rb_ary_new();
+	for ( i = 1; i < desc->names_count; i++ )
+		rb_ary_push( aliases, rb_str_new2(desc->names[i]) );
+	rb_hash_aset( deschash, aliases_sym, aliases );
+
+	/* Mimetypes */
+	mime_types = rb_ary_new();
+	for ( i = 0; i < desc->mime_types_count; i++ ) {
+		VALUE mimetype = rb_hash_new();
+		VALUE name = rb_str_new( desc->mime_types[i].mime_type, 
+		                         desc->mime_types[i].mime_type_len );
+		VALUE qval = INT2FIX( desc->mime_types[i].q );
+
+		rb_hash_aset( mimetype, name_sym, name );
+		rb_hash_aset( mimetype, q_sym, qval );
+
+		rb_ary_push( mime_types, mimetype );
+	}
+	rb_hash_aset( deschash, mime_types_sym, mime_types );
+
+	/* URIs */
+	uris = rb_ary_new();
+	for ( i = 0; i < desc->uri_strings_count; i++ )
+		rb_ary_push( uris, rb_str_new2(desc->uri_strings[i]) );
+	rb_hash_aset( deschash, uris_sym, uris );
+
+	/* Flags */
+	flags = INT2FIX( desc->flags );
+	rb_hash_aset( deschash, flags_sym, flags );
+
+	return deschash;
+}
+
 
 
 /* --------------------------------------------------------------
@@ -225,13 +290,13 @@ rleaf_redleaf_graph_s_serializers( VALUE klass ) {
  * -------------------------------------------------------------- */
 
 /*
- *  call-seq:
- *     Redleaf::Graph.new()          -> graph
- *     Redleaf::Graph.new( store )   -> graph
+ * call-seq:
+ *   Redleaf::Graph.new()          -> graph
+ *   Redleaf::Graph.new( store )   -> graph
  *
- *  Create a new Redleaf::Graph object. If the optional +store+ object is
- *  given, it is used as the backing store for the graph. If none is specified
- *  a new Redleaf::MemoryHashStore is used.
+ * Create a new Redleaf::Graph object. If the optional +store+ object is
+ * given, it is used as the backing store for the graph. If none is specified
+ * a new Redleaf::MemoryHashStore is used.
  *
  */
 static VALUE
@@ -262,10 +327,10 @@ rleaf_redleaf_graph_initialize( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.dup   -> graph
+ * call-seq:
+ *   graph.dup   -> graph
  *
- *  Duplicate the receiver and return the copy.
+ * Duplicate the receiver and return the copy.
  *
  */
 static VALUE
@@ -300,10 +365,10 @@ rleaf_redleaf_graph_dup( VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.store   -> a_store
+ * call-seq:
+ *   graph.store   -> a_store
  *
- *  Return the Redleaf::Store associated with the receiver.
+ * Return the Redleaf::Store associated with the receiver.
  *
  */
 static VALUE
@@ -314,11 +379,11 @@ rleaf_redleaf_graph_store( VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.store = new_store
+ * call-seq:
+ *   graph.store = new_store
  *
- *  Associate the given +new_store+ with the receiver, breaking the association between
- *  it and any previous Store.
+ * Associate the given +new_store+ with the receiver, breaking the association between
+ * it and any previous Store.
  *
  */
 static VALUE
@@ -335,7 +400,7 @@ rleaf_redleaf_graph_store_eq( VALUE self, VALUE storeobj ) {
 	if ( rb_obj_is_kind_of(storeobj, rleaf_cRedleafStore) ) {
 		rleaf_log_with_context( self, "info", "Graph <0x%x>'s store is now %s <0x%x>",
 			self, rb_obj_classname(storeobj), storeobj );
-		rb_funcall( storeobj, rb_intern("graph="), 1, self );
+		rb_funcall( storeobj, graph_eq, 1, self );
 	} else {
 		rb_raise( rb_eArgError, "cannot convert %s to Redleaf::Store",
 			rb_obj_classname(storeobj) );
@@ -348,8 +413,8 @@ rleaf_redleaf_graph_store_eq( VALUE self, VALUE storeobj ) {
 
 
 /*
- *  call-seq:
- *     graph.size   => fixnum
+ * call-seq:
+ *    graph.size   => fixnum
  *
  * Return the number of statements in the graph. If the underlying store doesn't support
  * fetching the size of the graph, the return value will be negative.
@@ -365,10 +430,10 @@ rleaf_redleaf_graph_size( VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.statements   -> array
+ * call-seq:
+ *   graph.statements   -> array
  *
- *  Return an Array of all the statements in the graph.
+ * Return an Array of all the statements in the graph.
  *
  */
 static VALUE
@@ -395,7 +460,7 @@ rleaf_redleaf_graph_statements( VALUE self ) {
 
 /*
  * call-seq:
- *     graph.append_statements( *statements )   -> graph
+ *    graph.append_statements( *statements )   -> graph
  *
  * Append one or more Redleaf::Statements to the graph.
  *
@@ -424,22 +489,22 @@ rleaf_redleaf_graph_append_statements( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.remove( statement )   -> array
+ * call-seq:
+ *   graph.remove( statement )   -> array
  *
- *  Removes one or more statements from the graph that match the specified +statement+
- *  (either a Redleaf::Statement or a valid triple in an Array) and returns any that
- *  were removed.
+ * Removes one or more statements from the graph that match the specified +statement+
+ * (either a Redleaf::Statement or a valid triple in an Array) and returns any that
+ * were removed.
  *
- *  Any +nil+ values in the statement will match any value.
+ * Any +nil+ values in the statement will match any value.
  *
- *     # Set a new home page for the Redleaf project, preserving the old one
- *     # as the 'old_homepage'
- *     stmt = graph.remove([ :Redleaf, DOAP[:homepage], nil ])
- *     stmt.predicate = DOAP[:old_homepage]
- *     graph.append( stmt )
- *     graph.append([ :Redleaf, DOAP[:homepage],
- *                    URL.parse('http://deveiate.org/projects/Redleaf') ])
+ *   # Set a new home page for the Redleaf project, preserving the old one
+ *   # as the 'old_homepage'
+ *   stmt = graph.remove([ :Redleaf, DOAP[:homepage], nil ])
+ *   stmt.predicate = DOAP[:old_homepage]
+ *   graph.append( stmt )
+ *   graph.append([ :Redleaf, DOAP[:homepage],
+ *                  URL.parse('http://deveiate.org/projects/Redleaf') ])
  */
 static VALUE
 rleaf_redleaf_graph_remove( VALUE self, VALUE statement ) {
@@ -486,18 +551,18 @@ rleaf_redleaf_graph_remove( VALUE self, VALUE statement ) {
 
 
 /*
- *  call-seq:
- *     graph.search( subject, predicate, object )   -> array
- *     graph[ subject, predicate, object ]          -> array
+ * call-seq:
+ *   graph.search( subject, predicate, object )   -> array
+ *   graph[ subject, predicate, object ]          -> array
  *
- *  Search for statements in the graph with the specified +subject+, +predicate+, and +object+ and
- *  return them. If +subject+, +predicate+, or +object+ are nil, they will match any value.
+ * Search for statements in the graph with the specified +subject+, +predicate+, and +object+ and
+ * return them. If +subject+, +predicate+, or +object+ are nil, they will match any value.
  *
- *     # Match any statements about authors
- *     graph.load( 'http://deveiant.livejournal.com/data/foaf' )
+ *   # Match any statements about authors
+ *   graph.load( 'http://deveiant.livejournal.com/data/foaf' )
  *
- *     #
- *     graph[ nil, FOAF[:knows], nil ]  # => [...]
+ *   #
+ *   graph[ nil, FOAF[:knows], nil ]  # => [...]
  */
 static VALUE
 rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE object ) {
@@ -549,12 +614,12 @@ rleaf_redleaf_graph_search( VALUE self, VALUE subject, VALUE predicate, VALUE ob
 
 
 /*
- *  call-seq:
- *     graph.include?( statement )    -> true or false
- *     graph.contains?( statement )   -> true or false
+ * call-seq:
+ *   graph.include?( statement )    -> true or false
+ *   graph.contains?( statement )   -> true or false
  *
- *  Return +true+ if the receiver contains the specified +statement+, which can be either a
- *  Redleaf::Statement object or a valid triple in an Array.
+ * Return +true+ if the receiver contains the specified +statement+, which can be either a
+ * Redleaf::Statement object or a valid triple in an Array.
  *
  */
 static VALUE
@@ -583,11 +648,11 @@ rleaf_redleaf_graph_include_p( VALUE self, VALUE statement ) {
 
 
 /*
- *  call-seq:
- *     graph.each_statement {|statement| block }   -> graph
- *     graph.each {|statement| block }             	-> graph
+ * call-seq:
+ *   graph.each_statement {|statement| block }   -> graph
+ *   graph.each {|statement| block }             -> graph
  *
- *  Call +block+ once for each statement in the graph.
+ * Call +block+ once for each statement in the graph.
  *
  */
 static VALUE
@@ -615,18 +680,18 @@ rleaf_redleaf_graph_each_statement( VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.load( uri )   -> Fixnum
+ * call-seq:
+ *   graph.load( uri )   -> Fixnum
  *
- *  Parse the RDF at the specified +uri+ into the receiving graph. Returns the number of statements
- *  added to the graph (if the underlying store supports ).
+ * Parse the RDF at the specified +uri+ into the receiving graph. Returns the number of statements
+ * added to the graph (if the underlying store supports ).
  *
- *     graph = Redleaf::Graph.new
- *     graph.load( "http://bigasterisk.com/foaf.rdf" )
- *     graph.load( "http://www.w3.org/People/Berners-Lee/card.rdf" )
- *     graph.load( "http://danbri.livejournal.com/data/foaf" )
+ *   graph = Redleaf::Graph.new
+ *   graph.load( "http://bigasterisk.com/foaf.rdf" )
+ *   graph.load( "http://www.w3.org/People/Berners-Lee/card.rdf" )
+ *   graph.load( "http://danbri.livejournal.com/data/foaf" )
  *
- *     graph.size
+ *   graph.size
  */
 static VALUE
 rleaf_redleaf_graph_load( VALUE self, VALUE uri ) {
@@ -649,10 +714,10 @@ rleaf_redleaf_graph_load( VALUE self, VALUE uri ) {
 
 
 /*
- *  call-seq:
- *     graph.supports_contexts?   -> true or false
+ * call-seq:
+ *   graph.supports_contexts?   -> true or false
  *
- *  Returns +true+ if the receiving model supports contexts.
+ * Returns +true+ if the receiving model supports contexts.
  *
  */
 static VALUE
@@ -673,10 +738,10 @@ rleaf_redleaf_graph_supports_contexts_p( VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.contexts   -> array
+ * call-seq:
+ *    graph.contexts   -> array
  *
- *  Returns an Array of URIs describing the contexts in the receiving graph.
+ * Returns an Array of URIs describing the contexts in the receiving graph.
  *
  */
 static VALUE
@@ -712,20 +777,20 @@ rleaf_redleaf_graph_contexts( VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.serialized_as( format, nshash={} )  -> string
+ * call-seq:
+ *    graph.serialized_as( format, nshash={} )  -> string
  *
- *  Return the graph serialized to a String in the specified +format+. Valid +format+s are keys
- *  of the Hash returned by ::serializers.
+ * Return the graph serialized to a String in the specified +format+. Valid +format+s are keys
+ * of the Hash returned by ::serializers.
  *
- *  The +nshash+ argument can be used to set namespaces in the output (for serializers that
- *  support them). It should be of the form:
+ * The +nshash+ argument can be used to set namespaces in the output (for serializers that
+ * support them). It should be of the form:
  *
- *    { :nsname => <namespace URI> }
+ *   { :nsname => <namespace URI> }
  *
- *  Examples:
- *     turtle = graph.serialized_as( 'turtle' )
- *     xml = graph.serialized_as( 'rdfxml-abbrev', :foaf => 'http://xmlns.com/foaf/0.1/' )
+ * Examples:
+ *    turtle = graph.serialized_as( 'turtle' )
+ *    xml = graph.serialized_as( 'rdfxml-abbrev', :foaf => 'http://xmlns.com/foaf/0.1/' )
  *
  */
 static VALUE
@@ -750,7 +815,7 @@ rleaf_redleaf_graph_serialized_as( int argc, VALUE *argv, VALUE self ) {
 	formatname = StringValuePtr( format );
 	rleaf_log_with_context( self, "debug", "trying to serialize as '%s'", formatname );
 
-	if ( !RTEST(rb_funcall(CLASS_OF(self), rb_intern("valid_format?"), 1, format)) )
+	if ( !RTEST(rb_funcall(CLASS_OF(self), valid_format_p, 1, format)) )
 		rb_raise( rleaf_eRedleafFeatureError, "unsupported serialization format '%s'", formatname );
 
 	rleaf_log_with_context( self, "debug", "valid format '%s' specified.", formatname );
@@ -798,12 +863,12 @@ rleaf_set_serializer_ns( VALUE nspair, VALUE serializer_value ) {
 
 
 /*
- *  call-seq:
- *     graph.execute_query( qstring, language=:sparql, limit=nil, offset=nil ) -> queryresult
+ * call-seq:
+ *    graph.execute_query( qstring, language=:sparql, limit=nil, offset=nil ) -> queryresult
  *
- *  Run the query in the given query string (+qstring+) against the graph. The query +language+
- *  specifies the query language, and +limit+, and +offset+ can be used to limit the results. The
- *  #query method is the public interface to this method.
+ * Run the query in the given query string (+qstring+) against the graph. The query +language+
+ * specifies the query language, and +limit+, and +offset+ can be used to limit the results. The
+ * #query method is the public interface to this method.
  *
  */
 static VALUE
@@ -885,10 +950,10 @@ rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- *  call-seq:
- *     graph.subjects( predicate, object )   -> [ nodes ]
+ * call-seq:
+ *    graph.subjects( predicate, object )   -> [ nodes ]
  *
- *  Return an Array of subject nodes from the graph that have the specified +predicate+ and +object+.
+ * Return an Array of subject nodes from the graph that have the specified +predicate+ and +object+.
  *
  */
 static VALUE
@@ -924,10 +989,10 @@ rleaf_redleaf_graph_subjects( VALUE self, VALUE predicate, VALUE object ) {
 
 
 /*
- *  call-seq:
- *     graph.subject( predicate, object )   -> nodes
+ * call-seq:
+ *    graph.subject( predicate, object )   -> nodes
  *
- *  Return one subject of a statement with the specified +predicate+ and +object+.
+ * Return one subject of a statement with the specified +predicate+ and +object+.
  *
  */
 static VALUE
@@ -955,10 +1020,10 @@ rleaf_redleaf_graph_subject( VALUE self, VALUE predicate, VALUE object ) {
 
 
 /*
- *  call-seq:
- *     graph.predicates( subject, object )   -> [ nodes ]
+ * call-seq:
+ *    graph.predicates( subject, object )   -> [ nodes ]
  *
- *  Return an Array of predicate nodes from the graph that have the specified +subject+ and +object+.
+ * Return an Array of predicate nodes from the graph that have the specified +subject+ and +object+.
  *
  */
 static VALUE
@@ -994,10 +1059,10 @@ rleaf_redleaf_graph_predicates( VALUE self, VALUE subject, VALUE object ) {
 
 
 /*
- *  call-seq:
- *     graph.predicate( subject, object )   -> nodes
+ * call-seq:
+ *    graph.predicate( subject, object )   -> nodes
  *
- *  Return one predicate of a statement with the specified +subject+ and +object+.
+ * Return one predicate of a statement with the specified +subject+ and +object+.
  *
  */
 static VALUE
@@ -1025,10 +1090,10 @@ rleaf_redleaf_graph_predicate( VALUE self, VALUE subject, VALUE object ) {
 
 
 /*
- *  call-seq:
- *     graph.objects( subject, predicate )   -> [ nodes ]
+ * call-seq:
+ *    graph.objects( subject, predicate )   -> [ nodes ]
  *
- *  Return an Array of object nodes from the graph that have the specified +subject+ and +predicate+.
+ * Return an Array of object nodes from the graph that have the specified +subject+ and +predicate+.
  *
  */
 static VALUE
@@ -1064,10 +1129,10 @@ rleaf_redleaf_graph_objects( VALUE self, VALUE subject, VALUE predicate ) {
 
 
 /*
- *  call-seq:
- *     graph.object( subject, predicate )   -> nodes
+ * call-seq:
+ *    graph.object( subject, predicate )   -> nodes
  *
- *  Return one object of a statement with the specified +subject+ and +predicate+.
+ * Return one object of a statement with the specified +subject+ and +predicate+.
  *
  */
 static VALUE
@@ -1094,10 +1159,10 @@ rleaf_redleaf_graph_object( VALUE self, VALUE subject, VALUE predicate ) {
 
 
 /*
- *  call-seq:
- *     graph.predicates_about( subject )   -> nodes
+ * call-seq:
+ *    graph.predicates_about( subject )   -> nodes
  *
- *  Returns an Array of predicates (URI objects) that point from the specified +subject+.
+ * Returns an Array of predicates (URI objects) that point from the specified +subject+.
  *
  */
 static VALUE
@@ -1142,11 +1207,11 @@ rleaf_redleaf_graph_predicates_about( VALUE self, VALUE subject ) {
 
 
 /*
- *  call-seq:
- *     graph.has_predicate_about?( subject, predicate )   -> true or false
+ * call-seq:
+ *    graph.has_predicate_about?( subject, predicate )   -> true or false
  *
- *  Returns +true+ if the graph has at least one statement with the specified +subject+ and
- *  +predicate+.
+ * Returns +true+ if the graph has at least one statement with the specified +subject+ and
+ * +predicate+.
  *
  */
 static VALUE
@@ -1172,10 +1237,10 @@ rleaf_redleaf_graph_has_predicate_about_p( VALUE self, VALUE subject, VALUE pred
 
 
 /*
- *  call-seq:
- *     graph.predicates_entailing( object )   -> nodes
+ * call-seq:
+ *    graph.predicates_entailing( object )   -> nodes
  *
- *  Returns an Array of predicates (URI objects) that point to the specified +object+.
+ * Returns an Array of predicates (URI objects) that point to the specified +object+.
  *
  */
 static VALUE
@@ -1215,11 +1280,11 @@ rleaf_redleaf_graph_predicates_entailing( VALUE self, VALUE object ) {
 
 
 /*
- *  call-seq:
- *     graph.has_predicate_entailing?( predicate, object )   -> true or false
+ * call-seq:
+ *    graph.has_predicate_entailing?( predicate, object )   -> true or false
  *
- *  Returns +true+ if the graph has at least one statement with the specified +predicate+
- *  and +object+.
+ * Returns +true+ if the graph has at least one statement with the specified +predicate+
+ * and +object+.
  *
  */
 static VALUE
@@ -1245,10 +1310,10 @@ rleaf_redleaf_graph_has_predicate_entailing_p( VALUE self, VALUE predicate, VALU
 
 
 /*
- *  call-seq:
- *     graph.include_subject?( subject )   -> true or false
+ * call-seq:
+ *    graph.include_subject?( subject )   -> true or false
  *
- *  Returns +true+ if the graph contains any statements with the specified +subject+.
+ * Returns +true+ if the graph contains any statements with the specified +subject+.
  *
  */
 static VALUE
@@ -1281,10 +1346,10 @@ rleaf_redleaf_graph_include_subject_p( VALUE self, VALUE subject ) {
 
 
 /*
- *  call-seq:
- *     graph.include_object?( object )   -> true or false
+ * call-seq:
+ *    graph.include_object?( object )   -> true or false
  *
- *  Returns +true+ if the graph contains any statements with the specified +object+.
+ * Returns +true+ if the graph contains any statements with the specified +object+.
  *
  */
 static VALUE
@@ -1317,10 +1382,10 @@ rleaf_redleaf_graph_include_object_p( VALUE self, VALUE object ) {
 
 
 /*
- *  call-seq:
- *     model.sync
+ * call-seq:
+ *    model.sync
  *
- *  Synchronise the model to the model implementation.
+ * Synchronise the model to the model implementation.
  *
  */
 static VALUE
@@ -1340,6 +1405,17 @@ rleaf_redleaf_graph_sync( VALUE self ) {
 void
 rleaf_init_redleaf_graph( void ) {
 	rleaf_log( "debug", "Initializing Redleaf::Graph" );
+
+	/* Set up symbols */
+	name_sym           = ID2SYM( rb_intern("name") );
+	aliases_sym        = ID2SYM( rb_intern("aliases") );
+	q_sym              = ID2SYM( rb_intern("q") );
+	mime_types_sym     = ID2SYM( rb_intern("mime_types") );
+	uris_sym           = ID2SYM( rb_intern("uris") );
+	flags_sym          = ID2SYM( rb_intern("flags") );
+
+	graph_eq           = rb_intern( "graph=" );
+	valid_format_p     = rb_intern( "valid_format?" );
 
 #ifdef FOR_RDOC
 	rleaf_mRedleaf = rb_define_module( "Redleaf" );

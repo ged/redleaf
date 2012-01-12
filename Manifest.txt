@@ -56,7 +56,7 @@ spec/data/mgranger-foaf.xml
 spec/data/rss/test02.rdf
 spec/data/rss/test04.atom
 spec/data/trig/example1.trig
-spec/lib/constants.rb
+spec/lib/testconstants.rb
 spec/lib/helpers.rb
 spec/lib/nodeequivalence_matcher.rb
 spec/lib/parser_behavior.rb
