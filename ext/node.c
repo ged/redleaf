@@ -117,11 +117,35 @@ rleaf_librdf_literal_node_to_object( librdf_node *node ) {
 
 
 /*
+ * Return the specified +node+ as an NTriples string.
+ */
+VALUE
+rleaf_librdf_node_to_string( librdf_node *node )
+{
+	raptor_iostream *stream = NULL;
+	void *dumped_node = NULL;
+	int ret;
+
+	stream = raptor_new_iostream_to_string( node->world, &dumped_node, NULL, NULL );
+	if ( !stream ) {
+		rb_sys_fail( "raptor_new_iostream_to_string" );
+	}
+
+	ret = librdf_node_write( node, stream );
+	raptor_free_iostream( stream );
+
+	if ( ret != 0 )
+		rb_fatal( "librdf_node_write failed." );
+
+	return rb_str_new2( (char *)dumped_node );
+}
+
+/*
  * Convert the given librdf_node to a Ruby object and return it as a VALUE.
  */
 VALUE
 rleaf_librdf_node_to_value( librdf_node *node ) {
-	VALUE node_object = Qnil;
+	VALUE node_object = Qnil, node_string = Qnil;
 	librdf_node_type nodetype = LIBRDF_NODE_TYPE_UNKNOWN;
 	unsigned char *bnode_idname = NULL;
 	ID bnode_id;
@@ -129,17 +153,18 @@ rleaf_librdf_node_to_value( librdf_node *node ) {
 	if ( !node ) rb_fatal( "NULL pointer given to rleaf_librdf_node_to_value()" );
 	nodetype = librdf_node_get_type( node );
 
-	rleaf_log( "debug", "Converting node %s to a Ruby VALUE", librdf_node_to_string(node) );
+	node_string = rleaf_librdf_node_to_string( node );
+	rleaf_log( "debug", "Converting node %s to a Ruby VALUE", RSTRING_PTR(node_string) );
 
 	switch( nodetype ) {
 
-	  /* URI node => URI */
-	  case LIBRDF_NODE_TYPE_RESOURCE:
+		/* URI node => URI */
+		case LIBRDF_NODE_TYPE_RESOURCE:
 		node_object = rleaf_librdf_uri_node_to_object( node );
 		break;
 
-	  /* Blank node => Symbol */
-	  case LIBRDF_NODE_TYPE_BLANK:
+		/* Blank node => Symbol */
+		case LIBRDF_NODE_TYPE_BLANK:
 		bnode_idname = librdf_node_get_blank_identifier( node );
 		if ( bnode_idname ) {
 			rleaf_log( "debug", "Converted a bnode to %s", bnode_idname );
@@ -151,12 +176,12 @@ rleaf_librdf_node_to_value( librdf_node *node ) {
 		}
 		break;
 
-	  /* Literal => <ruby object> */
-	  case LIBRDF_NODE_TYPE_LITERAL:
+		/* Literal => <ruby object> */
+		case LIBRDF_NODE_TYPE_LITERAL:
 		node_object = rleaf_librdf_literal_node_to_object( node );
 		break;
 
-	  default:
+		default:
 		rb_fatal( "Unknown node type %d encountered when converting a node.", nodetype );
 	}
 

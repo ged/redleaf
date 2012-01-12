@@ -15,7 +15,7 @@ BEGIN {
 
 # require 'simplecov'
 # SimpleCov.start do
-# 	add_filter 'spec'
+#	add_filter 'spec'
 # end
 
 require 'rspec'
@@ -54,7 +54,7 @@ module Redleaf::SpecHelpers
 			:warn  => Logger::WARN,
 			:error => Logger::ERROR,
 			:fatal => Logger::FATAL,
-		  }
+		}
 	end
 
 
@@ -153,7 +153,7 @@ end
 
 
 ### Mock with Rspec
-Rspec.configure do |config|
+RSpec.configure do |config|
 	config.mock_with :rspec
 
 	config.include( Redleaf::TestConstants )

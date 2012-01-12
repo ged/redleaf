@@ -27,3 +27,4 @@ ruby\-committers\.yml$
 ^coverage/
 ^doc/
 ^coverage/
+manual/output/

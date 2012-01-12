@@ -132,6 +132,9 @@ typedef struct rleaf_graph_object {
 
 #define DEFAULT_STORE_CLASS rleaf_cRedleafHashesStore
 
+/*	Silence acceptable unused variables without -Wno-unused */
+#define _UNUSED(x) (void)x
+
 
 /* --------------------------------------------------------------
  * Declarations
@@ -154,6 +157,7 @@ VALUE rleaf_librdf_uri_node_to_object( librdf_node * );
 librdf_uri * rleaf_object_to_librdf_uri( VALUE );
 VALUE rleaf_librdf_literal_node_to_object( librdf_node * );
 VALUE rleaf_librdf_node_to_value( librdf_node * );
+VALUE rleaf_librdf_node_to_string( librdf_node * );
 
 librdf_node * rleaf_value_to_librdf_node( VALUE );
 librdf_node * rleaf_value_to_subject_node( VALUE );
@@ -163,7 +167,7 @@ librdf_node * rleaf_value_to_object_node( VALUE );
 /* Statement conversion function from statement.c */
 VALUE rleaf_librdf_statement_to_value( librdf_statement * );
 librdf_statement * rleaf_value_to_librdf_statement( VALUE );
-	
+
 /* T_DATA fetcher functions */
 rleaf_STORE *rleaf_get_store( VALUE );
 rleaf_GRAPH *rleaf_get_graph( VALUE );

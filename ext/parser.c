@@ -1,29 +1,29 @@
-/* 
+/*
  * Redleaf::Parser -- RDF parser class
  * $Id$
  * --
  * Authors
- * 
+ *
  * - Michael Granger <ged@FaerieMUD.org>
- * 
+ *
  * Copyright (c) 2008, 2009 Michael Granger
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
- * 
+ *
  *  * Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
- *  
+ *
  *  * Redistributions in binary form must reproduce the above copyright notice, this
  *    list of conditions and the following disclaimer in the documentation and/or
  *    other materials provided with the distribution.
- *  
+ *
  *  * Neither the name of the authors, nor the names of its contributors may be used to
  *    endorse or promote products derived from this software without specific prior
  *    written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -35,8 +35,8 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * 
+ *
+ *
  */
 
 #include "redleaf.h"
@@ -60,7 +60,7 @@ rleaf_parser_alloc( const char *name ) {
 
 /*
  * GC Mark function
-static void 
+static void
 rleaf_parser_gc_mark( librdf_parser *ptr ) {}
  */
 
@@ -69,7 +69,7 @@ rleaf_parser_gc_mark( librdf_parser *ptr ) {}
 /*
  * GC Free function
  */
-static void 
+static void
 rleaf_parser_gc_free( librdf_parser *ptr ) {
 	if ( ptr && rleaf_rdf_world ) {
 		librdf_free_parser( ptr );
@@ -90,7 +90,7 @@ check_parser( VALUE self ) {
 		rb_raise( rb_eTypeError, "wrong argument type %s (expected Redleaf::Parser)",
 				  rb_obj_classname( self ) );
     }
-	
+
 	return DATA_PTR( self );
 }
 
@@ -122,7 +122,7 @@ rleaf_get_parser( VALUE self ) {
  *  Virtual method: Allocate a new instance of a subclass of Redleaf::Parser.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_parser_s_allocate( VALUE klass ) {
 	return Data_Wrap_Struct( klass, NULL, rleaf_parser_gc_free, 0 );
 }
@@ -135,29 +135,34 @@ rleaf_redleaf_parser_s_allocate( VALUE klass ) {
  *  Return a Hash of supported features from the underlying Redland library.
  *
  *     Redleaf::Parser.features
- *     # => {"raptor"       => "", 
- *           "grddl"        => "Gleaning Resource Descriptions from Dialects of Languages", 
+ *     # => {"raptor"       => "",
+ *           "grddl"        => "Gleaning Resource Descriptions from Dialects of Languages",
  *           "rdfxml"       => "RDF/XML",
- *           "guess"        => "Pick the parser to use using content type and URI", 
+ *           "guess"        => "Pick the parser to use using content type and URI",
  *           "rdfa"         => "RDF/A via librdfa",
- *           "trig"         => "TriG - Turtle with Named Graphs", 
+ *           "trig"         => "TriG - Turtle with Named Graphs",
  *           "turtle"       => "Turtle Terse RDF Triple Language",
- *           "ntriples"     => "N-Triples", 
+ *           "ntriples"     => "N-Triples",
  *           "rss-tag-soup" => "RSS Tag Soup"}
  */
 static VALUE
 rleaf_redleaf_parser_s_features( VALUE klass ) {
+	const raptor_syntax_description *syntax;
+	unsigned int counter = 0, name = 0;
 	VALUE features = rb_hash_new();
-	int i = 0;
-	const char *name, *label;
 
-	while ( (librdf_parser_enumerate(rleaf_rdf_world, i, &name, &label)) == 0 ) {
-		VALUE namestr = name ? rb_str_new2( name ) : rb_str_new( NULL, 0 );
-		VALUE labelstr = label ? rb_str_new2( label ) : rb_str_new( NULL, 0 );
-		
-		rb_hash_aset( features, namestr, labelstr );
-		i++;
+	_UNUSED( klass );
+
+	rleaf_log( "debug", "Enumerating parsers." );
+	while( (syntax = librdf_parser_get_description(rleaf_rdf_world, counter)) ) {
+		for ( name = 0; name < syntax->names_count; name++ ) {
+			// rleaf_log( "debug", "  serializer [%d]: name = '%s', desc = '%s'", counter, name, desc );
+			rb_hash_aset( features, rb_str_new2(syntax->names[name]), rb_str_new2(syntax->label) );
+		}
+
+		counter++;
 	}
+	rleaf_log( "debug", "  got %d parsers.", counter );
 
 	return features;
 }
@@ -181,13 +186,15 @@ rleaf_redleaf_parser_s_features( VALUE klass ) {
  *
  */
 static VALUE
-rleaf_redleaf_parser_s_guess_type( int argc, VALUE *argv, VALUE self ) {
+rleaf_redleaf_parser_s_guess_type( int argc, VALUE *argv, VALUE klass ) {
 	VALUE mimeobj = Qnil, bufobj = Qnil, uriobj = Qnil;
 	unsigned char *buffer = NULL, *uri = NULL;
 	const char  *mimetype = NULL, *guess;
-	
+
+	_UNUSED( klass );
+
 	rb_scan_args( argc, argv, "03", &mimeobj, &bufobj, &uriobj );
-	
+
 	if ( mimeobj ) {
 		mimetype = (const char *)RSTRING_PTR(rb_obj_as_string(mimeobj));
 	}
@@ -197,11 +204,11 @@ rleaf_redleaf_parser_s_guess_type( int argc, VALUE *argv, VALUE self ) {
 	if ( uriobj ) {
 		uri = (unsigned char *)RSTRING_PTR(rb_obj_as_string(uriobj));
 	}
-	
-	guess = librdf_parser_guess_name( mimetype, buffer, uri );
+
+	guess = librdf_parser_guess_name2( rleaf_rdf_world, mimetype, buffer, uri );
 
 	if ( guess == NULL ) return Qnil;
-	
+
 	return rb_str_new2( guess );
 }
 
@@ -217,7 +224,7 @@ rleaf_redleaf_parser_s_guess_type( int argc, VALUE *argv, VALUE self ) {
  *  Initialize an instance of a subclass of Redleaf::Parser.
  *
  */
-static VALUE 
+static VALUE
 rleaf_redleaf_parser_initialize( VALUE self ) {
 	rleaf_log_with_context( self, "debug", "Initializing %s 0x%x", rb_obj_classname(self), self );
 
@@ -229,9 +236,9 @@ rleaf_redleaf_parser_initialize( VALUE self ) {
 		/* Get the backend name */
 		type = rb_funcall( CLASS_OF(self), rb_intern("validated_parser_type"), 0 );
 		typename = StringValuePtr( type );
-		
+
 		DATA_PTR( self ) = parser = rleaf_parser_alloc( typename );
-		
+
 	} else {
 		rb_raise( rleaf_eRedleafError,
 				  "Cannot re-initialize a parser once it's been created." );
@@ -245,7 +252,7 @@ rleaf_redleaf_parser_initialize( VALUE self ) {
  *  call-seq:
  *     parser.accept_header   -> string
  *
- *  Return an HTTP Accept header value for the parser. 
+ *  Return an HTTP Accept header value for the parser.
  *
  *     Redleaf::Parser.new.accept_header
  *     # => "application/rdf+xml, text/rdf;q=0.6"
@@ -255,11 +262,11 @@ rleaf_redleaf_parser_accept_header( VALUE self ) {
 	librdf_parser *parser = rleaf_get_parser( self );
 	VALUE header;
 	char *rawheader;
-	
+
 	rawheader = librdf_parser_get_accept_header( parser );
 	header = rb_str_new2( rawheader );
 	xfree( rawheader );
-	
+
 	return header;
 }
 
@@ -277,7 +284,8 @@ rleaf_redleaf_parser_parse( int argc, VALUE *argv, VALUE self ) {
 	librdf_parser *parser = rleaf_get_parser( self );
 	VALUE graphobj;
 	rleaf_GRAPH *graph;
-	unsigned char *string, *error_count_string;
+	unsigned char *string = NULL;
+	VALUE error_count_string = Qnil;
 	VALUE content = Qnil, baseuriobj = Qnil;
 	VALUE parser_type = rb_funcall( CLASS_OF(self), rb_intern("parser_type"), 0, NULL );
 	librdf_uri  *baseuri, *error_count_feature;
@@ -299,15 +307,15 @@ rleaf_redleaf_parser_parse( int argc, VALUE *argv, VALUE self ) {
 	if ( (librdf_parser_parse_string_into_model(parser, string, baseuri, graph->model)) != 0 )
 		rb_raise( rleaf_eRedleafParseError, "failed to parse" );
 
-	error_count_feature = librdf_new_uri( rleaf_rdf_world, 
+	/* FIXME: I feel like there has to be a better way to do this, but I can't see what it
+	is currently. Need to ask dajobe for advice. */
+	error_count_feature = librdf_new_uri( rleaf_rdf_world,
 		(unsigned char *)LIBRDF_PARSER_FEATURE_ERROR_COUNT );
 	error_count_node = librdf_parser_get_feature( parser, error_count_feature );
 
-	/* FIXME: I feel like there has to be a better way to do this, but I can't see what it 
-	   is currently. Need to ask dajobe for advice. */
-	error_count_string = librdf_node_to_string( error_count_node );
-	error_count = strtol( (char *)error_count_string, NULL, 0 );
-	xfree( error_count_string );
+	error_count_string = rleaf_librdf_node_to_string( error_count_node );
+	error_count = strtol( RSTRING_PTR(error_count_string), NULL, 0 );
+	error_count_string = Qnil;
 
 	librdf_free_node( error_count_node );
 	librdf_free_uri( error_count_feature );
@@ -323,7 +331,7 @@ rleaf_redleaf_parser_parse( int argc, VALUE *argv, VALUE self ) {
 
 
 /*
- * 
+ *
  */
 void rleaf_init_redleaf_parser( void ) {
 	rleaf_log( "debug", "Initializing Redleaf::Parser" );
@@ -337,10 +345,10 @@ void rleaf_init_redleaf_parser( void ) {
 
 	/* Class methods */
 	rb_define_alloc_func( rleaf_cRedleafParser, rleaf_redleaf_parser_s_allocate );
-	
-	rb_define_singleton_method( rleaf_cRedleafParser, "features", 
+
+	rb_define_singleton_method( rleaf_cRedleafParser, "features",
 		rleaf_redleaf_parser_s_features, 0 );
-	rb_define_singleton_method( rleaf_cRedleafParser, "guess_type", 
+	rb_define_singleton_method( rleaf_cRedleafParser, "guess_type",
 		rleaf_redleaf_parser_s_guess_type, -1 );
 
 	/* Instance methods */
@@ -350,7 +358,7 @@ void rleaf_init_redleaf_parser( void ) {
 
 	/* TODO: support IOs as well as Strings? */
 	rb_define_method( rleaf_cRedleafParser, "parse", rleaf_redleaf_parser_parse, -1 );
-	
+
 	/*
 
 	FUTURE WORK (maybe?):
@@ -360,7 +368,7 @@ void rleaf_init_redleaf_parser( void ) {
 
 	-- #namespace_seen_prefixes
 	const char* librdf_parser_get_namespaces_seen_prefix( librdf_parser *parser, int offset );
-	
+
 	-- #namespace_seen_uris
 	librdf_uri* librdf_parser_get_namespaces_seen_uri( librdf_parser *parser, int offset );
 

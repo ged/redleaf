@@ -158,10 +158,12 @@ rleaf_redleaf_graph_s_allocate( VALUE klass ) {
  *
  */
 static VALUE
-rleaf_redleaf_graph_s_model_types( VALUE klass ) {
+ rleaf_redleaf_graph_s_model_types( VALUE klass ) {
 	const char *name, *label;
 	unsigned int counter = 0;
 	VALUE rhash = rb_hash_new();
+
+	_UNUSED( klass );
 
 	rleaf_log( "debug", "Enumerating graphs." );
 	while( (librdf_model_enumerate(rleaf_rdf_world, counter, &name, &label)) == 0 ) {
@@ -181,7 +183,7 @@ rleaf_redleaf_graph_s_model_types( VALUE klass ) {
  *
  *  Return a Hash of supported serializers from the underlying Redland library.
  *
- *     Redleaf::Parser.serializers
+ *     Redleaf::Graph.serializers
  *     # => { "rss-1.0"       => "RSS 1.0",
  *     #      "rdfxml"        => "RDF/XML",
  *     #      "json-triples"  => "RDF/JSON Triples",
@@ -195,14 +197,19 @@ rleaf_redleaf_graph_s_model_types( VALUE klass ) {
  */
 static VALUE
 rleaf_redleaf_graph_s_serializers( VALUE klass ) {
-	const char *name, *desc;
-	unsigned int counter = 0;
+	const raptor_syntax_description *syntax;
+	unsigned int counter = 0, name = 0;
 	VALUE rhash = rb_hash_new();
 
+	_UNUSED( klass );
+
 	rleaf_log( "debug", "Enumerating serializers." );
-	while( (librdf_serializer_enumerate(rleaf_rdf_world, counter, &name, &desc)) == 0 ) {
-		// rleaf_log( "debug", "  serializer [%d]: name = '%s', desc = '%s'", counter, name, desc );
-		rb_hash_aset( rhash, rb_str_new2(name), rb_str_new2(desc) );
+	while( (syntax = librdf_serializer_get_description(rleaf_rdf_world, counter)) ) {
+		for ( name = 0; name < syntax->names_count; name++ ) {
+			// rleaf_log( "debug", "  serializer [%d]: name = '%s', desc = '%s'", counter, name, desc );
+			rb_hash_aset( rhash, rb_str_new2(syntax->names[name]), rb_str_new2(syntax->label) );
+		}
+
 		counter++;
 	}
 	rleaf_log( "debug", "  got %d serializers.", counter );
@@ -801,7 +808,6 @@ rleaf_set_serializer_ns( VALUE nspair, VALUE serializer_value ) {
  */
 static VALUE
 rleaf_redleaf_graph_execute_query( int argc, VALUE *argv, VALUE self ) {
-	rleaf_log_with_context( self, "debug", "Called eq with %d args.", argc );
 	rleaf_GRAPH *ptr = rleaf_get_graph( self );
 
 	VALUE qstring, language, limit, offset, base;
