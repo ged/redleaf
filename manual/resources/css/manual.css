@@ -65,42 +65,55 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
 	font-size: 3em;
+	font-weight: bold;
 }
 
 h2 {
+	margin-top: 1em;
 	font-size: 2em;
+	font-weight: bold;
 }
 
 h3 {
+	margin-top: 1em;
 	font-size: 1.5em;
+	font-weight: bold;
 }
+h4 {
+	margin-top: 1em;
+	font-size: 1.25em;
+}
+
 
 p {
 	margin: 0;
 }
-p + p {
+p + p,
+p + ul,
+p + ol {
 	margin-top: 1em;
 }
 
-p + h2,
-p + h3 {
-	margin-top: 1em;
+li {
+	list-style: disc;
+	margin: 0.5em 1.2em
 }
 
+pre {
+	margin: 1em 0;
+}
 code, pre {
+	background-color: rgba(179,179,179,0.4);
 	font-family: Inconsolata, monospace;
 }
 
-code {
-	background-color: rgba(179,179,179,0.4);
-}
 
 dl {
 	margin: 0.5em 0;
-	padding: 0 0.5em;
+	padding: 0;
 }
 dt {
-	padding: 0 0.25em;
+	padding: 0 0.75em;
 	border-top-left-radius: 0.5em;
 	border-top-right-radius: 0.5em;
 	background: -webkit-gradient(radial, 
@@ -115,7 +128,7 @@ dt {
 		#cecece);
 }
 dd {
-	padding: 0 0.25em;
+	padding: 0 0.75em;
 	border-bottom-left-radius: 0.5em;
 	border-bottom-right-radius: 0.5em;
 	margin-left: 0;
@@ -138,7 +151,7 @@ dd + dt {
 
 /* @group IDed elements */
 #page {
-	
+
 }
 
 #page > header {
@@ -171,12 +184,12 @@ dd + dt {
 }
 
 #page > header h2.tagline {
-	font-weight: bold;
-	margin-top: -1.5em;
-	text-shadow: 1px 1px 2px rgba( 25,25,25, 0.5 );
+	font-weight: normal;
 	letter-spacing: 0.35em;
-	z-index: 1;
-	color: transparent;
+	color: #eee;
+	font-size: 1.2em;
+	margin-top: -1em;
+	margin-left: 1em;
 }
 
 header a {
@@ -204,20 +217,28 @@ aside#sidebar nav {
 	border-radius: 4px;
 	-webkit-box-shadow: 0 0 3px #333;
 }
+#auto-toc h2 {
+	font-size: 1.2em;
+	font-weight: normal;
+	color: #999;
+}
 #auto-toc ul {
 	margin: 0;
-	padding-left: 0.2em;
-	list-style: none;
+	padding: 0;
 }
 #auto-toc ul li {
 	margin: 0;
+	list-style: none;
 }
 
 section#content {
 	padding: 0;
 }
-/* @end */
-
+section#content > h2 {
+	margin-top: 0;
+}
+section#content h4 {
+}
 
 #page > footer {
 	color: #444;
@@ -243,6 +264,9 @@ section#content {
 	border-top: 2px solid rgba( 25,25,25, 0.2 );
 	font-size: 0.8em;
 }
+/* @end */
+
+
 
 /* @group Generic Classes */
 
@@ -320,23 +344,18 @@ p.caption {
 /* @group Examples */
 
 div.caption {
-	font-size: 12px;
+	font-size: 0.8em;
 	text-align: center;
 	padding: 0.25em 0;
 	overflow: hidden;
-	border: 1px solid black;
-	background-color: #ccc;
-	-webkit-border-bottom-left-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-bottomleft: 5px;
-	-moz-border-radius-bottomright: 5px;
 }
 
 div.example {
-	margin: 1.5em 0;
+	margin: 0.5em;
 	padding: 0;
-	font: 12px "Bitstream Vera Sans Mono", monospace;
+	font: 0.9em Inconsolata, Menlo, "Bitstream Vera Sans Mono", monospace;
 	overflow: hidden;
+	line-height: 1.1em;
 }
 
 div.example pre {
@@ -359,7 +378,7 @@ pre.deveiate .line-numbers {
 }
 
 pre.console-output {
-	
+
 }
 
 /* @end Examples */
@@ -394,368 +413,290 @@ div.callout.caution-callout {
 
 /**
  * SyntaxHighlighter
- * http://alexgorbatchev.com/
+ * http://alexgorbatchev.com/SyntaxHighlighter
  *
  * SyntaxHighlighter is donationware. If you are using it, please donate.
- * http://alexgorbatchev.com/wiki/SyntaxHighlighter:Donate
+ * http://alexgorbatchev.com/SyntaxHighlighter/donate.html
  *
  * @version
- * 2.0.320 (May 03 2009)
+ * 3.0.83 (July 02 2010)
  * 
  * @copyright
- * Copyright (C) 2004-2009 Alex Gorbatchev.
+ * Copyright (C) 2004-2010 Alex Gorbatchev.
  *
  * @license
- * This file is part of SyntaxHighlighter.
- * 
- * SyntaxHighlighter is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * SyntaxHighlighter is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with SyntaxHighlighter.  If not, see <http://www.gnu.org/copyleft/lesser.html>.
+ * Dual licensed under the MIT and GPL licenses.
  */
-
-.syntaxhighlighter,
+ 
+ /* Modified by Michael Granger */
+ 
+.syntaxhighlighter a,
 .syntaxhighlighter div,
 .syntaxhighlighter code,
-.syntaxhighlighter span {
-	
+.syntaxhighlighter table,
+.syntaxhighlighter table td,
+.syntaxhighlighter table tr,
+.syntaxhighlighter table tbody,
+.syntaxhighlighter table thead,
+.syntaxhighlighter table caption,
+.syntaxhighlighter textarea {
+  -moz-border-radius: 0 0 0 0;
+  -webkit-border-radius: 0 0 0 0;
+  background: none;
+  border: 0;
+  bottom: auto;
+  float: none;
+  height: auto;
+  left: auto;
+  line-height: 1.1em;
+  margin: 0;
+  outline: 0;
+  overflow: visible;
+  padding: 0;
+  position: static;
+  right: auto;
+  text-align: left;
+  top: auto;
+  vertical-align: baseline;
+  width: auto;
+  box-sizing: content-box;
+  font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1em;
+  min-height: inherit;
+  min-height: auto;
 }
 
 .syntaxhighlighter {
-	position: relative;
+  width: 100%;
+  margin: 1em 0 0 0;
+  position: relative;
+  overflow: auto;
+  font-size: 1em;
 }
-
-.syntaxhighlighter code {
-	display: inline;
-	background-color: inherit;
+.syntaxhighlighter.source {
+  overflow: hidden;
 }
-
 .syntaxhighlighter .bold {
-	font-weight: bold;
+  font-weight: bold;
 }
-
 .syntaxhighlighter .italic {
-	font-style: italic;
+  font-style: italic;
 }
-
-.syntaxhighlighter .line .number {
-	float: left;
-	width: 3em;
-	padding-right: .3em;
-	text-align: right;
-	display: block;
+.syntaxhighlighter .line {
+  white-space: pre;
 }
-
-/* Disable numbers when no gutter option is set */
-
-.syntaxhighlighter.nogutter .line .number {
-	display: none;
+.syntaxhighlighter table {
+  width: 100%;
 }
-
-.syntaxhighlighter .line .content {
-	margin-left: 3.3em;
-	padding-left: .5em;
-	display: block;
+.syntaxhighlighter table caption {
+  text-align: left;
+  padding: .5em 0 0.5em 1em;
 }
-
-.syntaxhighlighter .line .content .block {
-	display: block;
-	padding-left: 1.5em;
-	text-indent: -1.5em;
+.syntaxhighlighter table td.code {
+  width: 100%;
 }
-
-.syntaxhighlighter .line .content .spaces {
-	display: none;
+.syntaxhighlighter table td.code .container {
+  position: relative;
 }
-
-/* Disable border and margin on the lines when no gutter option is set */
-
-.syntaxhighlighter.nogutter .line .content {
-	margin-left: 0;
-	border-left: none;
+.syntaxhighlighter table td.code .container textarea {
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+  padding-left: 1em;
+  overflow: hidden;
+  white-space: pre;
 }
-
-.syntaxhighlighter .bar {
-	display: none;
+.syntaxhighlighter table td.gutter .line {
+  text-align: right;
+  padding: 0 0.5em 0 1em;
 }
-
-.syntaxhighlighter .bar.show {
-	display: block;
+.syntaxhighlighter table td.code .line {
+  padding: 0 1em;
 }
-
-.syntaxhighlighter.collapsed .bar {
-	display: block;
+.syntaxhighlighter.nogutter td.code .container textarea, .syntaxhighlighter.nogutter td.code .line {
+  padding-left: 0em;
 }
-
-.syntaxhighlighter.nogutter .ruler {
-	margin-left: 0;
-	padding-left: 0;
+.syntaxhighlighter.show {
+  display: block;
 }
-
-.syntaxhighlighter .ruler {
-	padding: 0 0 .5em .5em;
-	margin-left: 3.3em;
-	overflow: hidden;
+.syntaxhighlighter.collapsed table {
+  display: none;
 }
-
-/* Adjust some properties when collapsed */
-
-.syntaxhighlighter.collapsed .lines,
-.syntaxhighlighter.collapsed .ruler {
-	display: none;
-}
-
-.syntaxhighlighter .lines.no-wrap {
-	overflow: auto;
-	overflow-y: hidden;
-}
-
-/* Styles for the toolbar */
-
-.syntaxhighlighter .toolbar {
-	position: absolute;
-	right: 0px;
-	top: 0px;
-	font-size: 1px;
-	padding: 8px 8px 8px 0;
-
-
-/* in px because images don't scale with ems */
-}
-
 .syntaxhighlighter.collapsed .toolbar {
-	font-size: 80%;
-	padding: .2em 0 .5em .5em;
-	position: static;
+  padding: 0.1em 0.8em 0em 0.8em;
+  font-size: 1em;
+  position: static;
+  width: auto;
+  height: auto;
 }
-
-.syntaxhighlighter .toolbar a.item,
-.syntaxhighlighter .toolbar .item {
-	display: block;
-	float: left;
-	margin-left: 8px;
-	background-repeat: no-repeat;
-	overflow: hidden;
-	text-indent: -5000px;
+.syntaxhighlighter.collapsed .toolbar span {
+  display: inline;
+  margin-right: 1em;
 }
-
-.syntaxhighlighter.collapsed .toolbar .item {
-	display: none;
+.syntaxhighlighter.collapsed .toolbar span a {
+  padding: 0;
+  display: none;
 }
-
-.syntaxhighlighter.collapsed .toolbar .item.expandSource {
-	background-image: url(../images/magnifier.png);
-	display: inline;
-	text-indent: 0;
-	width: auto;
-	float: none;
-	height: 16px;
-	padding-left: 20px;
+.syntaxhighlighter.collapsed .toolbar span a.expandSource {
+  display: inline;
 }
-
-.syntaxhighlighter .toolbar .item.viewSource {
-	background-image: url(../images/magnifier_left.png);
+.syntaxhighlighter .toolbar {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  width: 11px;
+  height: 11px;
+  font-size: 10px;
+  z-index: 10;
 }
-
-.syntaxhighlighter .toolbar .item.printSource {
-	background-image: url(../images/printer.png);
+.syntaxhighlighter .toolbar span.title {
+  display: inline;
 }
-
-.syntaxhighlighter .toolbar .item.copyToClipboard {
-	text-indent: 0;
-	background: none;
-	overflow: visible;
+.syntaxhighlighter .toolbar a {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  padding-top: 1px;
 }
-
-.syntaxhighlighter .toolbar .item.about {
-	display: none;
-	background-image: url(../images/question.png);
+.syntaxhighlighter .toolbar a.expandSource {
+  display: none;
 }
-
-/** 
- * Print view.
- * Colors are based on the default theme without background.
- */
-
-.syntaxhighlighter.printing,
+.syntaxhighlighter.ie {
+  font-size: .9em;
+  padding: 1px 0 1px 0;
+}
+.syntaxhighlighter.ie .toolbar {
+  line-height: 8px;
+}
+.syntaxhighlighter.ie .toolbar a {
+  padding-top: 0px;
+}
 .syntaxhighlighter.printing .line.alt1 .content,
 .syntaxhighlighter.printing .line.alt2 .content,
 .syntaxhighlighter.printing .line.highlighted .number,
 .syntaxhighlighter.printing .line.highlighted.alt1 .content,
-.syntaxhighlighter.printing .line.highlighted.alt2 .content,
-.syntaxhighlighter.printing .line .content .block {
-	background: none;
+.syntaxhighlighter.printing .line.highlighted.alt2 .content {
+  background: none;
 }
-
-.syntaxhighlighter .no-wrap .line .content .block {
-	white-space: nowrap;
-}
-
-/* Gutter line numbers */
-
 .syntaxhighlighter.printing .line .number {
-	color: #bbb;
+  color: #bbbbbb;
 }
-
-/* Add border to the lines */
-
 .syntaxhighlighter.printing .line .content {
-	color: #000;
+  color: black;
 }
-
-/* Toolbar when visible */
-
-.syntaxhighlighter.printing .toolbar,
-.syntaxhighlighter.printing .ruler {
-	display: none;
+.syntaxhighlighter.printing .toolbar {
+  display: none;
 }
-
 .syntaxhighlighter.printing a {
-	text-decoration: none;
+  text-decoration: none;
 }
-
-.syntaxhighlighter.printing .plain,
-.syntaxhighlighter.printing .plain a {
-	color: #000;
+.syntaxhighlighter.printing .plain, .syntaxhighlighter.printing .plain a {
+  color: black;
 }
-
-.syntaxhighlighter.printing .comments,
-.syntaxhighlighter.printing .comments a {
-	color: #008200;
+.syntaxhighlighter.printing .comments, .syntaxhighlighter.printing .comments a {
+  color: #008200;
 }
-
-.syntaxhighlighter.printing .string,
-.syntaxhighlighter.printing .string a {
-	color: blue;
+.syntaxhighlighter.printing .string, .syntaxhighlighter.printing .string a {
+  color: blue;
 }
-
 .syntaxhighlighter.printing .keyword {
-	color: #069;
-	font-weight: bold;
+  color: #006699;
+  font-weight: bold;
 }
-
 .syntaxhighlighter.printing .preprocessor {
-	color: gray;
+  color: gray;
 }
-
 .syntaxhighlighter.printing .variable {
-	color: #a70;
+  color: #aa7700;
 }
-
 .syntaxhighlighter.printing .value {
-	color: #090;
+  color: #009900;
 }
-
 .syntaxhighlighter.printing .functions {
-	color: #ff1493;
+  color: #ff1493;
 }
-
 .syntaxhighlighter.printing .constants {
-	color: #0066CC;
+  color: #0066cc;
 }
-
 .syntaxhighlighter.printing .script {
-	font-weight: bold;
+  font-weight: bold;
 }
-
-.syntaxhighlighter.printing .color1,
-.syntaxhighlighter.printing .color1 a {
-	color: #808080;
+.syntaxhighlighter.printing .color1, .syntaxhighlighter.printing .color1 a {
+  color: gray;
 }
-
-.syntaxhighlighter.printing .color2,
-.syntaxhighlighter.printing .color2 a {
-	color: #ff1493;
+.syntaxhighlighter.printing .color2, .syntaxhighlighter.printing .color2 a {
+  color: #ff1493;
 }
-
-.syntaxhighlighter.printing .color3,
-.syntaxhighlighter.printing .color3 a {
-	color: red;
+.syntaxhighlighter.printing .color3, .syntaxhighlighter.printing .color3 a {
+  color: red;
+}
+.syntaxhighlighter.printing .break, .syntaxhighlighter.printing .break a {
+  color: black;
 }
 
 .syntaxhighlighter {
-	background-color: #000000;
+  background-color: #333;
 }
-
-/* Gutter line numbers */
-
-.syntaxhighlighter .line .number {
-	color: #999;
+.syntaxhighlighter .line.alt1 {
+  background-color: #333;
 }
-
-/* Add border to the lines */
-
-.syntaxhighlighter .line .content {
-	border-left: 3px solid #990000;
-	color: #B9BDB6;
+.syntaxhighlighter .line.alt2 {
+  background-color: #323232;
 }
-
+.syntaxhighlighter .line.highlighted.alt1, .syntaxhighlighter .line.highlighted.alt2 {
+  background-color: #2a3133;
+}
+.syntaxhighlighter .line.highlighted.number {
+  color: white;
+}
+.syntaxhighlighter table caption {
+  color: #d3d3d3;
+}
+.syntaxhighlighter .gutter {
+  color: #d3d3d3;
+}
+.syntaxhighlighter .gutter .line {
+  border-right: 3px solid #990000;
+}
+.syntaxhighlighter .gutter .line.highlighted {
+  background-color: #990000;
+  color: black;
+}
 .syntaxhighlighter.printing .line .content {
-	border: 0;
+  border: none;
 }
-
-/* First line */
-
-.syntaxhighlighter .line.alt1 .content {
-	
+.syntaxhighlighter.collapsed {
+  overflow: visible;
 }
-
-/* Second line */
-
-.syntaxhighlighter .line.alt2 .content {
-	background-color: #070707;
+.syntaxhighlighter.collapsed .toolbar {
+  color: #ebdb8d;
+  background: black;
+  border: 1px solid #990000;
 }
-
-.syntaxhighlighter .line .content .block {
-	background: url(../images/wrap.png) 0 1.3em no-repeat;
+.syntaxhighlighter.collapsed .toolbar a {
+  color: #ebdb8d;
 }
-
-/* Highlighed line number */
-
-.syntaxhighlighter .line.highlighted .number {
-	background-color: #435A5F;
-	color: #fff;
+.syntaxhighlighter.collapsed .toolbar a:hover {
+  color: #ff7d27;
 }
-
-/* Highlighed line */
-
-.syntaxhighlighter .line.highlighted.alt1 .content,
-.syntaxhighlighter .line.highlighted.alt2 .content {
-	background-color: #435A5F;
-}
-
-.syntaxhighlighter .ruler {
-	color: silver;
-	background-color: #000000;
-	border-left: 3px solid #990000;
-}
-
-.syntaxhighlighter.nogutter .ruler {
-	border: 0;
-}
-
 .syntaxhighlighter .toolbar {
-	background-color: #666;
-	border: #fff solid 1px;
+  color: white;
+  background: #990000;
+  border: none;
 }
-
 .syntaxhighlighter .toolbar a {
-	color: #646763;
-	border: none;
+  color: white;
 }
-
 .syntaxhighlighter .toolbar a:hover {
-	color: #9CCFF4;
+  color: #9ccff4;
 }
-
 /************************************
  * Actual syntax highlighter colors.
  ************************************/
@@ -818,4 +759,6 @@ div.callout.caution-callout {
 	color: #AEC4DE;
 }
 
+
 /* @end */
+
