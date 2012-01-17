@@ -63,6 +63,38 @@ const librdf_uri *rleaf_xsd_boolean_typeuri;
 
 ID rleaf_anon_bnodeid;
 
+const char *rleaf_loglevels[] = {
+	"debug",
+	"debug",
+	"info",
+	"warn",
+	"error",
+	"fatal",
+};
+
+const char *rleaf_logfacility[] = {
+	"",
+	"Concepts",
+	"Digest",
+	"Files",
+	"Hash",
+	"Init",
+	"Iterator",
+	"List",
+	"Model",
+	"Node",
+	"Parser",
+	"Query",
+	"Serializer",
+	"Statement",
+	"Storage",
+	"Stream",
+	"URI",
+	"UTF8",
+	"Memory",
+	"Raptor"
+};
+
 
 /*
  * Log a message to the given +context+ object's logger.
@@ -143,43 +175,27 @@ rleaf_redleaf_finalizer( VALUE unused ) {
 
 
 /*
- * Map a librdf log level enum value onto a level name suitable for passing to the Logger.
- */
-static const char *
-rleaf_message_level_name( librdf_log_level level ) {
-	switch( level ) {
-		case LIBRDF_LOG_NONE:
-		case LIBRDF_LOG_DEBUG:
-		return "debug";
-
-		case LIBRDF_LOG_INFO:
-		return "info";
-
-		case LIBRDF_LOG_WARN:
-		return "warn";
-
-		case LIBRDF_LOG_ERROR:
-		return "error";
-
-		case LIBRDF_LOG_FATAL:
-		return "fatal";
-
-		default:
-		return "debug";
-	}
-}
-
-
-/*
  * Log handler function for transforming rdflib log messages into Redleaf ones.
  */
 static int
 rleaf_rdflib_log_handler( void *user_data, librdf_log_message *message ) {
-	librdf_log_level level = librdf_log_message_level( message );
-	/* librdf_log_facility facility = librdf_log_message_facility( message ); */
-	const char *msg = librdf_log_message_message( message );
+	const char *level    = rleaf_loglevels[ librdf_log_message_level(message) ];
+	const char *facility = rleaf_logfacility[ librdf_log_message_facility(message) ];
+	const char *msg      = librdf_log_message_message( message );
+	raptor_locator *loc  = librdf_log_message_locator( message );
+	char *location       = NULL;
+	size_t bufsize   = 0;
 
-	rleaf_log( rleaf_message_level_name(level), msg );
+	if ( loc ) {
+		/* The first call sizes the string */
+		bufsize = raptor_locator_format( location, 0, loc );
+		location = ALLOCA_N( char, bufsize + 1 );
+		raptor_locator_format( location, bufsize, loc );
+
+		rleaf_log( level, "{%s} %s at %s", facility, msg, location );
+	} else {
+		rleaf_log( level, "{%s} %s", facility, msg );
+	}
 
 	return 1;
 }
